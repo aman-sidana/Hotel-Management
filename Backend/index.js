@@ -27,6 +27,9 @@ app.use('/district',DistrictRotue)
 const CityRotue = require("./Router/CityRoute")
 app.use('/city',CityRotue)
 
+const HotelRoute = require("./Router/HotelRoute")
+app.use('/hotel',HotelRoute)
+
 app.listen(process.env.PORT, () => {
   console.log(`Server is Running on Port : ${process.env.PORT}`);
 });
