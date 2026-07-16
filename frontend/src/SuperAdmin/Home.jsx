@@ -4,7 +4,7 @@ import Sidebar from "./Sidebar";
 import StateManagement from "./StateManagent"; // Make sure file name matches your import
 import DistrictManagement from "./DistrictManagement";
 import CityManagement from "./CityManagement";
-import "./styles.css"; // Don't forget to import the CSS file!
+// import "./styles.css"; // Don't forget to import the CSS file!
 import HotelManagement from "./HotelManagement";
 
 function Home() {

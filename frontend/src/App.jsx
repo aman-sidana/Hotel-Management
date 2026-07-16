@@ -7,14 +7,17 @@ import Header from "./genericComponents/Header";
 import ResetPassword from "./genericComponents/ResetPassword";
 import ForgetPassword from "./genericComponents/ForgetPassword";
 import ProtectedRoute from "./genericComponents/ProtectedRoute";
+import HotelForm from "./genericComponents/HotelForm";
 
 import Home from "./SuperAdmin/Home";
-
 import Sidebar from "./SuperAdmin/Sidebar";
 import StateManagement from "./SuperAdmin/StateManagent";
+import DistrictManagement from "./SuperAdmin/DistrictManagement";
+import CityManagement from "./SuperAdmin/CityManagement";
+import HotelManagement from "./SuperAdmin/HotelManagement";
+
 
 import "./App.css"
-import HotelForm from "./genericComponents/HotelForm";
 
 function App() {
   return (
@@ -45,6 +48,28 @@ function App() {
             <StateManagement />
           </ProtectedRoute>
         } />
+        <Route path="/district" element={
+          <ProtectedRoute>
+            <DistrictManagement />
+          </ProtectedRoute>
+        } />
+        <Route path="/city" element={
+          <ProtectedRoute>
+            <CityManagement />
+          </ProtectedRoute>
+        } />
+        <Route path="/hotelmanage" element={
+          <ProtectedRoute>
+            <HotelManagement />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/sidebar" element={
+          <ProtectedRoute>
+            <Sidebar />
+          </ProtectedRoute>
+        } />
+        
 
 
       </Routes>

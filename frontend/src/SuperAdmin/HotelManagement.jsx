@@ -9,98 +9,55 @@ function HotelManagement() {
     getHotels();
   }, []);
 
-  // ==========================
-  // Get All Hotels
-  // ==========================
-
   const getHotels = async () => {
     try {
-      const result = await axios.get(
-        "http://localhost:1100/hotel/allhotels"
-      );
-
+      const result = await axios.get("http://localhost:1100/hotel/allhotels");
       setHotels(result.data);
     } catch (error) {
       console.log(error);
     }
   };
 
-  // ==========================
-  // Approve Hotel
-  // ==========================
-
   const approveHotel = async (id) => {
     try {
-      await axios.patch(
-        `http://localhost:1100/hotel/approvehotel?id=${id}`
-      );
-
+      await axios.patch(`http://localhost:1100/hotel/approvehotel?id=${id}`);
       getHotels();
     } catch (error) {
       console.log(error);
     }
   };
-
-  // ==========================
-  // Reject Hotel
-  // ==========================
 
   const rejectHotel = async (id) => {
     try {
-      await axios.patch(
-        `http://localhost:1100/hotel/rejecthotel?id=${id}`
-      );
-
+      await axios.patch(`http://localhost:1100/hotel/rejecthotel?id=${id}`);
       getHotels();
     } catch (error) {
       console.log(error);
     }
   };
-
-  // ==========================
-  // Soft Delete
-  // ==========================
 
   const softDeleteHotel = async (id) => {
     try {
-      await axios.patch(
-        `http://localhost:1100/hotel/softdeletehotel?id=${id}`
-      );
-
+      await axios.patch(`http://localhost:1100/hotel/softdeletehotel?id=${id}`);
       getHotels();
     } catch (error) {
       console.log(error);
     }
   };
-
-  // ==========================
-  // Restore
-  // ==========================
 
   const restoreHotel = async (id) => {
     try {
-      await axios.patch(
-        `http://localhost:1100/hotel/restorehotel?id=${id}`
-      );
-
+      await axios.patch(`http://localhost:1100/hotel/restorehotel?id=${id}`);
       getHotels();
     } catch (error) {
       console.log(error);
     }
   };
 
-  // ==========================
-  // Delete Hotel
-  // ==========================
-
   const deleteHotel = async (id) => {
     if (!window.confirm("Delete this hotel?")) return;
-
     try {
-      await axios.delete(
-        `http://localhost:1100/hotel/deletehotel?id=${id}`
-      );
-
+      await axios.delete(`http://localhost:1100/hotel/deletehotel?id=${id}`);
       getHotels();
     } catch (error) {
       console.log(error);
@@ -111,50 +68,57 @@ function HotelManagement() {
     switch (activeTab) {
       case "pending":
         return hotel.status === "pending" && hotel.isActive;
-
       case "approved":
         return hotel.status === "approved" && hotel.isActive;
-
       case "rejected":
         return hotel.status === "rejected" && hotel.isActive;
-
       case "softdelete":
         return hotel.isActive === false;
-
       default:
         return true;
     }
   });
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="hotel-management-container">
       <h2>Hotel Management</h2>
 
-      <div style={{ marginBottom: "20px" }}>
-        <button onClick={() => setActiveTab("pending")}>
+      <div className="tabs-container">
+        <button 
+          className={`tab-btn ${activeTab === "pending" ? "active" : ""}`} 
+          onClick={() => setActiveTab("pending")}
+        >
           Pending Requests
         </button>
 
-        <button onClick={() => setActiveTab("approved")}>
+        <button 
+          className={`tab-btn ${activeTab === "approved" ? "active" : ""}`} 
+          onClick={() => setActiveTab("approved")}
+        >
           Approved Hotels
         </button>
 
-        <button onClick={() => setActiveTab("rejected")}>
+        <button 
+          className={`tab-btn ${activeTab === "rejected" ? "active" : ""}`} 
+          onClick={() => setActiveTab("rejected")}
+        >
           Rejected Hotels
         </button>
 
-        <button onClick={() => setActiveTab("softdelete")}>
+        <button 
+          className={`tab-btn ${activeTab === "softdelete" ? "active" : ""}`} 
+          onClick={() => setActiveTab("softdelete")}
+        >
           Soft Deleted Hotels
         </button>
       </div>
 
-      <table border="1" cellPadding="10" width="100%">
+      <table className="hotel-table">
         <thead>
           <tr>
             <th>Hotel</th>
             <th>Owner</th>
             <th>Phone</th>
-    
             <th>Action</th>
           </tr>
         </thead>
@@ -165,90 +129,63 @@ function HotelManagement() {
               <td>{hotel.hotelname}</td>
               <td>{hotel.ownername}</td>
               <td>{hotel.ownerphone}</td>
-   
               <td>
-                {/* Pending */}
-                {activeTab === "pending" && (
-                  <>
-                    <button
-                      onClick={() => approveHotel(hotel._id)}
-                    >
-                      Approve
-                    </button>
+                <div className="action-buttons">
+                  {/* Pending */}
+                  {activeTab === "pending" && (
+                    <>
+                      <button className="btn-action btn-approve" onClick={() => approveHotel(hotel._id)}>
+                        Approve
+                      </button>
+                      <button className="btn-action btn-reject" onClick={() => rejectHotel(hotel._id)}>
+                        Reject
+                      </button>
+                    </>
+                  )}
 
-                    <button
-                      onClick={() => rejectHotel(hotel._id)}
-                    >
-                      Reject
-                    </button>
-                  </>
-                )}
+                  {/* Approved */}
+                  {activeTab === "approved" && (
+                    <>
+                      <button className="btn-action btn-warning" onClick={() => softDeleteHotel(hotel._id)}>
+                        Soft Delete
+                      </button>
+                      <button className="btn-action btn-delete" onClick={() => deleteHotel(hotel._id)}>
+                        Delete
+                      </button>
+                    </>
+                  )}
 
-                {/* Approved */}
-                {activeTab === "approved" && (
-                  <>
-                    {/* <button
-                      onClick={() => {
-                        // Navigate to update page or open modal
-                      }}
-                    >
-                      Update
-                    </button> */}
+                  {/* Rejected */}
+                  {activeTab === "rejected" && (
+                    <>
+                      <button className="btn-action btn-approve" onClick={() => approveHotel(hotel._id)}>
+                        Approve
+                      </button>
+                      <button className="btn-action btn-delete" onClick={() => deleteHotel(hotel._id)}>
+                        Delete
+                      </button>
+                    </>
+                  )}
 
-                    <button
-                      onClick={() => softDeleteHotel(hotel._id)}
-                    >
-                      Soft Delete
-                    </button>
-
-                    <button
-                      onClick={() => deleteHotel(hotel._id)}
-                    >
-                      Delete
-                    </button>
-                  </>
-                )}
-
-                {/* Rejected */}
-                {activeTab === "rejected" && (
-                  <>
-                    <button
-                      onClick={() => approveHotel(hotel._id)}
-                    >
-                      Approve
-                    </button>
-
-                    <button
-                      onClick={() => deleteHotel(hotel._id)}
-                    >
-                      Delete
-                    </button>
-                  </>
-                )}
-
-                {/* Soft Deleted */}
-                {activeTab === "softdelete" && (
-                  <>
-                    <button
-                      onClick={() => restoreHotel(hotel._id)}
-                    >
-                      Restore
-                    </button>
-
-                    <button
-                      onClick={() => deleteHotel(hotel._id)}
-                    >
-                      Delete
-                    </button>
-                  </>
-                )}
+                  {/* Soft Deleted */}
+                  {activeTab === "softdelete" && (
+                    <>
+                      <button className="btn-action btn-restore" onClick={() => restoreHotel(hotel._id)}>
+                        Restore
+                      </button>
+                      <button className="btn-action btn-delete" onClick={() => deleteHotel(hotel._id)}>
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </div>
               </td>
             </tr>
           ))}
 
           {filteredHotels.length === 0 && (
             <tr>
-              <td colSpan="12" align="center">
+              <td colSpan="4" align="center" style={{ padding: "30px", color: "#7f8c8d" }}>
                 No Hotels Found
               </td>
             </tr>

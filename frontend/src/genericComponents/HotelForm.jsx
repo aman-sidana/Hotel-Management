@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+
 function HotelForm() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [states, setStates] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [cities, setCities] = useState([]);
@@ -28,9 +29,7 @@ function HotelForm() {
 
   const getStates = async () => {
     try {
-      const result = await axios.get(
-        "http://localhost:1100/state/getstates"
-      );
+      const result = await axios.get("http://localhost:1100/state/getstates");
       setStates(result.data);
     } catch (error) {
       console.log(error);
@@ -39,9 +38,7 @@ function HotelForm() {
 
   const getDistricts = async () => {
     try {
-      const result = await axios.get(
-        "http://localhost:1100/district/getdistricts"
-      );
+      const result = await axios.get("http://localhost:1100/district/getdistricts");
       setDistricts(result.data);
     } catch (error) {
       console.log(error);
@@ -50,9 +47,7 @@ function HotelForm() {
 
   const getCities = async () => {
     try {
-      const result = await axios.get(
-        "http://localhost:1100/city/getcities"
-      );
+      const result = await axios.get("http://localhost:1100/city/getcities");
       setCities(result.data);
     } catch (error) {
       console.log(error);
@@ -68,10 +63,7 @@ function HotelForm() {
 
   const submitHotel = async () => {
     try {
-      await axios.post(
-        "http://localhost:1100/hotel/hotelrequest",
-        form
-      );
+      await axios.post("http://localhost:1100/hotel/hotelrequest", form);
 
       alert("Hotel Request Submitted");
 
@@ -86,7 +78,7 @@ function HotelForm() {
         hoteladdress: "",
         totalrooms: "",
       });
-      navigate('/')
+      navigate("/");
     } catch (error) {
       console.log(error);
     }
@@ -101,7 +93,7 @@ function HotelForm() {
   );
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="hotel-form-container">
       <h2>Hotel Registration</h2>
 
       <input
@@ -110,8 +102,8 @@ function HotelForm() {
         placeholder="Hotel Name"
         value={form.hotelname}
         onChange={handleChange}
+        className="form-input"
       />
-
       <br /><br />
 
       <input
@@ -120,8 +112,8 @@ function HotelForm() {
         placeholder="Owner Name"
         value={form.ownername}
         onChange={handleChange}
+        className="form-input"
       />
-
       <br /><br />
 
       <input
@@ -130,8 +122,8 @@ function HotelForm() {
         placeholder="Owner Phone"
         value={form.ownerphone}
         onChange={handleChange}
+        className="form-input"
       />
-
       <br /><br />
 
       <input
@@ -140,56 +132,53 @@ function HotelForm() {
         placeholder="Email"
         value={form.email}
         onChange={handleChange}
+        className="form-input"
       />
-
       <br /><br />
 
       <select
         name="stateId"
         value={form.stateId}
         onChange={handleChange}
+        className="form-select"
       >
         <option value="">Select State</option>
-
         {states.map((state) => (
           <option key={state._id} value={state._id}>
             {state.stateName}
           </option>
         ))}
       </select>
-
       <br /><br />
 
       <select
         name="districtId"
         value={form.districtId}
         onChange={handleChange}
+        className="form-select"
       >
         <option value="">Select District</option>
-
         {filteredDistricts.map((district) => (
           <option key={district._id} value={district._id}>
             {district.districtName}
           </option>
         ))}
       </select>
-
       <br /><br />
 
       <select
         name="cityId"
         value={form.cityId}
         onChange={handleChange}
+        className="form-select"
       >
         <option value="">Select City</option>
-
         {filteredCities.map((city) => (
           <option key={city._id} value={city._id}>
             {city.cityName}
           </option>
         ))}
       </select>
-
       <br /><br />
 
       <textarea
@@ -197,8 +186,8 @@ function HotelForm() {
         placeholder="Hotel Address"
         value={form.hoteladdress}
         onChange={handleChange}
+        className="form-textarea"
       />
-
       <br /><br />
 
       <input
@@ -207,11 +196,11 @@ function HotelForm() {
         placeholder="Total Rooms"
         value={form.totalrooms}
         onChange={handleChange}
+        className="form-input"
       />
-
       <br /><br />
 
-      <button onClick={submitHotel}>
+      <button className="submit-btn" onClick={submitHotel}>
         Submit Request
       </button>
     </div>
