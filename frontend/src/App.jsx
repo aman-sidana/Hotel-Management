@@ -14,6 +14,7 @@ import Sidebar from "./SuperAdmin/Sidebar";
 import StateManagement from "./SuperAdmin/StateManagent";
 
 import "./App.css"
+import HotelForm from "./genericComponents/HotelForm";
 
 function App() {
   return (
@@ -24,8 +25,10 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forget" element={<ForgetPassword />} />
-        
-        
+        <Route path="/hotelform" element={<HotelForm />} />
+
+
+
         <Route path="/home" element={
           <ProtectedRoute>
             <Home />
@@ -43,7 +46,7 @@ function App() {
           </ProtectedRoute>
         } />
 
- 
+
       </Routes>
     </BrowserRouter>
   );

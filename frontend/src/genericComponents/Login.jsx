@@ -67,6 +67,8 @@ function Login() {
                 <button type="submit" className="auth-btn">Login</button>
                 <p onClick={() => navigate('/forget')} className="auth-link-text">Forget Password ?</p>
                 {error && <p className="auth-error-msg">{error}</p>}
+
+                <button className='auth-btn' onClick={()=>navigate('/hotelform')}>Request Adding Hotel</button>
             </form>
         </div>
     )

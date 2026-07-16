@@ -17,31 +17,41 @@ const HotelSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    stateId:{
-        type:mongoose.Types.ObjectId,
-        ref:"states"
+    stateId: {
+        type: mongoose.Types.ObjectId,
+        ref: "states"
     },
-    districtId:{
-        type:mongoose.Types.ObjectId,
-        ref:"districts"
+    districtId: {
+        type: mongoose.Types.ObjectId,
+        ref: "districts"
     },
-    cityId:{
-        type:mongoose.Types.ObjectId,
-        ref:"cities"
+    cityId: {
+        type: mongoose.Types.ObjectId,
+        ref: "cities"
     },
     hoteladdress: {
         type: String,
-        default: "user"
+        required: true
     },
     totalrooms: {
-        type: String,
-        default: "light"
+        type: Number,
+        required: true
     },
+    status: {
+        type: String,
+        default: "pending",
+    },
+    isActive:{
+        type:Boolean,
+        default:true
+    }
 
 },
     {
+        createdAt:false,
         timestamps: true,
-        versionKey: false
+        versionKey: false,
+        updatedAt:false
     })
 
 module.exports = mongoose.model('HotelDetails', HotelSchema)

@@ -5,6 +5,7 @@ import StateManagement from "./StateManagent"; // Make sure file name matches yo
 import DistrictManagement from "./DistrictManagement";
 import CityManagement from "./CityManagement";
 import "./styles.css"; // Don't forget to import the CSS file!
+import HotelManagement from "./HotelManagement";
 
 function Home() {
   const loggedInUser = JSON.parse(localStorage.getItem("currentuser"));
@@ -37,11 +38,7 @@ function Home() {
             {activetab === "state" && <StateManagement />}
             {activetab === "district" && <DistrictManagement />}
             {activetab === "city" && <CityManagement />}
-            {activetab === "hotel" && (
-              <div className="management-module">
-                <h2>Hotel Module</h2>
-              </div>
-            )}
+            {activetab === "hotel" && <HotelManagement/>}
           </div>
         </div>
       )}
