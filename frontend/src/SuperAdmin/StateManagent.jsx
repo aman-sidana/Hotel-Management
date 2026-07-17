@@ -8,6 +8,8 @@ function StateManagement() {
   const [editId, setEditId] = useState("");
   const [editState, setEditState] = useState("");
 
+  const [activeTab, setActiveTab] = useState("active");
+
   useEffect(() => {
     getStates();
   }, []);
@@ -72,6 +74,15 @@ function StateManagement() {
     }
   };
 
+  const filteredStates = states.filter((state) => {
+    if (activeTab === "active") {
+      return state.status === true;
+    } else if (activeTab === "inactive") {
+      return state.status === false;
+    }
+    return true;
+  });
+
   return (
     <div className="management-module">
       <h2>State Management</h2>
@@ -87,6 +98,22 @@ function StateManagement() {
         <button className="btn btn-primary" onClick={addState}>Add State</button>
       </div>
 
+      <div className="filter-buttons" style={{ margin: "20px 0" }}>
+        <button
+          className={`btn ${activeTab === "active" ? "btn-primary" : "btn-secondary"}`}
+          onClick={() => setActiveTab("active")}
+        >
+          Active States
+        </button>
+        <button
+          className={`btn ${activeTab === "inactive" ? "btn-primary" : "btn-secondary"}`}
+          style={{ marginLeft: "10px" }}
+          onClick={() => setActiveTab("inactive")}
+        >
+          Inactive States
+        </button>
+      </div>
+
       <div className="table-container">
         <table className="data-table">
           <thead>
@@ -98,7 +125,7 @@ function StateManagement() {
             </tr>
           </thead>
           <tbody>
-            {states.map((item) => (
+            {filteredStates.map((item) => (
               <tr key={item._id}>
                 <td>{item.countryName}</td>
                 <td>
@@ -116,7 +143,11 @@ function StateManagement() {
                 <td>
                   <div className="action-buttons">
                     {editId === item._id ? (
-                      <button className="btn btn-primary" onClick={updateState}>Save</button>
+                      <>
+                        <button className="btn btn-primary" onClick={updateState}>Save</button>
+                       
+                        <button className="btn btn-secondary" style={{ marginLeft: "5px" }} onClick={() => setEditId("")}>Cancel</button>
+                      </>
                     ) : (
                       <button
                         className="btn btn-secondary"
@@ -128,15 +159,17 @@ function StateManagement() {
                         Edit
                       </button>
                     )}
-                    <button className="btn btn-danger" onClick={() => deleteState(item._id)}>
+
+                    <button className="btn btn-danger" style={{ marginLeft: "5px" }} onClick={() => deleteState(item._id)}>
                       Delete
                     </button>
+
                     {item.status ? (
-                      <button className="btn btn-warning" onClick={() => softDelete(item._id)}>
+                      <button className="btn btn-warning" style={{ marginLeft: "5px" }} onClick={() => softDelete(item._id)}>
                         Soft Delete
                       </button>
                     ) : (
-                      <button className="btn btn-secondary" onClick={() => restoreState(item._id)}>
+                      <button className="btn btn-secondary" style={{ marginLeft: "5px" }} onClick={() => restoreState(item._id)}>
                         Restore
                       </button>
                     )}
@@ -144,6 +177,14 @@ function StateManagement() {
                 </td>
               </tr>
             ))}
+
+            {filteredStates.length === 0 && (
+              <tr>
+                <td colSpan="4" align="center" style={{ padding: "20px", color: "#666" }}>
+                  No {activeTab === "active" ? "Active" : "Inactive"} States Found
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

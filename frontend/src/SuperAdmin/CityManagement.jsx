@@ -14,6 +14,8 @@ function CityManagement() {
   const [editCity, setEditCity] = useState("");
   const [editDistrictId, setEditDistrictId] = useState("");
 
+  const [activeTab, setActiveTab] = useState("active");
+
   useEffect(() => {
     getStates();
     getDistricts();
@@ -110,6 +112,14 @@ function CityManagement() {
   const filteredDistricts = districts.filter(
     (district) => district.stateId?._id === stateId
   );
+  const filteredCities = cities.filter((city) => {
+    if (activeTab === "active") {
+      return city.status === true;
+    } else if (activeTab === "inactive") {
+      return city.status === false;
+    }
+    return true;
+  });
 
   return (
     <div className="management-module">
@@ -156,6 +166,23 @@ function CityManagement() {
         <button className="btn btn-primary" onClick={addCity}>Add City</button>
       </div>
 
+      {/* ✅ CHANGE: Added filter buttons right above the table */}
+      <div className="filter-buttons" style={{ margin: "20px 0" }}>
+        <button
+          className={`btn ${activeTab === "active" ? "btn-primary" : "btn-secondary"}`}
+          onClick={() => setActiveTab("active")}
+        >
+          Active Cities
+        </button>
+        <button
+          className={`btn ${activeTab === "inactive" ? "btn-primary" : "btn-secondary"}`}
+          style={{ marginLeft: "10px" }}
+          onClick={() => setActiveTab("inactive")}
+        >
+          Inactive Cities
+        </button>
+      </div>
+
       <div className="table-container">
         <table className="data-table">
           <thead>
@@ -167,7 +194,8 @@ function CityManagement() {
             </tr>
           </thead>
           <tbody>
-            {cities.map((city) => (
+            {/* ✅ CHANGE: Map over filteredCities instead of all cities */}
+            {filteredCities.map((city) => (
               <tr key={city._id}>
                 <td>
                   {editId === city._id ? (
@@ -201,7 +229,11 @@ function CityManagement() {
                 <td>
                   <div className="action-buttons">
                     {editId === city._id ? (
-                      <button className="btn btn-primary" onClick={updateCity}>Save</button>
+                      <>
+                        <button className="btn btn-primary" onClick={updateCity}>Save</button>
+
+                        <button className="btn btn-secondary" style={{ marginLeft: "5px" }} onClick={() => setEditId("")}>Cancel</button>
+                      </>
                     ) : (
                       <button
                         className="btn btn-secondary"
@@ -214,15 +246,15 @@ function CityManagement() {
                         Edit
                       </button>
                     )}
-                    <button className="btn btn-danger" onClick={() => deleteCity(city._id)}>
+                    <button className="btn btn-danger" style={{ marginLeft: "5px" }} onClick={() => deleteCity(city._id)}>
                       Delete
                     </button>
                     {city.status ? (
-                      <button className="btn btn-warning" onClick={() => softDeleteCity(city._id)}>
+                      <button className="btn btn-warning" style={{ marginLeft: "5px" }} onClick={() => softDeleteCity(city._id)}>
                         Soft Delete
                       </button>
                     ) : (
-                      <button className="btn btn-secondary" onClick={() => restoreCity(city._id)}>
+                      <button className="btn btn-secondary" style={{ marginLeft: "5px" }} onClick={() => restoreCity(city._id)}>
                         Restore
                       </button>
                     )}
@@ -230,6 +262,14 @@ function CityManagement() {
                 </td>
               </tr>
             ))}
+            
+            {filteredCities.length === 0 && (
+              <tr>
+                <td colSpan="4" align="center" style={{ padding: "20px", color: "#666" }}>
+                  No {activeTab === "active" ? "Active" : "Inactive"} Cities Found
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

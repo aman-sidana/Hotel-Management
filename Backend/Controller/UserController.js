@@ -174,7 +174,7 @@ exports.forgetpassword = async (req, res) => {
         }
 
         const user = await UserModel.findOne({ email });
-        console.log(`>>>>>>user`,user)
+        console.log(`>>>>>>user`, user)
 
         if (!user) {
             return res.status(404).json({
@@ -267,6 +267,48 @@ exports.resetpassword = async (req, res) => {
         console.log(error);
 
         res.status(500).json({
+            message: "Internal Server Error",
+        });
+    }
+};
+
+exports.changeTheme = async (req, res) => {
+    try {
+        const { id } = req.query;
+        const { theme } = req.body;
+
+        if (!id) {
+            return res.status(400).json({
+                message: "User Id is required",
+            });
+        }
+
+        if (!theme) {
+            return res.status(400).json({
+                message: "Theme is required",
+            });
+        }
+
+        const user = await UserModel.findByIdAndUpdate(
+            id,
+            { theme },
+            { new: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found",
+            });
+        }
+
+        return res.status(200).json({
+            message: "Theme Updated",
+            user,
+        });
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
             message: "Internal Server Error",
         });
     }

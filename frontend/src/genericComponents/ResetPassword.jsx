@@ -15,30 +15,41 @@ function ResetPassword() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         let obj = {};
+        
         if (!form.email) obj.email = "Email is required";
         if (!form.password) obj.password = "Password is required";
         if (!form.newpassword) obj.newpassword = "New Password is required";
         if (!form.confirmpassword) obj.confirmpassword = "Confirm Password is required";
 
+        // ✅ CHANGE: Added validation to check if the new passwords actually match
+        if (form.newpassword && form.confirmpassword && form.newpassword !== form.confirmpassword) {
+            obj.confirmpassword = "Passwords do not match";
+        }
+
         setError(obj);
 
         if (Object.keys(obj).length === 0) {
-
             try {
                 const result = await axios.post("http://localhost:1100/user/reset", form);
                 console.log(result.data);
-                alert("Password changed successfully");
+                alert("Password changed successfully, please login again.");
+                
                 localStorage.removeItem("token");
+                // ✅ CHANGE: Also remove currentuser to completely clear the session
+                localStorage.removeItem("currentuser"); 
+                
                 navigate("/login");
             } catch (error) {
                 console.error(error.response?.data.message);
-                alert(`Error : ${error.response?.data.message}`);
+                alert(`Error : ${error.response?.data.message || "Failed to reset password"}`);
             }
-        };
-    }
-    function hanldeChange(e) {
-        const { name, value } = e.target
-        setForm({ ...form, [name]: value })
+        }
+    };
+
+    // ✅ CHANGE: Fixed spelling from hanldeChange to handleChange
+    function handleChange(e) {
+        const { name, value } = e.target;
+        setForm({ ...form, [name]: value });
     }
 
     return (
@@ -57,7 +68,7 @@ function ResetPassword() {
                         placeholder="Enter your email"
                         name="email"
                         value={form.email}
-                        onChange={hanldeChange}
+                        onChange={handleChange}
                         className={error.email ? "input error-input" : "input"}
                     />
                     {error.email && <p className="error-text">{error.email}</p>}
@@ -67,7 +78,7 @@ function ResetPassword() {
                         placeholder="Current Password"
                         name="password"
                         value={form.password}
-                        onChange={hanldeChange}
+                        onChange={handleChange}
                         className={error.password ? "input error-input" : "input"}
                     />
                     {error.password && <p className="error-text">{error.password}</p>}
@@ -77,7 +88,7 @@ function ResetPassword() {
                         placeholder="New Password"
                         name="newpassword"
                         value={form.newpassword}
-                        onChange={hanldeChange}
+                        onChange={handleChange}
                         className={error.newpassword ? "input error-input" : "input"}
                     />
                     {error.newpassword && <p className="error-text">{error.newpassword}</p>}
@@ -87,7 +98,7 @@ function ResetPassword() {
                         placeholder="Confirm Password"
                         value={form.confirmpassword}
                         name="confirmpassword"
-                        onChange={hanldeChange}
+                        onChange={handleChange}
                         className={error.confirmpassword ? "input error-input" : "input"}
                     />
                     {error.confirmpassword && <p className="error-text">{error.confirmpassword}</p>}
@@ -96,8 +107,7 @@ function ResetPassword() {
                 </form>
             </div>
         </div>
-
     );
-};
+}
 
-export default ResetPassword
+export default ResetPassword;

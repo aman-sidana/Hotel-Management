@@ -12,6 +12,9 @@ function DistrictManagement() {
     const [editDistrict, setEditDistrict] = useState("");
     const [editStateId, setEditStateId] = useState("");
 
+    // ✅ CHANGE: Added state to track which tab is active (default is "active")
+    const [activeTab, setActiveTab] = useState("active");
+
     useEffect(() => {
         getStates();
         getDistricts();
@@ -49,6 +52,7 @@ function DistrictManagement() {
             getDistricts();
         } catch (error) {
             console.log(error);
+            alert("Failed to add district.");
         }
     };
 
@@ -64,15 +68,19 @@ function DistrictManagement() {
             getDistricts();
         } catch (error) {
             console.log(error);
+            alert("Failed to update district.");
         }
     };
 
     const deleteDistrict = async (id) => {
+        if (!window.confirm("Are you sure you want to permanently delete this district?")) return;
+        
         try {
             await axios.delete(`http://localhost:1100/district/deletedistrict?id=${id}`);
             getDistricts();
         } catch (error) {
             console.log(error);
+            alert("Failed to delete district.");
         }
     };
 
@@ -93,6 +101,16 @@ function DistrictManagement() {
             console.log(error);
         }
     };
+
+    // ✅ CHANGE: Filter the districts based on the currently selected tab
+    const filteredDistricts = districts.filter((district) => {
+        if (activeTab === "active") {
+            return district.status === true;
+        } else if (activeTab === "inactive") {
+            return district.status === false;
+        }
+        return true;
+    });
 
     return (
         <div className="management-module">
@@ -122,6 +140,23 @@ function DistrictManagement() {
                 <button className="btn btn-primary" onClick={addDistrict}>Add District</button>
             </div>
 
+            {/* ✅ CHANGE: Added filter buttons right above the table */}
+            <div className="filter-buttons" style={{ margin: "20px 0" }}>
+                <button
+                    className={`btn ${activeTab === "active" ? "btn-primary" : "btn-secondary"}`}
+                    onClick={() => setActiveTab("active")}
+                >
+                    Active Districts
+                </button>
+                <button
+                    className={`btn ${activeTab === "inactive" ? "btn-primary" : "btn-secondary"}`}
+                    style={{ marginLeft: "10px" }}
+                    onClick={() => setActiveTab("inactive")}
+                >
+                    Inactive Districts
+                </button>
+            </div>
+
             <div className="table-container">
                 <table className="data-table">
                     <thead>
@@ -133,7 +168,8 @@ function DistrictManagement() {
                         </tr>
                     </thead>
                     <tbody>
-                        {districts.map((district) => (
+                        {/* ✅ CHANGE: Map over filteredDistricts instead of all districts */}
+                        {filteredDistricts.map((district) => (
                             <tr key={district._id}>
                                 <td>
                                     {editId === district._id ? (
@@ -168,7 +204,10 @@ function DistrictManagement() {
                                 <td>
                                     <div className="action-buttons">
                                         {editId === district._id ? (
-                                            <button className="btn btn-primary" onClick={updateDistrict}>Save</button>
+                                            <>
+                                                <button className="btn btn-primary" onClick={updateDistrict}>Save</button>
+                                                <button className="btn btn-secondary" style={{ marginLeft: "5px" }} onClick={() => setEditId("")}>Cancel</button>
+                                            </>
                                         ) : (
                                             <button
                                                 className="btn btn-secondary"
@@ -181,15 +220,17 @@ function DistrictManagement() {
                                                 Edit
                                             </button>
                                         )}
-                                        <button className="btn btn-danger" onClick={() => deleteDistrict(district._id)}>
+                                        
+                                        <button className="btn btn-danger" style={{ marginLeft: "5px" }} onClick={() => deleteDistrict(district._id)}>
                                             Delete
                                         </button>
+                                        
                                         {district.status ? (
-                                            <button className="btn btn-warning" onClick={() => softDeleteDistrict(district._id)}>
+                                            <button className="btn btn-warning" style={{ marginLeft: "5px" }} onClick={() => softDeleteDistrict(district._id)}>
                                                 Soft Delete
                                             </button>
                                         ) : (
-                                            <button className="btn btn-secondary" onClick={() => restoreDistrict(district._id)}>
+                                            <button className="btn btn-secondary" style={{ marginLeft: "5px" }} onClick={() => restoreDistrict(district._id)}>
                                                 Restore
                                             </button>
                                         )}
@@ -197,6 +238,15 @@ function DistrictManagement() {
                                 </td>
                             </tr>
                         ))}
+                        
+                        {/* ✅ CHANGE: Updated to check filteredDistricts array length */}
+                        {filteredDistricts.length === 0 && (
+                            <tr>
+                                <td colSpan="4" align="center" style={{ padding: "20px", color: "#666" }}>
+                                    No {activeTab === "active" ? "Active" : "Inactive"} Districts Found
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>

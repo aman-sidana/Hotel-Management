@@ -41,17 +41,39 @@ const HotelSchema = new mongoose.Schema({
         type: String,
         default: "pending",
     },
-    isActive:{
-        type:Boolean,
-        default:true
-    }
+    isActive: {
+        type: Boolean,
+        default: true
+    },
+    description: {
+        type: String
+    },
+    otp: {
+        type: String
+    },
 
+    expireTime: {
+        type: Date
+    },
+
+    emailVerified: {
+        type: Boolean,
+        default: false
+    },
+
+    hotelRequestId: {
+        type: String
+    },
+    images: {
+        type: [String],
+        default: []
+    },
 },
     {
-        createdAt:false,
+        createdAt: false,
         timestamps: true,
         versionKey: false,
-        updatedAt:false
+        updatedAt: false
     })
 
 module.exports = mongoose.model('HotelDetails', HotelSchema)

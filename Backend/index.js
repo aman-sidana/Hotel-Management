@@ -3,6 +3,9 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 require("dotenv").config();
 
+const fileUpload = require("express-fileupload");
+
+
 const app = express();
 
 mongoose
@@ -14,21 +17,22 @@ mongoose
 
 app.use(express.json());
 app.use(cors());
+app.use(fileUpload())
 
 const UserRoute = require("./Router/UserRoute");
 app.use("/user", UserRoute);
 
 const StateRotue = require("./Router/StateRoute")
-app.use('/state',StateRotue)
+app.use('/state', StateRotue)
 
 const DistrictRotue = require("./Router/DistrictRoute")
-app.use('/district',DistrictRotue)
+app.use('/district', DistrictRotue)
 
 const CityRotue = require("./Router/CityRoute")
-app.use('/city',CityRotue)
+app.use('/city', CityRotue)
 
 const HotelRoute = require("./Router/HotelRoute")
-app.use('/hotel',HotelRoute)
+app.use('/hotel', HotelRoute)
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is Running on Port : ${process.env.PORT}`);
