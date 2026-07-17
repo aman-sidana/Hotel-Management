@@ -19,7 +19,7 @@ function Forgetpassword() {
         const { name, value } = e.target;
         setForm({ ...form, [name]: value });
     }
-    
+
 
     // Send OTP
     const sendOtp = async () => {
@@ -27,9 +27,8 @@ function Forgetpassword() {
             setError({ email: "Email is required" });
             return;
         }
-
         try {
-            const result = await axios.post("http://localhost:6100/taskuser/sendotp",{email: form.email});
+            const result = await axios.post("http://localhost:1100/user/sendotp", { email: form.email, });
             alert(result.data.message);
             setOtpSent(true);
             setError({});
@@ -58,13 +57,10 @@ function Forgetpassword() {
         }
 
         try {
-            const result = await axios.post(
-                "http://localhost:6100/taskuser/forget",
-                form
-            );
+            const result = await axios.post("http://localhost:1100/user/forgetpassword",form);
 
             alert(result.data.message);
-            navigate("/login");
+            navigate("/");
         } catch (error) {
             console.log(error);
             alert(error.response?.data?.message || "Something went wrong");

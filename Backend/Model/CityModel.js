@@ -9,7 +9,6 @@ const CitySchema = new mongoose.Schema(
         districtId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "districts",
-            required: true,
         },
         status: {
             type: Boolean,

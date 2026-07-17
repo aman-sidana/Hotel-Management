@@ -1,7 +1,7 @@
 const UserModel = require("../Model/UserModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const transporter = require("../Utils/transporter");
+const { info, otp } = require("../Utils/transporter");
 
 
 exports.SignUp = async (req, res) => {
@@ -31,6 +31,30 @@ exports.SignUp = async (req, res) => {
             phone,
             role,
         });
+        await info(
+            email,
+            "Welcome to Hotel Management System",
+            `
+            <div style="font-family:Arial,sans-serif;">
+                <h2>Welcome ${name} 👋</h2>
+
+                <p>Your account has been created successfully.</p>
+
+                <h3>Account Details</h3>
+
+                <p><strong>Name:</strong> ${name}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Phone:</strong> ${phone}</p>
+                <p><strong>Role:</strong> ${role || "User"}</p>
+
+                <br>
+
+                <p>Thank you for registering with our Hotel Management System.</p>
+
+                <p>Regards,<br>Hotel Management Team</p>
+            </div>
+            `
+        );
 
         res.status(201).json({
             message: "Signup Successful",
@@ -48,7 +72,7 @@ exports.SignUp = async (req, res) => {
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        console.log(`<<<<<<signup>>>>>>>>>>>>`,req.body)
+        console.log(`<<<<<<signup>>>>>>>>>>>>`, req.body)
 
         if (!(email && password)) {
             return res.status(400).json({
@@ -103,27 +127,37 @@ exports.sendOTP = async (req, res) => {
             });
         }
 
-        const otp = Math.floor(1000 + Math.random() * 9000);
+        const generatedOTP = otp();
 
-        user.otp = otp;
+        user.otp = generatedOTP;
         user.expireTime = Date.now() + 5 * 60 * 1000;
 
         await user.save();
 
-        await transporter.sendMail({
-            from: process.env.EMAIL,
-            to: email,
-            subject: "Password Reset OTP",
-            text: `Your OTP is ${otp}`,
-        });
+        await info(
+            email,
+            "Password Reset OTP",
+            `
+            <h2>Password Reset OTP</h2>
 
-        res.status(200).json({
+            <p>Your OTP is:</p>
+
+            <h1>${generatedOTP}</h1>
+
+            <p>This OTP is valid for 5 minutes.</p>
+
+            <p>Do not share this OTP with anyone.</p>
+            `
+        );
+
+        return res.status(200).json({
             message: "OTP sent successfully",
         });
+
     } catch (error) {
         console.log(error);
 
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal Server Error",
         });
     }
@@ -140,6 +174,7 @@ exports.forgetpassword = async (req, res) => {
         }
 
         const user = await UserModel.findOne({ email });
+        console.log(`>>>>>>user`, user)
 
         if (!user) {
             return res.status(404).json({
@@ -232,6 +267,48 @@ exports.resetpassword = async (req, res) => {
         console.log(error);
 
         res.status(500).json({
+            message: "Internal Server Error",
+        });
+    }
+};
+
+exports.changeTheme = async (req, res) => {
+    try {
+        const { id } = req.query;
+        const { theme } = req.body;
+
+        if (!id) {
+            return res.status(400).json({
+                message: "User Id is required",
+            });
+        }
+
+        if (!theme) {
+            return res.status(400).json({
+                message: "Theme is required",
+            });
+        }
+
+        const user = await UserModel.findByIdAndUpdate(
+            id,
+            { theme },
+            { new: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found",
+            });
+        }
+
+        return res.status(200).json({
+            message: "Theme Updated",
+            user,
+        });
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
             message: "Internal Server Error",
         });
     }
