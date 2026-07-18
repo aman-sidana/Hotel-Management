@@ -1,19 +1,15 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const HotelSchema = new mongoose.Schema({
     hotelname: {
         type: String,
         required: true
     },
-    ownername: {
-        type: String,
-        required: true
-    },
-    ownerphone: {
+    hotelphone: {
         type: Number,
         required: true
     },
-    email: {
+    hotelemail: {
         type: String,
         required: true
     },
@@ -37,6 +33,10 @@ const HotelSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    totalstaff: {
+        type: String,
+        required: true
+    },
     status: {
         type: String,
         default: "pending",
@@ -51,16 +51,13 @@ const HotelSchema = new mongoose.Schema({
     otp: {
         type: String
     },
-
     expireTime: {
         type: Date
     },
-
     emailVerified: {
         type: Boolean,
         default: false
     },
-
     hotelRequestId: {
         type: String
     },
@@ -68,12 +65,16 @@ const HotelSchema = new mongoose.Schema({
         type: [String],
         default: []
     },
+    adminId:{
+        type:mongoose.Types.ObjectId,
+        ref:"admin"
+    }
 },
-    {
-        createdAt: false,
-        timestamps: true,
-        versionKey: false,
-        updatedAt: false
-    })
+{
+    createdAt: false,
+    timestamps: true,
+    versionKey: false,
+    updatedAt: false
+});
 
-module.exports = mongoose.model('HotelDetails', HotelSchema)
+module.exports = mongoose.model('HotelDetails', HotelSchema);

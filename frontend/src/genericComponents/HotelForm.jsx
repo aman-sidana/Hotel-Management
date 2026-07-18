@@ -15,22 +15,23 @@ function HotelForm() {
 
   const [otp, setOtp] = useState("");
   const [showOtpBox, setShowOtpBox] = useState(false);
-  const [emailVerified, setEmailVerified] = useState(isEditMode); 
+  const [emailVerified, setEmailVerified] = useState(isEditMode);
   const [loading, setLoading] = useState(false);
 
-  // ✅ CHANGE: Added state to manage selected image files
+  // State to manage selected image files
   const [selectedFiles, setSelectedFiles] = useState([]);
 
+  // Synced with updated Hotel Schema properties
   const [form, setForm] = useState({
     hotelname: existingHotel?.hotelname || "",
-    ownername: existingHotel?.ownername || "",
-    ownerphone: existingHotel?.ownerphone || "",
-    email: existingHotel?.email || "",
+    hotelphone: existingHotel?.hotelphone || "",
+    email: existingHotel?.hotelemail || "", // Maps form state 'email' to 'hotelemail' for backend transmission
     stateId: existingHotel?.stateId || "",
     districtId: existingHotel?.districtId || "",
     cityId: existingHotel?.cityId || "",
     hoteladdress: existingHotel?.hoteladdress || "",
     totalrooms: existingHotel?.totalrooms || "",
+    totalstaff: existingHotel?.totalstaff || "", // Newly added schema property
   });
 
   useEffect(() => {
@@ -110,7 +111,6 @@ function HotelForm() {
     });
   };
 
-  // ✅ CHANGE: Function to capture files selected from input
   const handleFileChange = (e) => {
     setSelectedFiles([...e.target.files]);
   };
@@ -120,26 +120,23 @@ function HotelForm() {
       return alert("Please verify your email address before submitting.");
     }
 
-    // ✅ CHANGE: Build FormData structure to support binary file transfers
     const formData = new FormData();
     Object.keys(form).forEach((key) => {
       formData.append(key, form[key]);
     });
 
-    // Append each selected file onto the formData under the key 'images'
+    // Append each selected file under the model key 'images'
     selectedFiles.forEach((file) => {
       formData.append("images", file);
     });
 
     try {
       if (isEditMode) {
-        // Form Data is also used during updates if changing pictures is supported
         await axios.patch(`http://localhost:1100/hotel/updaterequest?id=${existingHotel._id}`, formData, {
           headers: { "Content-Type": "multipart/form-data" }
         });
         alert("Hotel Request Updated Successfully");
       } else {
-        // Send multipart data instead of typical JSON
         await axios.post("http://localhost:1100/hotel/hotelrequest", formData, {
           headers: { "Content-Type": "multipart/form-data" }
         });
@@ -148,14 +145,14 @@ function HotelForm() {
 
       setForm({
         hotelname: "",
-        ownername: "",
-        ownerphone: "",
+        hotelphone: "",
         email: "",
         stateId: "",
         districtId: "",
         cityId: "",
         hoteladdress: "",
         totalrooms: "",
+        totalstaff: "",
       });
       setSelectedFiles([]);
       setEmailVerified(false);
@@ -199,20 +196,10 @@ function HotelForm() {
       <br /><br />
 
       <input
-        type="text"
-        name="ownername"
-        placeholder="Owner Name"
-        value={form.ownername}
-        onChange={handleChange}
-        className="form-input"
-      />
-      <br /><br />
-
-      <input
         type="number"
-        name="ownerphone"
-        placeholder="Owner Phone"
-        value={form.ownerphone}
+        name="hotelphone"
+        placeholder="Hotel Phone Number"
+        value={form.hotelphone}
         onChange={handleChange}
         className="form-input"
       />
@@ -222,7 +209,7 @@ function HotelForm() {
         <input
           type="email"
           name="email"
-          placeholder="Email"
+          placeholder="Hotel Email"
           value={form.email}
           onChange={handleChange}
           className="form-input"
@@ -328,7 +315,16 @@ function HotelForm() {
       />
       <br /><br />
 
-      {/* ✅ CHANGE: Added multiple file selection input and showing file counts */}
+      <input
+        type="text"
+        name="totalstaff"
+        placeholder="Total Staff Counter"
+        value={form.totalstaff}
+        onChange={handleChange}
+        className="form-input"
+      />
+      <br /><br />
+
       <div className="file-input-container" style={{ margin: "15px 0" }}>
         <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>
           Upload Hotel Images:
@@ -349,9 +345,9 @@ function HotelForm() {
       </div>
       <br />
 
-      <button 
-        className="submit-btn" 
-        onClick={submitHotel} 
+      <button
+        className="submit-btn"
+        onClick={submitHotel}
         disabled={!emailVerified && !isEditMode}
       >
         {isEditMode ? "Update Request" : "Submit Request"}
