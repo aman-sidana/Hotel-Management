@@ -34,6 +34,9 @@ app.use('/city', CityRotue)
 const HotelRoute = require("./Router/HotelRoute")
 app.use('/hotel', HotelRoute)
 
+// const AdminRoute = require("./Router/AdminRoute")
+// app.use('/admin',AdminRoute)
+
 app.listen(process.env.PORT, () => {
   console.log(`Server is Running on Port : ${process.env.PORT}`);
 });
