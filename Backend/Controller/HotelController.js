@@ -17,7 +17,7 @@ exports.superAdminAddHotel = async (req, res) => {
             hoteladdress,
             totalrooms,
             totalstaff,
-            adminId 
+            adminId
         } = req.body;
 
         if (
@@ -71,13 +71,13 @@ exports.superAdminAddHotel = async (req, res) => {
             isActive: true
         });
 
-        
+
         await UserModel.create({
             name: hotelname,
             phone: hotelphone,
             email: hotelemail,
             password: hashedPassword,
-            role: "hotel" 
+            role: "hotel"
         });
 
         await info(
@@ -126,13 +126,14 @@ exports.superAdminAddHotel = async (req, res) => {
         });
     }
 };
- 
+
 exports.allhotel = async (req, res) => {
     try {
         const result = await Hotelmodel.find()
             .populate("stateId", "stateName")
             .populate("districtId", "districtName")
-            .populate("cityId", "cityName");
+            .populate("cityId", "cityName")
+            .populate("adminId", "adminname email");
 
         if (result.length === 0) {
             return res.status(404).json({
@@ -381,7 +382,8 @@ exports.viewHotelDetails = async (req, res) => {
         const hotel = await Hotelmodel.findById(id)
             .populate("stateId", "stateName")
             .populate("districtId", "districtName")
-            .populate("cityId", "cityName");
+            .populate("cityId", "cityName")
+            .populate("adminId", "adminname email");
 
         if (!hotel) {
             return res.status(404).json({
@@ -492,19 +494,23 @@ exports.hotelRequest = async (req, res) => {
         const {
             hotelname,
             hotelphone,
+            hotelemail,
             email,
             stateId,
             districtId,
             cityId,
             hoteladdress,
             totalrooms,
-            totalstaff
+            totalstaff,
+            adminId
         } = req.body;
+
+        const targetEmail = hotelemail || email;
 
         if (
             !hotelname ||
             !hotelphone ||
-            !email ||
+            !targetEmail ||
             !stateId ||
             !districtId ||
             !cityId ||
@@ -512,15 +518,12 @@ exports.hotelRequest = async (req, res) => {
             !totalrooms ||
             !totalstaff
         ) {
-            return res.status(400).json({
-                message: "All fields are required"
-            });
+            return res.status(400).json({ message: "All fields are required" });
         }
-
-        const existingRecord = await Hotelmodel.findOne({ hotelemail: email });
+        const existingRecord = await Hotelmodel.findOne({ hotelemail: targetEmail });
         if (!existingRecord || !existingRecord.emailVerified) {
             return res.status(400).json({
-                message: "Please verify your email before submitting."
+                message: "Please verify your email address via OTP before submitting."
             });
         }
 
@@ -537,10 +540,11 @@ exports.hotelRequest = async (req, res) => {
         const hotelRequestId = uuidv4().substring(0, 10);
 
         const result = await Hotelmodel.findOneAndUpdate(
-            { hotelemail: email },
+            { hotelemail: targetEmail },
             {
                 hotelname,
                 hotelphone,
+                hotelemail: targetEmail,
                 stateId,
                 districtId,
                 cityId,
@@ -548,6 +552,7 @@ exports.hotelRequest = async (req, res) => {
                 totalrooms,
                 totalstaff,
                 hotelRequestId,
+                adminId: adminId || null,
                 images: imageUrls,
                 status: "pending",
                 isActive: true
@@ -556,11 +561,8 @@ exports.hotelRequest = async (req, res) => {
         );
 
         if (!result) {
-            return res.status(400).json({
-                message: "Hotel requesting error"
-            });
+            return res.status(400).json({ message: "Hotel requesting error" });
         }
-
         await info(
             result.hotelemail,
             "Hotel Request Submitted Successfully",
@@ -569,18 +571,7 @@ exports.hotelRequest = async (req, res) => {
                 <h2>Hotel Registration Request Submitted</h2>
                 <p>Dear Partners,</p>
                 <p>Thank you for submitting your hotel registration request.</p>
-                <h3>Your Request ID</h3>
-                <div style="background:#f5f5f5; padding:15px; font-size:24px; font-weight:bold; color:#0d6efd; border-radius:8px; width:fit-content;">
-                    ${result.hotelRequestId}
-                </div>
-                <br>
-                <p>You can use this Request ID to check your hotel registration status anytime.</p>
-                <hr>
-                <p><strong>Hotel Name:</strong> ${result.hotelname}</p>
-                <p><strong>Email:</strong> ${result.hotelemail}</p>
-                <br>
-                <p>Regards,</p>
-                <h4>Hotel Management Team</h4>
+                <h3>Your Request ID: ${result.hotelRequestId}</h3>
             </div>
             `
         );
@@ -592,9 +583,7 @@ exports.hotelRequest = async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        return res.status(500).json({
-            message: "Internal Server Error"
-        });
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 };
 

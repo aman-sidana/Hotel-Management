@@ -6,8 +6,10 @@ function HotelForm() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Set this based on your user role context (e.g., user.role === 'superadmin')
-  const [isSuperAdmin, setIsSuperAdmin] = useState(true);
+  const currentUser = JSON.parse(localStorage.getItem("currentuser")) || {};
+
+  const isSuperAdmin = currentUser?.role?.toLowerCase() === "superadmin";
+  const isAdmin = currentUser?.role?.toLowerCase() === "admin";
 
   const existingHotel = location.state?.hotelData || null;
   const isEditMode = !!existingHotel;
@@ -19,7 +21,10 @@ function HotelForm() {
 
   const [otp, setOtp] = useState("");
   const [showOtpBox, setShowOtpBox] = useState(false);
-  const [emailVerified, setEmailVerified] = useState(isEditMode);
+
+  // ✅ ONLY SuperAdmin (or Edit Mode) bypasses Email Verification automatically.
+  // Admins MUST verify through OTP!
+  const [emailVerified, setEmailVerified] = useState(isEditMode || isSuperAdmin);
   const [loading, setLoading] = useState(false);
 
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -34,7 +39,7 @@ function HotelForm() {
     hoteladdress: existingHotel?.hoteladdress || "",
     totalrooms: existingHotel?.totalrooms || "",
     totalstaff: existingHotel?.totalstaff || "",
-    adminId: existingHotel?.adminId || "",
+    adminId: existingHotel?.adminId || (isAdmin ? currentUser?._id : ""),
   });
 
   useEffect(() => {
@@ -122,7 +127,7 @@ function HotelForm() {
   const handleChange = (e) => {
     setForm({
       ...form,
-      [e.target.name]: e.target.value,
+      [e.target.value ? e.target.name : e.target.name]: e.target.value,
     });
   };
 
@@ -131,24 +136,23 @@ function HotelForm() {
   };
 
   const submitHotel = async () => {
-    // 1. SUPER ADMIN FLOW
+    // 1. SUPER ADMIN FLOW (Direct Creation)
     if (isSuperAdmin && !isEditMode) {
       if (!form.adminId) {
         return alert("Please map an Admin to manage this hotel configuration.");
       }
       try {
-        // Construct clean payload object mapping 'email' to 'hotelemail'
         const payload = {
           hotelname: form.hotelname,
           hotelphone: form.hotelphone,
-          hotelemail: form.email, // <-- FIXED MAPPING
+          hotelemail: form.email,
           stateId: form.stateId,
           districtId: form.districtId,
           cityId: form.cityId,
           hoteladdress: form.hoteladdress,
           totalrooms: form.totalrooms,
           totalstaff: form.totalstaff,
-          adminId: form.adminId
+          adminId: form.adminId,
         };
 
         await axios.post("http://localhost:1100/hotel/super-admin-add", payload);
@@ -157,25 +161,24 @@ function HotelForm() {
         setForm({
           hotelname: "", hotelphone: "", email: "", stateId: "",
           districtId: "", cityId: "", hoteladdress: "", totalrooms: "",
-          totalstaff: "", adminId: ""
+          totalstaff: "", adminId: "",
         });
-        return;
+        return navigate("/home");
       } catch (error) {
         console.log(error);
         return alert(error.response?.data?.message || "Superadmin creation flow failed");
       }
     }
 
-    // 2. NORMAL FLOW
+    // 2. ADMIN & USER SUBMISSION FLOW (Requires OTP Verification & SuperAdmin Approval)
     if (!emailVerified && !isEditMode) {
-      return alert("Please verify your email address before submitting.");
+      return alert("Please verify your email address via OTP before submitting.");
     }
 
     const formData = new FormData();
-    // Copy properties manually or handle remapping for FormData payload structure
     Object.keys(form).forEach((key) => {
       if (key === "email") {
-        formData.append("hotelemail", form.email); // <-- FIXED MAPPING FOR FORMDATA
+        formData.append("hotelemail", form.email);
       } else {
         formData.append(key, form[key]);
       }
@@ -188,27 +191,27 @@ function HotelForm() {
     try {
       if (isEditMode) {
         await axios.patch(`http://localhost:1100/hotel/updaterequest?id=${existingHotel._id}`, formData, {
-          headers: { "Content-Type": "multipart/form-data" }
+          headers: { "Content-Type": "multipart/form-data" },
         });
         alert("Hotel Request Updated Successfully");
       } else {
         await axios.post("http://localhost:1100/hotel/hotelrequest", formData, {
-          headers: { "Content-Type": "multipart/form-data" }
+          headers: { "Content-Type": "multipart/form-data" },
         });
-        alert("Hotel Request Submitted Successfully");
+        alert("Hotel Request Submitted Successfully! Awaiting SuperAdmin Approval.");
       }
 
       setForm({
         hotelname: "", hotelphone: "", email: "", stateId: "",
         districtId: "", cityId: "", hoteladdress: "", totalrooms: "",
-        totalstaff: "", adminId: ""
+        totalstaff: "", adminId: "",
       });
       setSelectedFiles([]);
       setEmailVerified(false);
-      navigate(isEditMode ? "/checkrequest" : "/");
+      navigate("/home");
     } catch (error) {
       console.log(error);
-      alert(error.response?.data?.message || "Something went wrong");
+      alert(error.response?.data?.message || "Something went wrong submitting hotel request.");
     }
   };
 
@@ -232,6 +235,7 @@ function HotelForm() {
 
       <br />
 
+      {/* Admin assignment dropdown shown ONLY for SuperAdmin */}
       {isSuperAdmin && (
         <>
           <select
@@ -272,6 +276,7 @@ function HotelForm() {
       />
       <br /><br />
 
+      {/* Email Input & Verify Button */}
       <div style={{ display: "flex", gap: "10px", alignItems: "center", justifyContent: "center" }}>
         <input
           type="email"
@@ -280,9 +285,11 @@ function HotelForm() {
           value={form.email}
           onChange={handleChange}
           className="form-input"
-          disabled={isEditMode}
+          disabled={isEditMode || emailVerified}
           style={{ width: "250px" }}
         />
+
+        {/* ✅ Show "Verify Email" button for everyone EXCEPT SuperAdmin */}
         {!isEditMode && !isSuperAdmin && (
           <button
             type="button"
@@ -296,6 +303,7 @@ function HotelForm() {
       </div>
       <br />
 
+      {/* ✅ OTP Input Box for Admin / Users */}
       {showOtpBox && !emailVerified && !isSuperAdmin && (
         <div style={{ margin: "10px 0", display: "flex", gap: "10px", justifyContent: "center" }}>
           <input
@@ -386,21 +394,19 @@ function HotelForm() {
       />
       <br /><br />
 
-      {!isSuperAdmin && (
-        <div className="file-input-container" style={{ margin: "15px 0" }}>
-          <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>
-            Upload Hotel Images:
-          </label>
-          <input
-            type="file"
-            name="images"
-            multiple
-            accept="image/*"
-            onChange={handleFileChange}
-            className="form-input"
-          />
-        </div>
-      )}
+      <div className="file-input-container" style={{ margin: "15px 0" }}>
+        <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>
+          Upload Hotel Images:
+        </label>
+        <input
+          type="file"
+          name="images"
+          multiple
+          accept="image/*"
+          onChange={handleFileChange}
+          className="form-input"
+        />
+      </div>
       <br />
 
       <button

@@ -25,7 +25,8 @@ import UserDashBoard from "./User/UserDashBoard";
 import AdminDashBoard from "./Admin/AdminDashBoard";
 import AdminForm from "./Admin/AdminForm";
 import CheckAdminRequest from "./Admin/CheckAdminRequest";
-
+import RoomForm from "./Room/RoomForm";
+import HotelRoomManagement from "./Hotel/HotelRoomManagement";
 import "./App.css"
 
 function App() {
@@ -106,8 +107,19 @@ function App() {
               <HotelForm />
             </ProtectedRoute>
           } />
-
-
+          
+          <Route path="/roomform" element={
+            <ProtectedRoute>
+              <RoomForm />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/hotelroommanage" element={
+            <ProtectedRoute>
+              < HotelRoomManagement/>
+            </ProtectedRoute>
+          } />
+          
 
         </Routes>
       </BrowserRouter>

@@ -15,7 +15,8 @@ function HotelManagement() {
   const [rejectReason, setRejectReason] = useState("");
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("hotelAsc"); 
+  const [sortBy, setSortBy] = useState("hotelAsc");
+
   useEffect(() => {
     getHotels();
   }, []);
@@ -23,9 +24,10 @@ function HotelManagement() {
   const getHotels = async () => {
     try {
       const result = await axios.get("http://localhost:1100/hotel/allhotels");
-      setHotels(result.data);
+      setHotels(result.data || []);
     } catch (error) {
       console.log(error);
+      setHotels([]);
     }
   };
 
@@ -102,7 +104,7 @@ function HotelManagement() {
     }
   };
 
-  // ORIGINAL LOGIC: Filter hotels by tab
+  // Filter hotels by active tab status
   const filteredHotels = hotels.filter((hotel) => {
     switch (activeTab) {
       case "pending":
@@ -120,25 +122,30 @@ function HotelManagement() {
     }
   });
 
-  // ADDED: Search filtering logic (searches Hotel Name, Owner Name, or Phone)
+  // Search filtering logic (Hotel Name, Admin/Owner Name, Phone, Email)
   const searchedHotels = filteredHotels.filter((item) => {
     const q = searchQuery.toLowerCase();
     const hotelMatch = item.hotelname ? item.hotelname.toLowerCase().includes(q) : false;
-    const ownerMatch = item.ownername ? item.ownername.toLowerCase().includes(q) : false;
-    const phoneMatch = item.ownerphone ? item.ownerphone.toString().toLowerCase().includes(q) : false;
+    const ownerName = item.adminId?.adminname || item.ownername || "";
+    const ownerMatch = ownerName ? ownerName.toLowerCase().includes(q) : false;
+    const phoneVal = item.hotelphone || item.ownerphone || "";
+    const phoneMatch = phoneVal ? phoneVal.toString().toLowerCase().includes(q) : false;
     return hotelMatch || ownerMatch || phoneMatch;
   });
 
-  // ADDED: Sorting logic based on dropdown selection
+  // Sorting logic based on dropdown selection
   const displayedHotels = [...searchedHotels].sort((a, b) => {
+    const aOwner = a.adminId?.adminname || a.ownername || "";
+    const bOwner = b.adminId?.adminname || b.ownername || "";
+
     if (sortBy === "hotelAsc") {
       return (a.hotelname || "").localeCompare(b.hotelname || "");
     } else if (sortBy === "hotelDesc") {
       return (b.hotelname || "").localeCompare(a.hotelname || "");
     } else if (sortBy === "ownerAsc") {
-      return (a.ownername || "").localeCompare(b.ownername || "");
+      return aOwner.localeCompare(bOwner);
     } else if (sortBy === "ownerDesc") {
-      return (b.ownername || "").localeCompare(a.ownername || "");
+      return bOwner.localeCompare(aOwner);
     }
     return 0;
   });
@@ -182,7 +189,6 @@ function HotelManagement() {
         >
           Inactive Hotels
         </button>
-
         <button onClick={() => navigate("/hotelform")}> Add Hotel</button>
       </div>
 
@@ -197,8 +203,8 @@ function HotelManagement() {
         >
           <option value="hotelAsc">Hotel (A - Z)</option>
           <option value="hotelDesc">Hotel (Z - A)</option>
-          <option value="ownerAsc">Owner (A - Z)</option>
-          <option value="ownerDesc">Owner (Z - A)</option>
+          <option value="ownerAsc">Owner / Admin (A - Z)</option>
+          <option value="ownerDesc">Owner / Admin (Z - A)</option>
         </select>
 
         {/* Search Input */}
@@ -216,7 +222,7 @@ function HotelManagement() {
         <thead>
           <tr>
             <th>Hotel</th>
-            <th>Owner</th>
+            <th>Owner / Admin</th>
             <th>Phone</th>
             <th>Action</th>
           </tr>
@@ -226,8 +232,17 @@ function HotelManagement() {
           {displayedHotels.map((hotel) => (
             <tr key={hotel._id}>
               <td>{hotel.hotelname}</td>
-              <td>{hotel.ownername}</td>
-              <td>{hotel.ownerphone}</td>
+
+              {/* ✅ FIXED: Fallbacks so owner/admin display is never empty */}
+              <td>
+                {hotel.adminId?.adminname || hotel.ownername || hotel.hotelname}
+              </td>
+
+              {/* ✅ FIXED: Fallback for phone */}
+              <td>
+                {hotel.hotelphone || hotel.ownerphone || "N/A"}
+              </td>
+
               <td>
                 <div className="action-buttons">
                   {activeTab === "pending" && (
@@ -298,15 +313,16 @@ function HotelManagement() {
             <h2>Hotel Details</h2>
 
             <p><strong>Hotel Name:</strong> {selectedHotel.hotelname}</p>
-            <p><strong>Owner:</strong> {selectedHotel.ownername}</p>
-            <p><strong>Email:</strong> {selectedHotel.email}</p>
-            <p><strong>Phone:</strong> {selectedHotel.ownerphone}</p>
-            <p><strong>State:</strong> {selectedHotel.stateId?.stateName}</p>
-            <p><strong>District:</strong> {selectedHotel.districtId?.districtName}</p>
-            <p><strong>City:</strong> {selectedHotel.cityId?.cityName}</p>
-            <p><strong>Address:</strong> {selectedHotel.hoteladdress}</p>
-            <p><strong>Total Rooms:</strong> {selectedHotel.totalrooms}</p>
-            <p><strong>Request ID:</strong> {selectedHotel.hotelRequestId}</p>
+            <p><strong>Owner :</strong> {selectedHotel.adminId?.adminname || "N/A"}</p>
+            <p><strong>Email:</strong> {selectedHotel.hotelemail || "N/A"}</p>
+            <p><strong>Phone:</strong> {selectedHotel.hotelphone || "N/A"}</p>
+            <p><strong>State:</strong> {selectedHotel.stateId?.stateName || "N/A"}</p>
+            <p><strong>District:</strong> {selectedHotel.districtId?.districtName || "N/A"}</p>
+            <p><strong>City:</strong> {selectedHotel.cityId?.cityName || "N/A"}</p>
+            <p><strong>Address:</strong> {selectedHotel.hoteladdress || "N/A"}</p>
+            <p><strong>Total Rooms:</strong> {selectedHotel.totalrooms || 0}</p>
+            <p><strong>Total Staff:</strong> {selectedHotel.totalstaff || 0}</p>
+            <p><strong>Request ID:</strong> {selectedHotel.hotelRequestId || "N/A"}</p>
 
             <p>
               <strong>Status:</strong>
