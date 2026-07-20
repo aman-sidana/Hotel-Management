@@ -4,6 +4,128 @@ const UserModel = require('../Model/UserModel');
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require('bcrypt');
 const { uploadImage } = require("../Utils/Cloudinary");
+
+exports.superAdminAddHotel = async (req, res) => {
+    try {
+        const {
+            hotelname,
+            hotelphone,
+            hotelemail,
+            stateId,
+            districtId,
+            cityId,
+            hoteladdress,
+            totalrooms,
+            totalstaff,
+            adminId 
+        } = req.body;
+
+        if (
+            !hotelname ||
+            !hotelphone ||
+            !hotelemail ||
+            !hoteladdress ||
+            !totalrooms ||
+            !totalstaff
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "All required hotel fields are missing details.",
+            });
+        }
+
+        const hotelExists = await Hotelmodel.findOne({ hotelemail });
+        if (hotelExists) {
+            return res.status(400).json({
+                success: false,
+                message: "A hotel with this email already exists.",
+            });
+        }
+
+        const userExists = await UserModel.findOne({ email: hotelemail });
+        if (userExists) {
+            return res.status(400).json({
+                success: false,
+                message: "User account credentials using this email already exist.",
+            });
+        }
+
+        const randomPassword = uuidv4().substring(0, 10);
+        const hashedPassword = await bcrypt.hash(randomPassword, 10);
+        const hotelRequestId = uuidv4().substring(0, 10);
+
+        const hotel = await Hotelmodel.create({
+            hotelname,
+            hotelphone,
+            hotelemail,
+            stateId: stateId || null,
+            districtId: districtId || null,
+            cityId: cityId || null,
+            hoteladdress,
+            totalrooms,
+            totalstaff,
+            hotelRequestId,
+            adminId: adminId || null,
+            status: "approved",
+            emailVerified: true,
+            isActive: true
+        });
+
+        
+        await UserModel.create({
+            name: hotelname,
+            phone: hotelphone,
+            email: hotelemail,
+            password: hashedPassword,
+            role: "hotel" 
+        });
+
+        await info(
+            hotelemail,
+            "Hotel Account Activated Successfully",
+            `
+            <div style="font-family: Arial, sans-serif;">
+                <h2>Welcome ${hotelname}! 🎉</h2>
+                <p>Your hotel profile account has been directly registered and approved by the Super Admin.</p>
+                <hr style="border: 1px solid #eee; margin: 20px 0;">
+                <h3>Dashboard Access Credentials</h3>
+                <table border="1" cellpadding="10" cellspacing="0" style="border-collapse: collapse; border-color: #eee;">
+                    <tr>
+                        <td><b>Login Email</b></td>
+                        <td>${hotelemail}</td>
+                    </tr>
+                    <tr>
+                        <td><b>Temporary Password</b></td>
+                        <td><code>${randomPassword}</code></td>
+                    </tr>
+                    <tr>
+                        <td><b>Hotel Request ID</b></td>
+                        <td>${hotelRequestId}</td>
+                    </tr>
+                </table>
+                <br>
+                <p>Please log in using these credentials and promptly change your password configuration on your first login profile view.</p>
+                <br>
+                <p>Regards,</p>
+                <h4>Management Team</h4>
+            </div>
+            `
+        );
+
+        return res.status(201).json({
+            success: true,
+            message: "Hotel profile configuration created successfully.",
+            hotel,
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+        });
+    }
+};
  
 exports.allhotel = async (req, res) => {
     try {
@@ -102,7 +224,6 @@ exports.approveRequest = async (req, res) => {
         });
     }
 };
-
 
 exports.rejectRequest = async (req, res) => {
     try {

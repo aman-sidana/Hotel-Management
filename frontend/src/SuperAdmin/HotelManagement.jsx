@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function HotelManagement() {
+  const navigate = useNavigate();
   const [hotels, setHotels] = useState([]);
   const [activeTab, setActiveTab] = useState("pending");
 
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  // ✅ CHANGE: Added state variables for handling the Rejection Modal
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectingId, setRejectingId] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("hotelAsc"); 
   useEffect(() => {
     getHotels();
   }, []);
@@ -47,7 +50,6 @@ function HotelManagement() {
     }
   };
 
-  // ✅ CHANGE: Updated rejectHotel function to open the Reject Modal first
   const openRejectModal = (id) => {
     setRejectingId(id);
     setRejectReason("");
@@ -61,7 +63,7 @@ function HotelManagement() {
     }
     try {
       await axios.patch(`http://localhost:1100/hotel/rejecthotel?id=${rejectingId}`, {
-        description: rejectReason // Sending the reason to be saved in the 'description' field
+        description: rejectReason
       });
       setShowRejectModal(false);
       setRejectingId(null);
@@ -100,6 +102,7 @@ function HotelManagement() {
     }
   };
 
+  // ORIGINAL LOGIC: Filter hotels by tab
   const filteredHotels = hotels.filter((hotel) => {
     switch (activeTab) {
       case "pending":
@@ -108,13 +111,36 @@ function HotelManagement() {
         return hotel.status === "approved" && hotel.isActive;
       case "rejected":
         return hotel.status === "rejected" && hotel.isActive;
-      case "inactive": 
+      case "inactive":
         return hotel.isActive === false;
-      case "active":   
+      case "active":
         return hotel.isActive === true;
       default:
         return true;
     }
+  });
+
+  // ADDED: Search filtering logic (searches Hotel Name, Owner Name, or Phone)
+  const searchedHotels = filteredHotels.filter((item) => {
+    const q = searchQuery.toLowerCase();
+    const hotelMatch = item.hotelname ? item.hotelname.toLowerCase().includes(q) : false;
+    const ownerMatch = item.ownername ? item.ownername.toLowerCase().includes(q) : false;
+    const phoneMatch = item.ownerphone ? item.ownerphone.toString().toLowerCase().includes(q) : false;
+    return hotelMatch || ownerMatch || phoneMatch;
+  });
+
+  // ADDED: Sorting logic based on dropdown selection
+  const displayedHotels = [...searchedHotels].sort((a, b) => {
+    if (sortBy === "hotelAsc") {
+      return (a.hotelname || "").localeCompare(b.hotelname || "");
+    } else if (sortBy === "hotelDesc") {
+      return (b.hotelname || "").localeCompare(a.hotelname || "");
+    } else if (sortBy === "ownerAsc") {
+      return (a.ownername || "").localeCompare(b.ownername || "");
+    } else if (sortBy === "ownerDesc") {
+      return (b.ownername || "").localeCompare(a.ownername || "");
+    }
+    return 0;
   });
 
   return (
@@ -156,6 +182,34 @@ function HotelManagement() {
         >
           Inactive Hotels
         </button>
+
+        <button onClick={() => navigate("/hotelform")}> Add Hotel</button>
+      </div>
+
+      {/* Filter controls, Sort dropdown, and Search Input */}
+      <div className="filter-buttons" style={{ margin: "20px 0", display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+        {/* Sort Dropdown */}
+        <select
+          className="form-input"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          style={{ marginLeft: "auto", width: "180px", cursor: "pointer" }}
+        >
+          <option value="hotelAsc">Hotel (A - Z)</option>
+          <option value="hotelDesc">Hotel (Z - A)</option>
+          <option value="ownerAsc">Owner (A - Z)</option>
+          <option value="ownerDesc">Owner (Z - A)</option>
+        </select>
+
+        {/* Search Input */}
+        <input
+          type="text"
+          className="form-input"
+          placeholder="Search..."
+          style={{ width: "180px" }}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
       </div>
 
       <table className="hotel-table">
@@ -169,7 +223,7 @@ function HotelManagement() {
         </thead>
 
         <tbody>
-          {filteredHotels.map((hotel) => (
+          {displayedHotels.map((hotel) => (
             <tr key={hotel._id}>
               <td>{hotel.hotelname}</td>
               <td>{hotel.ownername}</td>
@@ -184,7 +238,6 @@ function HotelManagement() {
                       <button className="btn-action btn-approve" onClick={() => approveHotel(hotel._id)}>
                         Approve
                       </button>
-                      {/* ✅ CHANGE: Updated Reject button to trigger the Modal instead of the direct call */}
                       <button className="btn-action btn-reject" onClick={() => openRejectModal(hotel._id)}>
                         Reject
                       </button>
@@ -228,7 +281,7 @@ function HotelManagement() {
             </tr>
           ))}
 
-          {filteredHotels.length === 0 && (
+          {displayedHotels.length === 0 && (
             <tr>
               <td colSpan="4" align="center" style={{ padding: "30px", color: "#7f8c8d" }}>
                 No Hotels Found
@@ -291,13 +344,13 @@ function HotelManagement() {
         </div>
       )}
 
-      {/* ✅ CHANGE: Added Rejection Reason Modal */}
+      {/* Rejection Reason Modal */}
       {showRejectModal && (
         <div className="modal-overlay">
           <div className="modal-box">
             <h2>Reject Hotel Request</h2>
             <p style={{ color: "#e74c3c" }}>Please provide a reason for rejecting this request:</p>
-            
+
             <textarea
               className="form-textarea"
               placeholder="Enter rejection details or reason here..."

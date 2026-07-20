@@ -6,39 +6,54 @@ function HotelForm() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Set this based on your user role context (e.g., user.role === 'superadmin')
+  const [isSuperAdmin, setIsSuperAdmin] = useState(true);
+
   const existingHotel = location.state?.hotelData || null;
   const isEditMode = !!existingHotel;
 
   const [states, setStates] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [cities, setCities] = useState([]);
+  const [admins, setAdmins] = useState([]);
 
   const [otp, setOtp] = useState("");
   const [showOtpBox, setShowOtpBox] = useState(false);
   const [emailVerified, setEmailVerified] = useState(isEditMode);
   const [loading, setLoading] = useState(false);
 
-  // State to manage selected image files
   const [selectedFiles, setSelectedFiles] = useState([]);
 
-  // Synced with updated Hotel Schema properties
   const [form, setForm] = useState({
     hotelname: existingHotel?.hotelname || "",
     hotelphone: existingHotel?.hotelphone || "",
-    email: existingHotel?.hotelemail || "", // Maps form state 'email' to 'hotelemail' for backend transmission
+    email: existingHotel?.hotelemail || "",
     stateId: existingHotel?.stateId || "",
     districtId: existingHotel?.districtId || "",
     cityId: existingHotel?.cityId || "",
     hoteladdress: existingHotel?.hoteladdress || "",
     totalrooms: existingHotel?.totalrooms || "",
-    totalstaff: existingHotel?.totalstaff || "", // Newly added schema property
+    totalstaff: existingHotel?.totalstaff || "",
+    adminId: existingHotel?.adminId || "",
   });
 
   useEffect(() => {
     getStates();
     getDistricts();
     getCities();
-  }, []);
+    if (isSuperAdmin) {
+      getalladmin();
+    }
+  }, [isSuperAdmin]);
+
+  const getalladmin = async () => {
+    try {
+      const result = await axios.get("http://localhost:1100/admin/alladmin");
+      setAdmins(result.data);
+    } catch (error) {
+      console.log(error.response || error);
+    }
+  };
 
   const getStates = async () => {
     try {
@@ -116,16 +131,56 @@ function HotelForm() {
   };
 
   const submitHotel = async () => {
+    // 1. SUPER ADMIN FLOW
+    if (isSuperAdmin && !isEditMode) {
+      if (!form.adminId) {
+        return alert("Please map an Admin to manage this hotel configuration.");
+      }
+      try {
+        // Construct clean payload object mapping 'email' to 'hotelemail'
+        const payload = {
+          hotelname: form.hotelname,
+          hotelphone: form.hotelphone,
+          hotelemail: form.email, // <-- FIXED MAPPING
+          stateId: form.stateId,
+          districtId: form.districtId,
+          cityId: form.cityId,
+          hoteladdress: form.hoteladdress,
+          totalrooms: form.totalrooms,
+          totalstaff: form.totalstaff,
+          adminId: form.adminId
+        };
+
+        await axios.post("http://localhost:1100/hotel/super-admin-add", payload);
+        alert("Hotel Registered & Pre-Approved Successfully!");
+
+        setForm({
+          hotelname: "", hotelphone: "", email: "", stateId: "",
+          districtId: "", cityId: "", hoteladdress: "", totalrooms: "",
+          totalstaff: "", adminId: ""
+        });
+        return;
+      } catch (error) {
+        console.log(error);
+        return alert(error.response?.data?.message || "Superadmin creation flow failed");
+      }
+    }
+
+    // 2. NORMAL FLOW
     if (!emailVerified && !isEditMode) {
       return alert("Please verify your email address before submitting.");
     }
 
     const formData = new FormData();
+    // Copy properties manually or handle remapping for FormData payload structure
     Object.keys(form).forEach((key) => {
-      formData.append(key, form[key]);
+      if (key === "email") {
+        formData.append("hotelemail", form.email); // <-- FIXED MAPPING FOR FORMDATA
+      } else {
+        formData.append(key, form[key]);
+      }
     });
 
-    // Append each selected file under the model key 'images'
     selectedFiles.forEach((file) => {
       formData.append("images", file);
     });
@@ -144,21 +199,13 @@ function HotelForm() {
       }
 
       setForm({
-        hotelname: "",
-        hotelphone: "",
-        email: "",
-        stateId: "",
-        districtId: "",
-        cityId: "",
-        hoteladdress: "",
-        totalrooms: "",
-        totalstaff: "",
+        hotelname: "", hotelphone: "", email: "", stateId: "",
+        districtId: "", cityId: "", hoteladdress: "", totalrooms: "",
+        totalstaff: "", adminId: ""
       });
       setSelectedFiles([]);
       setEmailVerified(false);
-
       navigate(isEditMode ? "/checkrequest" : "/");
-
     } catch (error) {
       console.log(error);
       alert(error.response?.data?.message || "Something went wrong");
@@ -184,6 +231,26 @@ function HotelForm() {
       </div>
 
       <br />
+
+      {isSuperAdmin && (
+        <>
+          <select
+            name="adminId"
+            value={form.adminId}
+            onChange={handleChange}
+            className="form-select"
+            style={{ border: "2px solid #0d6efd" }}
+          >
+            <option value="">-- Assign Responsible Admin Manager --</option>
+            {admins.map((admin) => (
+              <option key={admin._id} value={admin._id}>
+                {admin.adminname} ({admin.email})
+              </option>
+            ))}
+          </select>
+          <br /><br />
+        </>
+      )}
 
       <input
         type="text"
@@ -213,10 +280,10 @@ function HotelForm() {
           value={form.email}
           onChange={handleChange}
           className="form-input"
-          disabled={isEditMode || emailVerified}
+          disabled={isEditMode}
           style={{ width: "250px" }}
         />
-        {!isEditMode && (
+        {!isEditMode && !isSuperAdmin && (
           <button
             type="button"
             className="btn btn-primary"
@@ -229,7 +296,7 @@ function HotelForm() {
       </div>
       <br />
 
-      {showOtpBox && !emailVerified && (
+      {showOtpBox && !emailVerified && !isSuperAdmin && (
         <div style={{ margin: "10px 0", display: "flex", gap: "10px", justifyContent: "center" }}>
           <input
             type="text"
@@ -243,12 +310,6 @@ function HotelForm() {
             Verify OTP
           </button>
         </div>
-      )}
-
-      {emailVerified && !isEditMode && (
-        <p style={{ color: "green", fontWeight: "bold", margin: "5px 0" }}>
-          ✅ Email Verified Successfully
-        </p>
       )}
 
       <select
@@ -325,30 +386,27 @@ function HotelForm() {
       />
       <br /><br />
 
-      <div className="file-input-container" style={{ margin: "15px 0" }}>
-        <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>
-          Upload Hotel Images:
-        </label>
-        <input
-          type="file"
-          name="images"
-          multiple
-          accept="image/*"
-          onChange={handleFileChange}
-          className="form-input"
-        />
-        {selectedFiles.length > 0 && (
-          <p style={{ fontSize: "14px", color: "#34495e", marginTop: "5px" }}>
-            Selected: {selectedFiles.length} file(s)
-          </p>
-        )}
-      </div>
+      {!isSuperAdmin && (
+        <div className="file-input-container" style={{ margin: "15px 0" }}>
+          <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>
+            Upload Hotel Images:
+          </label>
+          <input
+            type="file"
+            name="images"
+            multiple
+            accept="image/*"
+            onChange={handleFileChange}
+            className="form-input"
+          />
+        </div>
+      )}
       <br />
 
       <button
         className="submit-btn"
         onClick={submitHotel}
-        disabled={!emailVerified && !isEditMode}
+        disabled={!emailVerified && !isEditMode && !isSuperAdmin}
       >
         {isEditMode ? "Update Request" : "Submit Request"}
       </button>

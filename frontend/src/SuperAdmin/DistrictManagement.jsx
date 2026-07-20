@@ -15,6 +15,10 @@ function DistrictManagement() {
     // ✅ CHANGE: Added state to track which tab is active (default is "active")
     const [activeTab, setActiveTab] = useState("active");
 
+    // ADDED: Search & Sort Dropdown State
+    const [searchQuery, setSearchQuery] = useState("");
+    const [sortBy, setSortBy] = useState("districtAsc"); // Options: districtAsc, districtDesc, stateAsc, stateDesc
+
     useEffect(() => {
         getStates();
         getDistricts();
@@ -74,7 +78,7 @@ function DistrictManagement() {
 
     const deleteDistrict = async (id) => {
         if (!window.confirm("Are you sure you want to permanently delete this district?")) return;
-        
+
         try {
             await axios.delete(`http://localhost:1100/district/deletedistrict?id=${id}`);
             getDistricts();
@@ -102,7 +106,7 @@ function DistrictManagement() {
         }
     };
 
-    // ✅ CHANGE: Filter the districts based on the currently selected tab
+    // ✅ ORIGINAL LOGIC: Filter the districts based on the currently selected tab
     const filteredDistricts = districts.filter((district) => {
         if (activeTab === "active") {
             return district.status === true;
@@ -110,6 +114,28 @@ function DistrictManagement() {
             return district.status === false;
         }
         return true;
+    });
+
+    // ADDED: Search filtering logic (searches District or State name)
+    const searchedDistricts = filteredDistricts.filter((item) => {
+        const q = searchQuery.toLowerCase();
+        const districtMatch = item.districtName ? item.districtName.toLowerCase().includes(q) : false;
+        const stateMatch = item.stateId?.stateName ? item.stateId.stateName.toLowerCase().includes(q) : false;
+        return districtMatch || stateMatch;
+    });
+
+    // ADDED: Sorting logic based on dropdown selection
+    const displayedDistricts = [...searchedDistricts].sort((a, b) => {
+        if (sortBy === "districtAsc") {
+            return (a.districtName || "").localeCompare(b.districtName || "");
+        } else if (sortBy === "districtDesc") {
+            return (b.districtName || "").localeCompare(a.districtName || "");
+        } else if (sortBy === "stateAsc") {
+            return (a.stateId?.stateName || "").localeCompare(b.stateId?.stateName || "");
+        } else if (sortBy === "stateDesc") {
+            return (b.stateId?.stateName || "").localeCompare(a.stateId?.stateName || "");
+        }
+        return 0;
     });
 
     return (
@@ -140,8 +166,8 @@ function DistrictManagement() {
                 <button className="btn btn-primary" onClick={addDistrict}>Add District</button>
             </div>
 
-            {/* ✅ CHANGE: Added filter buttons right above the table */}
-            <div className="filter-buttons" style={{ margin: "20px 0" }}>
+            {/* Filter buttons, Sort dropdown, and Search Input */}
+            <div className="filter-buttons" style={{ margin: "20px 0", display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
                 <button
                     className={`btn ${activeTab === "active" ? "btn-primary" : "btn-secondary"}`}
                     onClick={() => setActiveTab("active")}
@@ -150,11 +176,33 @@ function DistrictManagement() {
                 </button>
                 <button
                     className={`btn ${activeTab === "inactive" ? "btn-primary" : "btn-secondary"}`}
-                    style={{ marginLeft: "10px" }}
                     onClick={() => setActiveTab("inactive")}
                 >
                     Inactive Districts
                 </button>
+
+                {/* Sort Dropdown */}
+                <select
+                    className="form-input"
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    style={{ marginLeft: "auto", width: "180px", cursor: "pointer" }}
+                >
+                    <option value="districtAsc">District (A - Z)</option>
+                    <option value="districtDesc">District (Z - A)</option>
+                    <option value="stateAsc">State (A - Z)</option>
+                    <option value="stateDesc">State (Z - A)</option>
+                </select>
+
+                {/* Search Input */}
+                <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Search..."
+                    style={{ width: "180px" }}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
             </div>
 
             <div className="table-container">
@@ -168,8 +216,7 @@ function DistrictManagement() {
                         </tr>
                     </thead>
                     <tbody>
-                        {/* ✅ CHANGE: Map over filteredDistricts instead of all districts */}
-                        {filteredDistricts.map((district) => (
+                        {displayedDistricts.map((district) => (
                             <tr key={district._id}>
                                 <td>
                                     {editId === district._id ? (
@@ -220,11 +267,11 @@ function DistrictManagement() {
                                                 Edit
                                             </button>
                                         )}
-                                        
+
                                         <button className="btn btn-danger" style={{ marginLeft: "5px" }} onClick={() => deleteDistrict(district._id)}>
                                             Delete
                                         </button>
-                                        
+
                                         {district.status ? (
                                             <button className="btn btn-warning" style={{ marginLeft: "5px" }} onClick={() => softDeleteDistrict(district._id)}>
                                                 Soft Delete
@@ -238,9 +285,8 @@ function DistrictManagement() {
                                 </td>
                             </tr>
                         ))}
-                        
-                        {/* ✅ CHANGE: Updated to check filteredDistricts array length */}
-                        {filteredDistricts.length === 0 && (
+
+                        {displayedDistricts.length === 0 && (
                             <tr>
                                 <td colSpan="4" align="center" style={{ padding: "20px", color: "#666" }}>
                                     No {activeTab === "active" ? "Active" : "Inactive"} Districts Found

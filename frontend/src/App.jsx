@@ -4,22 +4,27 @@ import UseTheme from "./custom hooks/Usetheme";
 
 import Login from "./genericComponents/Login";
 import Signup from "./genericComponents/Signup";
-import Header from "./genericComponents/Header";
+// import Header from "./genericComponents/Header";
 import ResetPassword from "./genericComponents/ResetPassword";
 import ForgetPassword from "./genericComponents/ForgetPassword";
 import ProtectedRoute from "./genericComponents/ProtectedRoute";
-import HotelForm from "./genericComponents/HotelForm";
+
+import HotelForm from "./Hotel/HotelForm";
 import CheckRequest from "./genericComponents/CheckRequest";
 
-import Home from "./SuperAdmin/Home";
+import Home from "./Home";
 import Sidebar from "./SuperAdmin/Sidebar";
 import StateManagement from "./SuperAdmin/StateManagent";
 import DistrictManagement from "./SuperAdmin/DistrictManagement";
 import CityManagement from "./SuperAdmin/CityManagement";
 import HotelManagement from "./SuperAdmin/HotelManagement";
-import AdminDashBoard from "./Admin/AdminDashBoard";
+import CouponManagement from "./Admin/CouponManagement";
+
 import UserDashBoard from "./User/UserDashBoard";
 
+import AdminDashBoard from "./Admin/AdminDashBoard";
+import AdminForm from "./Admin/AdminForm";
+import CheckAdminRequest from "./Admin/CheckAdminRequest";
 
 import "./App.css"
 
@@ -29,15 +34,16 @@ function App() {
 
     <div className={theme}>
       <BrowserRouter>
-        <Header />
+        {/* <Header /> */}
 
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forget" element={<ForgetPassword />} />
           <Route path="/resetpassword" element={<ResetPassword />} />
-          <Route path="/hotelform" element={<HotelForm />} />
+          <Route path="/adminform" element={<AdminForm />} />
           <Route path="/checkrequest" element={<CheckRequest />} />
+          <Route path="/checkaddminrequest" element={<CheckAdminRequest />} />
 
 
 
@@ -73,6 +79,12 @@ function App() {
             </ProtectedRoute>
           } />
 
+          <Route path="/coupon" element={
+            <ProtectedRoute>
+              <CouponManagement />
+            </ProtectedRoute>
+          } />
+
           <Route path="/sidebar" element={
             <ProtectedRoute>
               <Sidebar />
@@ -87,6 +99,11 @@ function App() {
           <Route path="/admindashboard" element={
             <ProtectedRoute>
               <AdminDashBoard />
+            </ProtectedRoute>
+          } />
+          <Route path="/hotelform" element={
+            <ProtectedRoute>
+              <HotelForm />
             </ProtectedRoute>
           } />
 

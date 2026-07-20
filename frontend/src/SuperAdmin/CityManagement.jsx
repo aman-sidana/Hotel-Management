@@ -16,6 +16,10 @@ function CityManagement() {
 
   const [activeTab, setActiveTab] = useState("active");
 
+  // ADDED: Search & Sort Dropdown State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("cityAsc"); // Options: cityAsc, cityDesc, districtAsc, districtDesc
+
   useEffect(() => {
     getStates();
     getDistricts();
@@ -109,9 +113,11 @@ function CityManagement() {
     }
   };
 
+  // ORIGINAL LOGIC: Filter dropdown options and status tabs
   const filteredDistricts = districts.filter(
     (district) => district.stateId?._id === stateId
   );
+
   const filteredCities = cities.filter((city) => {
     if (activeTab === "active") {
       return city.status === true;
@@ -119,6 +125,30 @@ function CityManagement() {
       return city.status === false;
     }
     return true;
+  });
+
+  // ADDED: Search filtering logic (searches City or District name)
+  const searchedCities = filteredCities.filter((item) => {
+    const q = searchQuery.toLowerCase();
+    const cityMatch = item.cityName ? item.cityName.toLowerCase().includes(q) : false;
+    const districtMatch = item.districtId?.districtName
+      ? item.districtId.districtName.toLowerCase().includes(q)
+      : false;
+    return cityMatch || districtMatch;
+  });
+
+  // ADDED: Sorting logic based on dropdown selection
+  const displayedCities = [...searchedCities].sort((a, b) => {
+    if (sortBy === "cityAsc") {
+      return (a.cityName || "").localeCompare(b.cityName || "");
+    } else if (sortBy === "cityDesc") {
+      return (b.cityName || "").localeCompare(a.cityName || "");
+    } else if (sortBy === "districtAsc") {
+      return (a.districtId?.districtName || "").localeCompare(b.districtId?.districtName || "");
+    } else if (sortBy === "districtDesc") {
+      return (b.districtId?.districtName || "").localeCompare(a.districtId?.districtName || "");
+    }
+    return 0;
   });
 
   return (
@@ -166,8 +196,8 @@ function CityManagement() {
         <button className="btn btn-primary" onClick={addCity}>Add City</button>
       </div>
 
-      {/* ✅ CHANGE: Added filter buttons right above the table */}
-      <div className="filter-buttons" style={{ margin: "20px 0" }}>
+      {/* Filter buttons, Sort dropdown, and Search Input */}
+      <div className="filter-buttons" style={{ margin: "20px 0", display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
         <button
           className={`btn ${activeTab === "active" ? "btn-primary" : "btn-secondary"}`}
           onClick={() => setActiveTab("active")}
@@ -176,11 +206,33 @@ function CityManagement() {
         </button>
         <button
           className={`btn ${activeTab === "inactive" ? "btn-primary" : "btn-secondary"}`}
-          style={{ marginLeft: "10px" }}
           onClick={() => setActiveTab("inactive")}
         >
           Inactive Cities
         </button>
+
+        {/* Sort Dropdown */}
+        <select
+          className="form-input"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          style={{ marginLeft: "auto", width: "180px", cursor: "pointer" }}
+        >
+          <option value="cityAsc">City (A - Z)</option>
+          <option value="cityDesc">City (Z - A)</option>
+          <option value="districtAsc">District (A - Z)</option>
+          <option value="districtDesc">District (Z - A)</option>
+        </select>
+
+        {/* Search Input */}
+        <input
+          type="text"
+          className="form-input"
+          placeholder="Search..."
+          style={{ width: "180px" }}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
       </div>
 
       <div className="table-container">
@@ -194,8 +246,7 @@ function CityManagement() {
             </tr>
           </thead>
           <tbody>
-            {/* ✅ CHANGE: Map over filteredCities instead of all cities */}
-            {filteredCities.map((city) => (
+            {displayedCities.map((city) => (
               <tr key={city._id}>
                 <td>
                   {editId === city._id ? (
@@ -231,7 +282,6 @@ function CityManagement() {
                     {editId === city._id ? (
                       <>
                         <button className="btn btn-primary" onClick={updateCity}>Save</button>
-
                         <button className="btn btn-secondary" style={{ marginLeft: "5px" }} onClick={() => setEditId("")}>Cancel</button>
                       </>
                     ) : (
@@ -262,8 +312,8 @@ function CityManagement() {
                 </td>
               </tr>
             ))}
-            
-            {filteredCities.length === 0 && (
+
+            {displayedCities.length === 0 && (
               <tr>
                 <td colSpan="4" align="center" style={{ padding: "20px", color: "#666" }}>
                   No {activeTab === "active" ? "Active" : "Inactive"} Cities Found

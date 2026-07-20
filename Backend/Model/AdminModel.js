@@ -1,25 +1,25 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const AdminSchema = new mongoose.Schema({
-    ownername: {
+    adminname: {
         type: String,
         required: true
     },
-    ownerphone: {
+    adminphone: {
         type: Number,
         required: true
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     permanentaddress: {
         type: String,
         required: true
     },
     currentaddress: {
-        type: Number,
-        required: true
+        type: String
     },
     status: {
         type: String,
@@ -45,19 +45,19 @@ const AdminSchema = new mongoose.Schema({
     AdminRequestId: {
         type: String
     },
-    profileimage: {
+    ownerimage: {
         type: String,
     },
-    addhar:{
-        type:[String],
-        default:[]
+    role: {
+        type: String,
+        default: "admin"
+    },
+    password: {
+        type: String,
     }
-},
-    {
-        createdAt: false,
-        timestamps: true,
-        versionKey: false,
-        updatedAt: false
-    })
+}, {
+    timestamps: true,
+    versionKey: false
+});
 
-module.exports = mongoose.model('admin', AdminSchema)
+module.exports = mongoose.model('admin', AdminSchema);

@@ -18,11 +18,13 @@ router.patch("/restorehotel", hotelController.restoreHotel)
 
 router.delete("/deletehotel", hotelController.deleteHotel)
 
-router.post('/checkrequestid',hotelController.checkRequestId)
+router.post('/checkrequestid', hotelController.checkRequestId)
 
 router.patch("/updaterequest", hotelController.updateRequest);
 
 router.post("/sendhotelotp", hotelController.sendhotelOTP);
 router.post("/verifyotp", hotelController.verifyOTP);
+
+router.post("/super-admin-add", hotelController.superAdminAddHotel);
 
 module.exports = router

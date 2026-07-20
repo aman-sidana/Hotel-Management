@@ -24,12 +24,27 @@ function Sidebar({ activetab, SetActivetab }) {
         Manage City
       </button>
 
+      {/* <button
+        className={activetab === "coupon" ? "active" : ""}
+        onClick={() => SetActivetab("coupon")}
+      >
+        Manage Coupon
+      </button> */}
+
+      <button
+        className={activetab === "admin" ? "active" : ""}
+        onClick={() => SetActivetab("admin")}
+      >
+        Admin's
+      </button>
+
       <button
         className={activetab === "hotel" ? "active" : ""}
         onClick={() => SetActivetab("hotel")}
       >
-        All Hotels
+        Hotel's
       </button>
+
     </div>
   );
 }

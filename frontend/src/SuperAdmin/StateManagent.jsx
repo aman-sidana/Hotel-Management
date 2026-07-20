@@ -10,6 +10,10 @@ function StateManagement() {
 
   const [activeTab, setActiveTab] = useState("active");
 
+  // New state variables for search and dropdown sort
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("stateAsc"); // Options: stateAsc, stateDesc, countryAsc, countryDesc
+
   useEffect(() => {
     getStates();
   }, []);
@@ -74,6 +78,7 @@ function StateManagement() {
     }
   };
 
+  // ORIGINAL TAB FILTER LOGIC (Kept exactly as provided)
   const filteredStates = states.filter((state) => {
     if (activeTab === "active") {
       return state.status === true;
@@ -81,6 +86,28 @@ function StateManagement() {
       return state.status === false;
     }
     return true;
+  });
+
+  // Search filtering logic
+  const searchedStates = filteredStates.filter((item) => {
+    const q = searchQuery.toLowerCase();
+    const nameMatch = item.stateName ? item.stateName.toLowerCase().includes(q) : false;
+    const countryMatch = item.countryName ? item.countryName.toLowerCase().includes(q) : false;
+    return nameMatch || countryMatch;
+  });
+
+  // Sorting logic based on dropdown selection
+  const displayedStates = [...searchedStates].sort((a, b) => {
+    if (sortBy === "stateAsc") {
+      return (a.stateName || "").localeCompare(b.stateName || "");
+    } else if (sortBy === "stateDesc") {
+      return (b.stateName || "").localeCompare(a.stateName || "");
+    } else if (sortBy === "countryAsc") {
+      return (a.countryName || "").localeCompare(b.countryName || "");
+    } else if (sortBy === "countryDesc") {
+      return (b.countryName || "").localeCompare(a.countryName || "");
+    }
+    return 0;
   });
 
   return (
@@ -98,7 +125,7 @@ function StateManagement() {
         <button className="btn btn-primary" onClick={addState}>Add State</button>
       </div>
 
-      <div className="filter-buttons" style={{ margin: "20px 0" }}>
+      <div className="filter-buttons" style={{ margin: "20px 0", display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
         <button
           className={`btn ${activeTab === "active" ? "btn-primary" : "btn-secondary"}`}
           onClick={() => setActiveTab("active")}
@@ -107,11 +134,33 @@ function StateManagement() {
         </button>
         <button
           className={`btn ${activeTab === "inactive" ? "btn-primary" : "btn-secondary"}`}
-          style={{ marginLeft: "10px" }}
           onClick={() => setActiveTab("inactive")}
         >
           Inactive States
         </button>
+
+        {/* Sort Dropdown */}
+        <select
+          className="form-input"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          style={{ marginLeft: "auto", width: "180px", cursor: "pointer" }}
+        >
+          <option value="stateAsc">State (A - Z)</option>
+          <option value="stateDesc">State (Z - A)</option>
+          <option value="countryAsc">Country (A - Z)</option>
+          <option value="countryDesc">Country (Z - A)</option>
+        </select>
+
+        {/* Search Input */}
+        <input
+          type="text"
+          className="form-input"
+          placeholder="Search..."
+          style={{ width: "180px" }}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
       </div>
 
       <div className="table-container">
@@ -125,7 +174,7 @@ function StateManagement() {
             </tr>
           </thead>
           <tbody>
-            {filteredStates.map((item) => (
+            {displayedStates.map((item) => (
               <tr key={item._id}>
                 <td>{item.countryName}</td>
                 <td>
@@ -145,7 +194,7 @@ function StateManagement() {
                     {editId === item._id ? (
                       <>
                         <button className="btn btn-primary" onClick={updateState}>Save</button>
-                       
+                        
                         <button className="btn btn-secondary" style={{ marginLeft: "5px" }} onClick={() => setEditId("")}>Cancel</button>
                       </>
                     ) : (
@@ -178,7 +227,7 @@ function StateManagement() {
               </tr>
             ))}
 
-            {filteredStates.length === 0 && (
+            {displayedStates.length === 0 && (
               <tr>
                 <td colSpan="4" align="center" style={{ padding: "20px", color: "#666" }}>
                   No {activeTab === "active" ? "Active" : "Inactive"} States Found

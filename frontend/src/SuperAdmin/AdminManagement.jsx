@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function AdminManagement() {
+  const navigate = useNavigate();
   const [admins, setAdmins] = useState([]);
   const [activeTab, setActiveTab] = useState("pending");
 
   const [selectedAdmin, setSelectedAdmin] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  // States for handling the Rejection Modal
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectingId, setRejectingId] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
+
+  // ADDED: Search & Sort Dropdown State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("nameAsc"); // Options: nameAsc, nameDesc, emailAsc, emailDesc
 
   useEffect(() => {
     getAdmins();
@@ -28,10 +33,9 @@ function AdminManagement() {
 
   const viewAdmin = async (id) => {
     try {
-      const result = await axios.get(
-        `http://localhost:1100/admin/viewdetails?id=${id}`
-      );
-      setSelectedAdmin(result.data.admin);
+      const result = await axios.get(`http://localhost:1100/admin/details?id=${id}`);
+      console.log(result.data);
+      setSelectedAdmin(result.data.data);
       setShowModal(true);
     } catch (error) {
       console.log(error);
@@ -40,10 +44,10 @@ function AdminManagement() {
 
   const approveAdmin = async (id) => {
     try {
-      await axios.patch(`http://localhost:1100/admin/approverequest?id=${id}`);
+      await axios.patch(`http://localhost:1100/admin/approve?id=${id}`);
       getAdmins();
     } catch (error) {
-      console.log(error);
+      console.log(error.response);
     }
   };
 
@@ -59,8 +63,8 @@ function AdminManagement() {
       return;
     }
     try {
-      await axios.patch(`http://localhost:1100/admin/rejectrequest?id=${rejectingId}`, {
-        description: rejectReason 
+      await axios.patch(`http://localhost:1100/admin/reject?id=${rejectingId}`, {
+        description: rejectReason
       });
       setShowRejectModal(false);
       setRejectingId(null);
@@ -73,7 +77,7 @@ function AdminManagement() {
 
   const softDeleteAdmin = async (id) => {
     try {
-      await axios.patch(`http://localhost:1100/admin/softdelete?id=${id}`);
+      await axios.patch(`http://localhost:1100/admin/soft-delete?id=${id}`);
       getAdmins();
     } catch (error) {
       console.log(error);
@@ -92,13 +96,14 @@ function AdminManagement() {
   const deleteAdmin = async (id) => {
     if (!window.confirm("Permanently delete this admin record?")) return;
     try {
-      await axios.delete(`http://localhost:1100/admin/deleteadmin?id=${id}`);
+      await axios.delete(`http://localhost:1100/admin/delete?id=${id}`);
       getAdmins();
     } catch (error) {
       console.log(error);
     }
   };
 
+  // ORIGINAL LOGIC: Filter admins by tab
   const filteredAdmins = admins.filter((admin) => {
     switch (activeTab) {
       case "pending":
@@ -107,17 +112,40 @@ function AdminManagement() {
         return admin.status === "approved" && admin.isActive;
       case "rejected":
         return admin.status === "rejected" && admin.isActive;
-      case "inactive": 
+      case "inactive":
         return admin.isActive === false;
-      case "active":   
+      case "active":
         return admin.isActive === true;
       default:
         return true;
     }
   });
 
+  // ADDED: Search filtering logic (searches Owner Name, Email, or Phone)
+  const searchedAdmins = filteredAdmins.filter((item) => {
+    const q = searchQuery.toLowerCase();
+    const nameMatch = item.adminname ? item.adminname.toLowerCase().includes(q) : false;
+    const emailMatch = item.email ? item.email.toLowerCase().includes(q) : false;
+    const phoneMatch = item.adminphone ? item.adminphone.toString().toLowerCase().includes(q) : false;
+    return nameMatch || emailMatch || phoneMatch;
+  });
+
+  // ADDED: Sorting logic based on dropdown selection
+  const displayedAdmins = [...searchedAdmins].sort((a, b) => {
+    if (sortBy === "nameAsc") {
+      return (a.adminname || "").localeCompare(b.adminname || "");
+    } else if (sortBy === "nameDesc") {
+      return (b.adminname || "").localeCompare(a.adminname || "");
+    } else if (sortBy === "emailAsc") {
+      return (a.email || "").localeCompare(b.email || "");
+    } else if (sortBy === "emailDesc") {
+      return (b.email || "").localeCompare(a.email || "");
+    }
+    return 0;
+  });
+
   return (
-    <div className="hotel-management-container"> {/* Keeps your shared form/table css styling */}
+    <div className="hotel-management-container">
       <h2>Admin Portal Management</h2>
 
       <div className="tabs-container">
@@ -155,6 +183,34 @@ function AdminManagement() {
         >
           Inactive Admins
         </button>
+
+        <button onClick={() => navigate("/adminform")}>add admin</button>
+      </div>
+
+      {/* Filter controls, Sort dropdown, and Search Input */}
+      <div className="filter-buttons" style={{ margin: "20px 0", display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+        {/* Sort Dropdown */}
+        <select
+          className="form-input"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          style={{ marginLeft: "auto", width: "180px", cursor: "pointer" }}
+        >
+          <option value="nameAsc">Owner Name (A - Z)</option>
+          <option value="nameDesc">Owner Name (Z - A)</option>
+          <option value="emailAsc">Email (A - Z)</option>
+          <option value="emailDesc">Email (Z - A)</option>
+        </select>
+
+        {/* Search Input */}
+        <input
+          type="text"
+          className="form-input"
+          placeholder="Search..."
+          style={{ width: "180px" }}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
       </div>
 
       <table className="hotel-table">
@@ -168,11 +224,11 @@ function AdminManagement() {
         </thead>
 
         <tbody>
-          {filteredAdmins.map((admin) => (
+          {displayedAdmins.map((admin) => (
             <tr key={admin._id}>
-              <td>{admin.ownername}</td>
+              <td>{admin.adminname}</td>
               <td>{admin.email}</td>
-              <td>{admin.ownerphone}</td>
+              <td>{admin.adminphone}</td>
               <td>
                 <div className="action-buttons">
                   {activeTab === "pending" && (
@@ -226,7 +282,7 @@ function AdminManagement() {
             </tr>
           ))}
 
-          {filteredAdmins.length === 0 && (
+          {displayedAdmins.length === 0 && (
             <tr>
               <td colSpan="4" align="center" style={{ padding: "30px", color: "#7f8c8d" }}>
                 No Admin Records Found
@@ -241,9 +297,15 @@ function AdminManagement() {
         <div className="modal-overlay">
           <div className="modal-box">
             <h2>Admin Profile Details</h2>
-
-            <p><strong>Owner Name:</strong> {selectedAdmin.ownername}</p>
-            <p><strong>Phone:</strong> {selectedAdmin.ownerphone}</p>
+            {selectedAdmin.ownerimage && (
+              <img
+                src={selectedAdmin.ownerimage}
+                alt="Owner"
+                width={150}
+              />
+            )}
+            <p><strong>Owner Name:</strong> {selectedAdmin.adminname}</p>
+            <p><strong>Phone:</strong> {selectedAdmin.adminphone}</p>
             <p><strong>Email Address:</strong> {selectedAdmin.email}</p>
             <p><strong>Permanent Address:</strong> {selectedAdmin.permanentaddress}</p>
             <p><strong>Current Address ID:</strong> {selectedAdmin.currentaddress}</p>
@@ -278,19 +340,19 @@ function AdminManagement() {
               {selectedAdmin.profileimage && (
                 <div>
                   <p><strong>Profile Image:</strong></p>
-                  <img 
-                    src={selectedAdmin.profileimage} 
-                    alt="Profile" 
+                  <img
+                    src={selectedAdmin.profileimage}
+                    alt="Profile"
                     style={{ width: "120px", height: "120px", objectFit: "cover", borderRadius: "4px", border: "1px solid #ccc" }}
                   />
                 </div>
               )}
               {selectedAdmin.addhar && selectedAdmin.addhar.length > 0 && (
                 <div>
-                  <p><strong>Proof / Aadhar Verification Document:</strong></p>
-                  <img 
-                    src={selectedAdmin.addhar[0]} 
-                    alt="Proof" 
+                  <p><strong>Proof / Verification Document:</strong></p>
+                  <img
+                    src={selectedAdmin.addhar[0]}
+                    alt="Proof"
                     style={{ width: "160px", height: "120px", objectFit: "contain", borderRadius: "4px", border: "1px solid #ccc" }}
                   />
                 </div>
@@ -316,7 +378,7 @@ function AdminManagement() {
           <div className="modal-box">
             <h2>Reject Administration Request</h2>
             <p style={{ color: "#e74c3c" }}>Please provide a reason for rejecting this administrative profile entry:</p>
-            
+
             <textarea
               className="form-textarea"
               placeholder="Enter rejection logs or parameter details here..."

@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 
 function AdminForm() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const currentUser = JSON.parse(localStorage.getItem("currentuser"));
+  const isSuperAdmin = currentUser?.role === "superadmin";
 
   const existingAdmin = location.state?.adminData || null;
   const isEditMode = !!existingAdmin;
@@ -14,14 +17,11 @@ function AdminForm() {
   const [emailVerified, setEmailVerified] = useState(isEditMode);
   const [loading, setLoading] = useState(false);
 
-  // States to hold file states before upload
-  const [profileImageFile, setProfileImageFile] = useState(null);
-  const [validProofFile, setValidProofFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null); // single file handle karne k liye 
 
-  // Core schema text state parameters
   const [form, setForm] = useState({
-    ownername: existingAdmin?.ownername || "",
-    ownerphone: existingAdmin?.ownerphone || "",
+    adminname: existingAdmin?.adminname || "",
+    adminphone: existingAdmin?.adminphone || "",
     email: existingAdmin?.email || "",
     permanentaddress: existingAdmin?.permanentaddress || "",
     currentaddress: existingAdmin?.currentaddress || "",
@@ -33,10 +33,10 @@ function AdminForm() {
     }
     try {
       setLoading(true);
-      const res = await axios.post("http://localhost:1100/admin/sendotp", {
+      const res = await axios.post("http://localhost:1100/admin/send-otp", {
         email: form.email,
       });
-      alert(res.data.message);
+      alert(res.data.message || "OTP Sent successfully");
       setShowOtpBox(true);
     } catch (error) {
       console.log(error);
@@ -51,11 +51,11 @@ function AdminForm() {
       return alert("Please enter the OTP sent to your email.");
     }
     try {
-      const res = await axios.post("http://localhost:1100/admin/verifyotp", {
+      const res = await axios.post("http://localhost:1100/admin/verify-otp", {
         email: form.email,
         otp: otp,
       });
-      alert(res.data.message);
+      alert(res.data.message || "OTP Verified");
       setEmailVerified(true);
       setShowOtpBox(false);
     } catch (error) {
@@ -71,82 +71,128 @@ function AdminForm() {
     });
   };
 
-  const submitAdmin = async () => {
-    if (!emailVerified && !isEditMode) {
-      return alert("Please verify your email address before submitting.");
+  const handleFileChange = (e) => {
+    if (e.target.files.length > 0) {
+      setSelectedFile(e.target.files[0]);
     }
-
+  }
+  const submitAdmin = async () => {
     try {
-      let profileimageUrl = existingAdmin?.profileimage || "";
-      let addharUrls = existingAdmin?.addhar || [];
+      if (isSuperAdmin) {
 
-      // Step 1: Upload Profile Image separately if selected
-      if (profileImageFile) {
-        const profileData = new FormData();
-        profileData.append("image", profileImageFile);
+        await axios.post(
+          "http://localhost:1100/admin/super-admin-add",
+          {
+            adminname: form.adminname,
+            adminphone: form.adminphone,
+            email: form.email,
+            permanentaddress: form.permanentaddress,
+            currentaddress: form.currentaddress,
+          }
+        );
 
-        const profileRes = await axios.post("http://localhost:1100/admin/upload-single", profileData, {
-          headers: { "Content-Type": "multipart/form-data" }
+        alert("Admin Added Successfully");
+
+        setForm({
+          adminname: "",
+          adminphone: "",
+          email: "",
+          permanentaddress: "",
+          currentaddress: "",
         });
-        profileimageUrl = profileRes.data.url;
+
+        setSelectedFile(null);
+        setEmailVerified(false);
+        setShowOtpBox(false);
+        setOtp("");
+
+        navigate("/home");
+
+        return;
       }
 
-      // Step 2: Upload Proof Document / Aadhaar image separately if selected
-      if (validProofFile) {
-        const aadharData = new FormData();
-        aadharData.append("image", validProofFile);
+      // ===========================
+      // NORMAL ADMIN FLOW
+      // ===========================
 
-        const aadharRes = await axios.post("http://localhost:1100/admin/upload-single", aadharData, {
-          headers: { "Content-Type": "multipart/form-data" }
-        });
-        addharUrls = [aadharRes.data.url];
+      if (!emailVerified && !isEditMode) {
+        return alert("Please verify your email first.");
       }
 
-      // Step 3: Compile into a standard application/json text configuration payload
-      const finalJsonPayload = {
-        ...form,
-        profileimage: profileimageUrl,
-        addhar: addharUrls
-      };
+      const formData = new FormData();
+
+      formData.append("adminname", form.adminname);
+      formData.append("adminphone", form.adminphone);
+      formData.append("email", form.email);
+      formData.append("permanentaddress", form.permanentaddress);
+      formData.append("currentaddress", form.currentaddress);
+
+      if (selectedFile) {
+        formData.append("images", selectedFile);
+      }
 
       if (isEditMode) {
-        await axios.patch(`http://localhost:1100/admin/updaterequest?id=${existingAdmin._id}`, finalJsonPayload, {
-          headers: { "Content-Type": "application/json" }
-        });
-        alert("Admin Request Updated Successfully");
+
+        await axios.patch(
+          `http://localhost:1100/admin/update?id=${existingAdmin._id}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        alert("Admin Updated Successfully");
+
+        navigate("/checkaddminrequest");
+
       } else {
-        await axios.post("http://localhost:1100/admin/adminrequest", finalJsonPayload, {
-          headers: { "Content-Type": "application/json" }
-        });
-        alert("Admin Request Submitted Successfully");
+
+        await axios.post(
+          "http://localhost:1100/admin/submit-request",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        alert("Request Submitted Successfully");
+
+        navigate("/");
       }
 
-      // Clear structural state parameters safely
       setForm({
-        ownername: "",
-        ownerphone: "",
+        adminname: "",
+        adminphone: "",
         email: "",
         permanentaddress: "",
         currentaddress: "",
       });
-      setProfileImageFile(null);
-      setValidProofFile(null);
-      setEmailVerified(false);
 
-      navigate(isEditMode ? "/checkadminrequest" : "/");
+      setSelectedFile(null);
+      setEmailVerified(false);
+      setShowOtpBox(false);
+      setOtp("");
 
     } catch (error) {
-      console.error(error);
-      alert(error.response?.data?.message || "Something went wrong during submission");
+
+      console.log(error);
+
+      alert(error.response?.data?.message || "Something went wrong");
     }
   };
 
+
+
   return (
-    <div className="admin-form-container">
+    <div className="hotel-form-container">
       <h2>{isEditMode ? "Update Admin Registration" : "Admin Registration"}</h2>
 
       <div>
-        <button className="nav-check-btn" onClick={() => navigate("/checkadminrequest")}>
+        <button className="nav-check-btn" onClick={() => navigate("/checkaddminrequest")}>
           Request Status
         </button>
       </div>
@@ -155,9 +201,9 @@ function AdminForm() {
 
       <input
         type="text"
-        name="ownername"
-        placeholder="Owner Name"
-        value={form.ownername}
+        name="adminname"
+        placeholder="Admin Full Name"
+        value={form.adminname}
         onChange={handleChange}
         className="form-input"
       />
@@ -165,9 +211,9 @@ function AdminForm() {
 
       <input
         type="number"
-        name="ownerphone"
-        placeholder="Owner Phone"
-        value={form.ownerphone}
+        name="adminphone"
+        placeholder="Admin Phone Number"
+        value={form.adminphone}
         onChange={handleChange}
         className="form-input"
       />
@@ -177,14 +223,14 @@ function AdminForm() {
         <input
           type="email"
           name="email"
-          placeholder="Email Address"
+          placeholder="Admin Email Address"
           value={form.email}
           onChange={handleChange}
           className="form-input"
           disabled={isEditMode || emailVerified}
           style={{ width: "250px" }}
         />
-        {!isEditMode && (
+        {!isEditMode && !isSuperAdmin && (
           <button
             type="button"
             className="btn btn-primary"
@@ -197,7 +243,7 @@ function AdminForm() {
       </div>
       <br />
 
-      {showOtpBox && !emailVerified && (
+      {showOtpBox && !emailVerified && !isSuperAdmin && (
         <div style={{ margin: "10px 0", display: "flex", gap: "10px", justifyContent: "center" }}>
           <input
             type="text"
@@ -213,7 +259,7 @@ function AdminForm() {
         </div>
       )}
 
-      {emailVerified && !isEditMode && (
+      {emailVerified && !isEditMode && !isSuperAdmin && (
         <p style={{ color: "green", fontWeight: "bold", margin: "5px 0" }}>
           ✅ Email Verified Successfully
         </p>
@@ -228,47 +274,29 @@ function AdminForm() {
       />
       <br /><br />
 
-      <input
-        type="number"
+      <textarea
         name="currentaddress"
-        placeholder="Current Address Identifier"
+        placeholder="Current Address"
         value={form.currentaddress}
         onChange={handleChange}
-        className="form-input"
+        className="form-textarea"
       />
       <br /><br />
 
       <div className="file-input-container" style={{ margin: "15px 0" }}>
         <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>
-          Upload Profile Image:
+          Upload Owner Image Profile:
         </label>
         <input
           type="file"
+          name="images"
           accept="image/*"
-          onChange={(e) => setProfileImageFile(e.target.files[0])}
+          onChange={handleFileChange}
           className="form-input"
         />
-        {profileImageFile && (
-          <p style={{ fontSize: "14px", color: "#2c3e50", marginTop: "5px" }}>
-            Selected: {profileImageFile.name}
-          </p>
-        )}
-      </div>
-      <br />
-
-      <div className="file-input-container" style={{ margin: "15px 0" }}>
-        <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>
-          Upload Valid Proof Document / Identity Card:
-        </label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setValidProofFile(e.target.files[0])}
-          className="form-input"
-        />
-        {validProofFile && (
-          <p style={{ fontSize: "14px", color: "#2c3e50", marginTop: "5px" }}>
-            Selected: {validProofFile.name}
+        {selectedFile && (
+          <p style={{ fontSize: "14px", color: "#34495e", marginTop: "5px" }}>
+            Selected: {selectedFile.name}
           </p>
         )}
       </div>
@@ -277,7 +305,7 @@ function AdminForm() {
       <button
         className="submit-btn"
         onClick={submitAdmin}
-        disabled={!emailVerified && !isEditMode}
+        disabled={!isSuperAdmin && !emailVerified && !isEditMode}
       >
         {isEditMode ? "Update Request" : "Submit Request"}
       </button>
