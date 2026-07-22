@@ -40,9 +40,11 @@ app.use('/admin',AdminRoute)
 const CouponRoute = require("./Router/CouponRoute")
 app.use('/coupon',CouponRoute)
 
-const roomRoutes = require("./Router/RoomRoute"); 
+const RoomRoutes = require("./Router/RoomRoute"); 
+app.use("/room", RoomRoutes);
 
-app.use("/room", roomRoutes);
+const BookingRoute = require("./Router/BookingRoute")
+app.use('/booking',BookingRoute)
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is Running on Port : ${process.env.PORT}`);

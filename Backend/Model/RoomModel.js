@@ -4,13 +4,13 @@ const RoomSchema = new mongoose.Schema(
     {
         hotelId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "HotelDetails", // FIXED: Added quotes
+            ref: "HotelDetails", 
             required: true,
         },
         roomNumber: {
             type: Number,
             required: true,
-            // REMOVED unique: true here so different hotels can use room #101
+           
         },
         floor: {
             type: Number,
@@ -34,13 +34,12 @@ const RoomSchema = new mongoose.Schema(
             type: [String],
             default: [],
         },
-        // Beds
+
         kingSizeBed: { type: Boolean, default: false },
         queenSizeBed: { type: Boolean, default: false },
         singleBed: { type: Boolean, default: false },
         doubleBed: { type: Boolean, default: false },
 
-        // Amenities & Facilities
         ac: { type: Boolean, default: false },
         cooler: { type: Boolean, default: false },
         attachedBathroom: { type: Boolean, default: false },
@@ -75,7 +74,6 @@ const RoomSchema = new mongoose.Schema(
     }
 );
 
-// Ensures a roomNumber is unique ONLY within the same hotel
 RoomSchema.index({ hotelId: 1, roomNumber: 1 }, { unique: true });
 
 module.exports = mongoose.model("RoomDetails", RoomSchema);

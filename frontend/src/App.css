@@ -1,1101 +1,780 @@
-/* Base container centering the card on the screen */
-.auth-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: #f4f7f6;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    padding: 20px;
-    box-sizing: border-box;
+/* ==========================================
+   1. GLOBAL STYLES & RESET
+   ========================================== */
+:root {
+  --bg-main: #0b0f19;
+  --bg-card: rgba(18, 24, 38, 0.7);
+  --bg-card-border: rgba(255, 255, 255, 0.08);
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-glow: rgba(59, 130, 246, 0.35);
+  --accent: #38bdf8;
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --danger: #ef4444;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --radius: 12px;
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Card styling */
-.auth-form {
-    background: #ffffff;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    width: 100%;
-    max-width: 400px;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-}
-
-/* Form Title */
-.auth-title {
-    margin-bottom: 24px;
-    color: #333333;
-    font-size: 28px;
-    font-weight: 600;
-    text-align: center;
-}
-
-/* Input field styling */
-.auth-input {
-    width: 100%;
-    padding: 14px;
-    margin-bottom: 16px;
-    border: 1px solid #dcdcdc;
-    border-radius: 8px;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    box-sizing: border-box;
-    background-color: #fafafa;
-}
-
-.auth-input:focus {
-    border-color: #4a90e2;
-    background-color: #ffffff;
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
-    outline: none;
-}
-
-/* Primary Action Button */
-.auth-btn {
-    width: 100%;
-    padding: 14px;
-    background-color: #4a90e2;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.1s ease;
-    margin-top: 10px;
-    margin-bottom: 16px;
-}
-
-.auth-btn:hover {
-    background-color: #357abd;
-}
-
-.auth-btn:active {
-    transform: scale(0.98);
-}
-
-/* Text / Links styling */
-.auth-form p {
-    color: #666666;
-    font-size: 14px;
-    text-align: center;
-    margin: 8px 0;
-}
-
-/* Interactive elements (Signup and Forgot Password) */
-.auth-form strong,
-.auth-link-text {
-    color: #4a90e2;
-    cursor: pointer;
-    font-weight: 500;
-    transition: color 0.2s ease;
-}
-
-.auth-form strong:hover,
-.auth-link-text:hover {
-    color: #235a9f;
-    text-decoration: underline;
-}
-
-.auth-link-text {
-    display: block;
-    text-align: center;
-}
-
-/* Error message styling */
-.auth-error-msg {
-    color: #e03131 !important;
-    background-color: #fff5f5;
-    border: 1px solid #ffc9c9;
-    padding: 10px;
-    border-radius: 6px;
-    font-size: 14px;
-    margin-top: 16px !important;
-    font-weight: 500;
-}
-
-/* Centers the card on the page */
-.reset-container {
-    background: #ffffff;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    width: 100%;
-    max-width: 400px;
-    margin: 10vh auto;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* Back Button Styling */
-.back-btn {
-    align-self: flex-start;
-    background: none;
-    border: none;
-    color: #666666;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    padding: 0;
-    margin-bottom: 20px;
-    transition: color 0.2s ease;
-}
-
-.back-btn:hover {
-    color: #111111;
-}
-
-/* Heading Styling */
-.reset-container h2 {
-    margin-top: 0;
-    margin-bottom: 24px;
-    color: #333333;
-    font-size: 28px;
-    font-weight: 600;
-    text-align: center;
-}
-
-/* Form Layout */
-.reset-container form {
-    display: flex;
-    flex-direction: column;
-}
-
-/* Input Fields */
-.reset-container input {
-    width: 100%;
-    padding: 14px;
-    margin-bottom: 8px;
-    border: 1px solid #dcdcdc;
-    border-radius: 8px;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    box-sizing: border-box;
-    background-color: #fafafa;
-}
-
-.reset-container input:focus {
-    border-color: #4a90e2;
-    background-color: #ffffff;
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
-    outline: none;
-}
-
-/* Error Messages */
-.reset-container p {
-    color: #e03131;
-    font-size: 13px;
-    font-weight: 500;
-    margin-top: 0;
-    margin-bottom: 12px;
-    padding-left: 4px;
-}
-
-.reset-container input:not(:has(+ p)) {
-    margin-bottom: 16px;
-}
-
-/* Submit Button */
-.reset-container button[type="submit"] {
-    width: 100%;
-    padding: 14px;
-    background-color: #4a90e2;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.1s ease;
-    margin-top: 12px;
-}
-
-.reset-container button[type="submit"]:hover {
-    background-color: #357abd;
-}
-
-.reset-container button[type="submit"]:active {
-    transform: scale(0.98);
-}
-
-.dashboard {
-    min-height: 100vh;
-}
-
-.header {
-    background: #1976d2;
-    color: white;
-    padding: 20px;
-}
-
-.dashboard-body {
-    display: flex;
-}
-
-.sidebar {
-    width: 250px;
-    min-height: calc(100vh - 90px);
-    background: #222;
-    padding: 20px;
-}
-
-.sidebar h2 {
-    color: white;
-    margin-bottom: 20px;
-}
-
-.sidebar ul {
-    list-style: none;
-}
-
-.sidebar li {
-    margin-bottom: 12px;
-}
-
-.sidebar a {
-    color: white;
-    text-decoration: none;
-    display: block;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-.sidebar a:hover {
-    background: #1976d2;
-}
-
-.content {
-    flex: 1;
-    padding: 30px;
-}
-
-/* =========================================
-   Global Reset & Base Styles
-   ========================================= */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 body {
-    background-color: #f4f6f9;
-    color: #333;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* =========================================
-   Layout: Dashboard & Header
-   ========================================= */
-.dashboard {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
+button {
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: var(--radius);
+  transition: var(--transition);
+  border: none;
+  outline: none;
 }
 
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #1a252f;
-    color: #ffffff;
-    padding: 15px 30px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    z-index: 10;
+input {
+  outline: none;
+  font-size: 0.95rem;
+  transition: var(--transition);
 }
 
-.header h2 {
-    font-size: 1.5rem;
-    margin-bottom: 5px;
+/* ==========================================
+   2. AUTHENTICATION & FORM PAGES
+   (Login, Signup, ForgetPassword, ResetPassword, CheckRequest)
+   ========================================== */
+.auth-container,
+.reset-container,
+.check-request-container {
+  max-width: 440px;
+  margin: 80px auto;
+  padding: 32px 28px;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+  text-align: center;
 }
 
-.header p {
-    font-size: 0.9rem;
-    color: #bdc3c7;
+.auth-title,
+.reset-container h2,
+.check-request-container h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, #ffffff, var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.main-container {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
+.auth-form,
+.reset-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-/* =========================================
-   Sidebar Styling
-   ========================================= */
-.sidebar {
-    width: 250px;
-    background-color: #2c3e50;
-    display: flex;
-    flex-direction: column;
-    padding-top: 20px;
+.auth-input,
+.input,
+.check-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 8px;
+  color: var(--text-main);
 }
 
-.sidebar button {
-    background: none;
-    border: none;
-    color: #ecf0f1;
-    padding: 15px 25px;
-    text-align: left;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border-left: 4px solid transparent;
+.auth-input:focus,
+.input:focus,
+.check-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 12px var(--primary-glow);
+  background: rgba(255, 255, 255, 0.08);
 }
 
-.sidebar button:hover {
-    background-color: #34495e;
-    border-left-color: #95a5a6;
+.error-input {
+  border-color: var(--danger) !important;
 }
 
-.sidebar button.active {
-    background-color: #34495e;
-    border-left-color: #3498db;
-    color: #3498db;
-    font-weight: bold;
+.error-text,
+.auth-error-msg {
+  color: var(--danger);
+  font-size: 0.85rem;
+  text-align: left;
+  margin-top: -8px;
 }
 
-/* =========================================
-   Content Area & Module Common Styles
-   ========================================= */
-.content {
-    flex: 1;
-    padding: 0;
-    overflow-y: auto;
-    background-color: #ecf0f1;
+.auth-btn,
+.submit-btn,
+.check-btn {
+  padding: 12px;
+  background: var(--primary);
+  color: #fff;
+  width: 100%;
+  box-shadow: 0 4px 14px var(--primary-glow);
 }
 
-.management-module {
-    padding: 30px;
-    background-color: #ffffff;
-    min-height: 100%;
-    border-radius: 8px;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.02);
+.auth-btn:hover,
+.submit-btn:hover,
+.check-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
 }
 
-.management-module h2 {
-    margin-bottom: 25px;
-    color: #2c3e50;
-    border-bottom: 2px solid #ecf0f1;
-    padding-bottom: 10px;
+.auth-link-text,
+.auth-form p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
 }
 
-/* =========================================
-   Form Controls
-   ========================================= */
-.form-controls {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 25px;
-    align-items: center;
-    flex-wrap: wrap;
+.auth-form p strong {
+  color: var(--accent);
 }
 
-.form-input,
-.form-select {
-    padding: 10px 15px;
-    border: 1px solid #bdc3c7;
-    border-radius: 4px;
-    font-size: 1rem;
-    outline: none;
-    transition: border-color 0.2s;
-    min-width: 200px;
+/* Back Button styling for Nav/Pages */
+.btn-logout-nav {
+  padding: 8px 16px;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--bg-card-border);
+  margin: 16px;
 }
 
-.form-input:focus,
-.form-select:focus {
-    border-color: #3498db;
+.btn-logout-nav:hover {
+  color: var(--text-main);
+  border-color: var(--text-muted);
 }
 
-/* =========================================
-   Buttons
-   ========================================= */
-.btn {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    color: #fff;
-    transition: background-color 0.2s;
+/* Status Cards inside Check Request */
+.status-card {
+  margin-top: 24px;
+  padding: 20px;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--bg-card-border);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.btn-primary {
-    background-color: #3498db;
-}
-
-.btn-primary:hover {
-    background-color: #2980b9;
-}
-
-.btn-secondary {
-    background-color: #95a5a6;
-}
-
-.btn-secondary:hover {
-    background-color: #7f8c8d;
-}
-
-.btn-danger {
-    background-color: #e74c3c;
-}
-
-.btn-danger:hover {
-    background-color: #c0392b;
+.text-pending {
+  color: var(--warning);
+  text-transform: capitalize;
 }
 
 .btn-warning {
-    background-color: #f1c40f;
-    color: #333;
+  margin-top: 12px;
+  padding: 10px;
+  background: var(--warning);
+  color: #000;
 }
 
-.btn-warning:hover {
-    background-color: #f39c12;
+/* ==========================================
+   3. USER DASHBOARD & NAVBAR
+   ========================================== */
+.user-dashboard {
+  min-height: 100vh;
+  padding-bottom: 60px;
 }
 
-/* =========================================
-   Data Tables
-   ========================================= */
-.table-container {
-    overflow-x: auto;
+.user-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 5%;
+  background: rgba(11, 15, 25, 0.8);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--bg-card-border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #ffffff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border-radius: 6px;
-    overflow: hidden;
+.user-brand {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-main);
 }
 
-.data-table th,
-.data-table td {
-    padding: 15px;
-    text-align: left;
-    border-bottom: 1px solid #ecf0f1;
+.user-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
-.data-table th {
-    background-color: #f8f9fa;
-    color: #2c3e50;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
+.user-btn {
+  padding: 8px 18px;
 }
 
-.data-table tr:hover {
-    background-color: #f9fbfc;
+.user-btn-logout {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.4);
 }
 
-.action-buttons {
-    display: flex;
-    gap: 8px;
+.user-btn-logout:hover {
+  background: var(--danger);
+  color: #fff;
 }
 
-/* =========================================
-   General Form Styles (HotelForm)
-   ========================================= */
-.hotel-form-container {
-    max-width: 600px;
-    margin: 40px auto;
-    padding: 30px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.user-btn-login {
+  background: var(--primary);
+  color: #fff;
 }
 
-.hotel-form-container h2 {
-    text-align: center;
-    color: #2c3e50;
-    margin-bottom: 25px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #ecf0f1;
+/* Hero Section */
+.user-hero {
+  text-align: center;
+  padding: 60px 20px 40px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.user-hero-title {
+  font-size: 2.75rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.user-hero-description {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  margin-bottom: 28px;
+}
+
+.user-search-input {
+  width: 100%;
+  max-width: 600px;
+  padding: 14px 20px;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--bg-card-border);
+  color: var(--text-main);
+}
+
+.user-search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
+}
+
+/* Grid Section */
+.user-hotels-section {
+  padding: 0 5%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.user-section-title {
+  font-size: 1.5rem;
+  margin-bottom: 24px;
+}
+
+.user-hotel-grid,
+.user-room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.user-hotel-card,
+.user-room-card {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.user-hotel-card:hover,
+.user-room-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--primary);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+.user-hotel-image,
+.user-room-image {
+  width: 100%;
+  height: 180px;
+  background: rgba(255, 255, 255, 0.03);
+  position: relative;
+}
+
+.user-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+}
+
+.user-hotel-card-body,
+.user-room-card-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.user-hotel-name,
+.user-room-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.user-hotel-detail,
+.user-room-detail {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.user-view-rooms-btn,
+.user-book-room-btn {
+  margin-top: auto;
+  padding: 10px;
+  background: var(--primary);
+  color: #fff;
+}
+
+/* ==========================================
+   4. HOTEL ROOM DETAILS PAGE
+   ========================================== */
+.user-hotel-room-page {
+  padding: 40px 5%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.user-back-hotels-btn {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  border: 1px solid var(--bg-card-border);
+  margin-bottom: 24px;
+}
+
+.user-back-hotels-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.user-selected-hotel {
+  background: var(--bg-card);
+  padding: 24px;
+  border-radius: var(--radius);
+  border: 1px solid var(--bg-card-border);
+  margin-bottom: 32px;
+}
+
+.user-selected-hotel-name {
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.user-room-card-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-room-type {
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--accent);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.user-room-price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--success);
+  margin: 6px 0;
+}
+
+.user-room-facilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.user-facility-badge {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.user-no-hotel,
+.user-empty-message,
+.user-loading-message {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-muted);
+}
+
+/* ==========================================
+   5. HOTEL ADMIN DASHBOARD & SIDEBAR
+   ========================================== */
+.main-container {
+  background: var(--bg-main);
+}
+
+.sidebar {
+  border-right: 1px solid var(--bg-card-border);
+  backdrop-filter: blur(10px);
+}
+
+.sidebar button.active {
+  box-shadow: 0 0 12px var(--primary-glow);
+}
+/* ==========================================
+   1. GLOBAL REFINEMENTS & BASE STYLES
+   ========================================== */
+:root {
+  --bg-main: #0b0f19;
+  --bg-card: rgba(18, 24, 38, 0.7);
+  --bg-card-border: rgba(255, 255, 255, 0.08);
+  --bg-input: rgba(255, 255, 255, 0.05);
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-glow: rgba(59, 130, 246, 0.35);
+  --accent: #38bdf8;
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --radius: 12px;
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+button {
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: var(--transition);
+  border: none;
+  outline: none;
+}
+
+input, select, textarea {
+  outline: none;
+  font-size: 0.95rem;
+  transition: var(--transition);
+  color: var(--text-main);
+}
+
+/* Override inline light styles across dynamic app forms & pages */
+.app-page,
+div[style*="background: #ffffff"],
+div[style*="backgroundColor: #ffffff"],
+div[style*="backgroundColor: #f8fafc"],
+div[style*="background: #f8fafc"] {
+  background: transparent !important;
+  color: var(--text-main) !important;
+}
+
+/* ==========================================
+   2. DASHBOARD LAYOUT & SIDEBAR (SuperAdmin)
+   ========================================== */
+.main-container {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-main);
+}
+
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  min-height: 100vh;
+  background: rgba(18, 24, 38, 0.9);
+  backdrop-filter: blur(12px);
+  border-right: 1px solid var(--bg-card-border);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar button {
+  width: 100%;
+  padding: 12px 16px;
+  text-align: left;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+}
+
+.sidebar button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+}
+
+.sidebar button.active {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 4px 14px var(--primary-glow);
+}
+
+.content {
+  flex: 1;
+  padding: 32px;
+  overflow-y: auto;
+}
+
+/* ==========================================
+   3. MANAGEMENT MODULES & TABLES
+   (State, District, City, Hotel & Admin Mgmt)
+   ========================================== */
+.management-module,
+.hotel-management-container {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius);
+  padding: 28px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+}
+
+.management-module h2,
+.hotel-management-container h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #ffffff, var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Tabs Header */
+.tabs-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  padding: 8px 18px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  border: 1px solid var(--bg-card-border);
+}
+
+.tab-btn.active,
+.tab-btn:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+/* Controls Header (Selects, Inputs, Buttons) */
+.form-controls,
+.filter-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
 }
 
 .form-input,
 .form-select,
 .form-textarea {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #bdc3c7;
-    border-radius: 4px;
-    font-size: 1rem;
-    outline: none;
-    transition: border-color 0.3s ease;
-    box-sizing: border-box;
+  padding: 10px 14px;
+  background: var(--bg-input) !important;
+  border: 1px solid var(--bg-card-border) !important;
+  border-radius: 8px;
+  color: var(--text-main) !important;
 }
 
-.form-textarea {
-    resize: vertical;
-    min-height: 100px;
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 10px var(--primary-glow);
 }
 
-.submit-btn {
-    width: 100%;
-    padding: 12px;
-    background-color: #2ecc71;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 10px;
+.form-select option {
+  background: #121826;
+  color: #fff;
 }
 
-/* =========================================
-   Hotel Management Styles
-   ========================================= */
-.hotel-management-container {
-    padding: 30px;
-    background-color: #f8f9fa;
-    min-height: 100vh;
+/* Data Tables */
+.table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--bg-card-border);
 }
 
-.hotel-management-container h2 {
-    color: #2c3e50;
-    margin-bottom: 20px;
-}
-
-.tabs-container {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-.tab-btn {
-    padding: 10px 20px;
-    background-color: #ecf0f1;
-    color: #2c3e50;
-    border: 1px solid #bdc3c7;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.tab-btn.active {
-    background-color: #3498db;
-    color: white;
-    border-color: #3498db;
-}
-
+.data-table,
 .hotel-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: white;
-    border-radius: 8px;
-    overflow: hidden;
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
 }
 
-.hotel-table th,
-.hotel-table td {
-    padding: 15px;
-    text-align: left;
-    border-bottom: 1px solid #ecf0f1;
-}
-
+.data-table th,
 .hotel-table th {
-    background-color: #2c3e50;
-    color: white;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  padding: 14px 16px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--bg-card-border);
 }
 
+.data-table td,
+.hotel-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--bg-card-border);
+  color: var(--text-main);
+  vertical-align: middle;
+}
+
+.data-table tr:hover,
+.hotel-table tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Table Buttons & Actions */
+.action-buttons,
 .btn-action {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    color: white;
-    cursor: pointer;
+  display: flex;
+  gap: 6px;
+  align-items: center;
 }
 
-.btn-approve {
-    background-color: #2ecc71;
+.btn-primary { background: var(--primary); color: #fff; padding: 8px 14px; }
+.btn-primary:hover { background: var(--primary-hover); }
+
+.btn-secondary { background: rgba(255, 255, 255, 0.08); color: var(--text-main); padding: 8px 14px; }
+.btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }
+
+.btn-danger, .btn-reject, .btn-delete { background: var(--danger); color: #fff; padding: 6px 12px; }
+.btn-danger:hover, .btn-reject:hover, .btn-delete:hover { background: var(--danger-hover); }
+
+.btn-warning { background: var(--warning); color: #000; padding: 6px 12px; }
+.btn-approve, .btn-restore { background: var(--success); color: #fff; padding: 6px 12px; }
+
+/* ==========================================
+   4. FORM REGISTRATION PAGES
+   (HotelForm & RoomForm Configurations)
+   ========================================== */
+.hotel-form-container,
+.app-page--form {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 32px;
+  background: var(--bg-card) !important;
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
 }
 
-.btn-reject {
-    background-color: #e74c3c;
+.hotel-form-container h2,
+.app-page--form h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, #ffffff, var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.btn-delete {
-    background-color: #c0392b;
+/* Form Section Labels & Grid Helpers */
+.app-page--form label {
+  color: var(--text-main) !important;
 }
 
-.btn-restore {
-    background-color: #3498db;
+.app-page--form div[style*="background: #f8fafc"] {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid var(--bg-card-border);
+  border-radius: 8px;
 }
 
-/* =========================================
-   Theme Toggle Button (Added to Home)
-   ========================================= */
-.theme-toggle-btn {
-    align-self: flex-end;
-    margin: 15px 30px 0;
-    padding: 8px 16px;
-    border-radius: 20px;
-    border: 1px solid #bdc3c7;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
+/* ==========================================
+   5. MODAL DIALOGS OVERLAYS
+   ========================================== */
+.modal-overlay,
+div[style*="position: fixed"][style*="zIndex: 1000"] {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.75) !important;
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
-.light .theme-toggle-btn {
-    background-color: #ffffff;
-    color: #333;
-}
-
-
-/* =========================================
-   DARK THEME OVERRIDES
-   ========================================= */
-.dark {
-    background-color: #121212;
-    color: #e0e0e0;
-    min-height: 100vh;
-}
-
-/* Theme Toggle inside dark mode */
-.dark .theme-toggle-btn {
-    background-color: #333333;
-    color: #ffffff;
-    border-color: #555555;
-}
-
-/* Auth and Reset Cards */
-.dark .auth-container {
-    background-color: #121212;
-}
-
-.dark .auth-form,
-.dark .reset-container {
-    background-color: #1e1e1e;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-.dark .auth-title,
-.dark .reset-container h2 {
-    color: #ffffff;
-}
-
-.dark .auth-form p,
-.dark .reset-container .back-btn {
-    color: #aaaaaa;
-}
-
-/* Form Inputs */
-.dark .auth-input,
-.dark .reset-container input,
-.dark .form-input,
-.dark .form-select,
-.dark .form-textarea {
-    background-color: #2a2a2a;
-    border-color: #444444;
-    color: #ffffff;
-}
-
-.dark .auth-input:focus,
-.dark .reset-container input:focus,
-.dark .form-input:focus,
-.dark .form-select:focus,
-.dark .form-textarea:focus {
-    border-color: #4a90e2;
-    background-color: #333333;
-}
-
-/* Dashboard Layout */
-.dark .header {
-    background-color: #1a1a1a;
-    border-bottom: 1px solid #333333;
-}
-
-.dark .sidebar {
-    background-color: #1e1e1e;
-    border-right: 1px solid #333333;
-}
-
-.dark .content {
-    background-color: #121212;
-}
-
-/* Modules & Containers */
-.dark .management-module,
-.dark .hotel-form-container {
-    background-color: #1e1e1e;
-}
-
-.dark .hotel-management-container {
-    background-color: #121212;
-}
-
-.dark .management-module h2,
-.dark .hotel-form-container h2,
-.dark .hotel-management-container h2 {
-    color: #ffffff;
-    border-bottom-color: #333333;
-}
-
-/* Tables */
-.dark .data-table,
-.dark .hotel-table {
-    background-color: #1e1e1e;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-}
-
-.dark .data-table th {
-    background-color: #2a2a2a;
-    color: #e0e0e0;
-    border-bottom: 1px solid #444444;
-}
-
-.dark .hotel-table th {
-    background-color: #1a1a1a;
-    /* Keep it distinct */
-    border-bottom: 1px solid #444444;
-}
-
-.dark .data-table td,
-.dark .hotel-table td {
-    border-bottom: 1px solid #333333;
-    color: #cccccc;
-}
-
-.dark .data-table tr:hover,
-.dark .hotel-table tr:hover {
-    background-color: #2a2a2a;
-}
-
-/* Tabs */
-.dark .tab-btn {
-    background-color: #2a2a2a;
-    color: #e0e0e0;
-    border-color: #444444;
-}
-
-.dark .tab-btn:hover {
-    background-color: #333333;
-}
-
-.dark .tab-btn.active {
-    background-color: #3498db;
-    border-color: #3498db;
-    color: white;
-}
-
-/* ✅ CHANGE: Background */
-
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background: rgba(0, 0, 0, .5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-/* ✅ CHANGE: Modal */
-
-.modal-box {
-    width: 500px;
-    background: white;
-    border-radius: 10px;
-    padding: 25px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, .3);
+.modal-box,
+div[style*="backgroundColor: #fff"][style*="maxWidth: 500px"] {
+  background: #121826 !important;
+  border: 1px solid var(--bg-card-border) !important;
+  border-radius: var(--radius);
+  padding: 28px;
+  max-width: 520px;
+  width: 90%;
+  color: var(--text-main) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
 }
 
 .modal-box h2 {
-    margin-bottom: 20px;
+  margin-bottom: 16px;
+  color: var(--accent);
 }
 
 .modal-box p {
-    margin: 10px 0;
+  margin-bottom: 8px;
+  color: var(--text-muted);
 }
 
-.modal-box button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    cursor: pointer;
-}
-
-/* =========================================
-   Base Modal Styles (Light Mode Default)
-   ========================================= */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    /* Optional: adds a smooth fade in */
-    animation: fadeIn 0.2s ease-in-out;
-}
-
-.modal-box {
-    width: 500px;
-    background: #ffffff;
-    color: #333333;
-    border-radius: 10px;
-    padding: 25px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    /* Smooth transition when toggling themes */
-    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.modal-box h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    color: #2c3e50;
-}
-
-.modal-box p {
-    margin: 10px 0;
-    line-height: 1.5;
-}
-
-.modal-box button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    cursor: pointer;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-weight: 500;
-    transition: background-color 0.2s ease;
-}
-
-.modal-box button:hover {
-    background-color: #2980b9;
-}
-
-
-/* =========================================
-   DARK THEME OVERRIDES FOR MODAL
-   ========================================= */
-
-/* Slightly darker overlay backing for dark mode */
-.dark .modal-overlay {
-    background: rgba(0, 0, 0, 0.7);
-}
-
-/* Dark mode modal card */
-.dark .modal-box {
-    background: #1e1e1e;
-    color: #e0e0e0;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-    border: 1px solid #333333;
-}
-
-.dark .modal-box h2 {
-    color: #ffffff;
-}
-
-.dark .modal-box p {
-    color: #cccccc;
-}
-
-/* Dark mode button styling */
-.dark .modal-box button {
-    background-color: #2a2a2a;
-    color: #ffffff;
-    border: 1px solid #444444;
-}
-
-.dark .modal-box button:hover {
-    background-color: #333333;
-    border-color: #555555;
-}
-
-/* Optional: Keyframe for overlay fade-in */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-/* =========================================
-   Check Request Container
-   ========================================= */
-.check-request-container {
-    max-width: 600px;
-    margin: 40px auto;
-    padding: 30px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.check-request-container h2 {
-    color: #2c3e50;
-    margin-bottom: 20px;
-}
-
-.check-input {
-    width: 80%;
-    padding: 12px 15px;
-    border: 1px solid #bdc3c7;
-    border-radius: 4px;
-    font-size: 1rem;
-    outline: none;
-    transition: border-color 0.3s ease;
-    box-sizing: border-box;
-}
-
-.check-input:focus {
-    border-color: #3498db;
-    box-shadow: 0 0 5px rgba(52, 152, 219, 0.2);
-}
-
-.check-btn {
-    padding: 12px 24px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.check-btn:hover:not(:disabled) {
-    background-color: #2980b9;
-}
-
-.check-btn:disabled {
-    background-color: #95a5a6;
-    cursor: not-allowed;
-}
-
-/* =========================================
-   Status Cards
-   ========================================= */
-.status-card {
-    border: 1px solid #e0e0e0;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 450px;
-    margin: 20px auto;
-    text-align: left;
-    background: #f9f9f9;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.status-card h3 {
-    margin-top: 0;
-    color: #34495e;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
-}
-
-.status-card p {
-    margin: 8px 0;
-    color: #333;
-    font-size: 0.95rem;
-}
-
-.status-text {
-    font-weight: bold;
-    text-transform: capitalize;
-}
-
-.text-approved {
-    color: #2ecc71;
-}
-
-.text-rejected {
-    color: #e74c3c;
-}
-
-.text-pending {
-    color: #f39c12;
-}
-
-/* =========================================
-   External Navigation Button
-   ========================================= */
-.nav-check-btn {
-    margin-left: 20px;
-    /* You can adjust this to fit your header/layout */
-    padding: 10px 20px;
-    background-color: #9b59b6;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.nav-check-btn:hover {
-    background-color: #8e44ad;
-}
-
-/* =========================================
-   DARK THEME OVERRIDES
-   ========================================= */
-.dark .check-request-container {
-    background-color: #1e1e1e;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-.dark .check-request-container h2 {
-    color: #ffffff;
-}
-
-.dark .check-input {
-    background-color: #2a2a2a;
-    border-color: #444444;
-    color: #ffffff;
-}
-
-.dark .check-input:focus {
-    border-color: #3498db;
-    background-color: #333333;
-}
-
-.dark .check-btn {
-    background-color: #2980b9;
-}
-
-.dark .status-card {
-    background-color: #2a2a2a;
-    border-color: #444444;
-}
-
-.dark .status-card h3 {
-    color: #ffffff;
-    border-bottom-color: #444444;
-}
-
-.dark .status-card p {
-    color: #cccccc;
-}
-
-.dark .nav-check-btn {
-    background-color: #8e44ad;
-}
-
-.dark .nav-check-btn:hover {
-    background-color: #732d91;
+.modal-box p strong {
+  color: var(--text-main);
 }

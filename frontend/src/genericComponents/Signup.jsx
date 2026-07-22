@@ -1,12 +1,20 @@
-import React from 'react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import axios from 'axios'
+import { gsap } from 'gsap'
 import { useNavigate } from 'react-router-dom'
 
 function Signup() {
     const navigate = useNavigate()
     const [form, setForm] = useState({ name: "", email: "", password: "" ,phone:"" })
     const [error, setError] = useState("")
+    const formRef = useRef(null)
+
+    useEffect(() => {
+        const context = gsap.context(() => {
+            gsap.from(formRef.current, { autoAlpha: 0, duration: 0.75, scale: 0.92, y: 24, ease: 'back.out(1.7)' })
+        })
+        return () => context.revert()
+    }, [])
 
     function handleChange(e) {
         const { name, value } = e.target
@@ -31,7 +39,7 @@ function Signup() {
     return (
         <div className="auth-container">
             <h2 className="auth-title">Sign Up</h2>
-            <form onSubmit={handleSubmit} className="auth-form">
+            <form onSubmit={handleSubmit} className="auth-form" ref={formRef}>
                 <input
                     type="text"
                     placeholder="Enter Name"

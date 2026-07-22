@@ -1,0 +1,186 @@
+// import { useEffect, useRef, useState } from "react";
+// import axios from "axios";
+// import { gsap } from "gsap";
+// import { useLocation, useNavigate } from "react-router-dom";
+
+// function HotelRoom() {
+//   const location = useLocation();
+//   const navigate = useNavigate();
+
+//   // Selected hotel passed from UserDashBoard state
+//   const hotelData = location.state?.hotelData || null;
+
+//   const [rooms, setRooms] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const contentRef = useRef(null);
+//   const roomsRef = useRef(null);
+
+//   useEffect(() => {
+//     if (!hotelData?._id) return;
+
+//     async function loadHotelRooms() {
+//       try {
+//         setLoading(true);
+//         const res = await axios.get("http://localhost:1100/room/getallrooms");
+//         const activeHotelRooms = (res.data || []).filter(
+//           (room) =>
+//             room.isActive === true &&
+//             (room.hotelId === hotelData._id || room.hotelId?._id === hotelData._id)
+//         );
+//         setRooms(activeHotelRooms);
+//       } catch (error) {
+//         console.log("Error loading rooms:", error);
+//         setRooms([]);
+//       } finally {
+//         setLoading(false);
+//       }
+//     }
+
+//     loadHotelRooms();
+//   }, [hotelData]);
+
+//   useEffect(() => {
+//     if (!hotelData) return undefined;
+
+//     const context = gsap.context(() => {
+//       gsap.from(".user-back-button, .user-selected-hotel, .user-section-title", {
+//         autoAlpha: 0,
+//         duration: 0.75,
+//         y: 24,
+//         stagger: 0.1,
+//         ease: "back.out(1.7)",
+//       });
+//     }, contentRef);
+
+//     return () => context.revert();
+//   }, [hotelData]);
+
+//   useEffect(() => {
+//     if (loading || !roomsRef.current?.children.length) return;
+
+//     const context = gsap.context(() => {
+//       gsap.from(roomsRef.current.children, {
+//         autoAlpha: 0,
+//         duration: 0.65,
+//         y: 28,
+//         stagger: 0.1,
+//         ease: "power3.out",
+//         clearProps: "transform,opacity,visibility",
+//       });
+//     }, roomsRef);
+
+//     return () => context.revert();
+//   }, [loading, rooms.length]);
+
+//   const handleBookRoom = (room) => {
+//     alert(`Booking initiated for Room #${room.roomNumber}!`);
+//     // Here you can navigate to a booking/payment checkout component
+//   };
+
+//   if (!hotelData) {
+//     return (
+//       <div className="user-no-hotel">
+//         <h2>No Hotel Selected</h2>
+//         <button
+//           onClick={() => navigate("/userdashboard")}
+//           className="user-back-hotels-btn"
+//         >
+//           Back to Hotels
+//         </button>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="user-hotel-room-page">
+//       <div className="user-room-content" ref={contentRef}>
+        
+//         {/* Back Button and Hotel Header */}
+//         <button
+//           onClick={() => navigate(-1)}
+//           className="user-back-hotels-btn user-back-button"
+//         >
+//           ← Back to Hotels
+//         </button>
+
+//         <div className="user-selected-hotel">
+//           <h1 className="user-selected-hotel-name">{hotelData.hotelname}</h1>
+//           <p className="user-selected-hotel-detail">
+//             📍 <strong>Location:</strong> {hotelData.cityId?.cityName || "City"}, {hotelData.stateId?.stateName || "State"}
+//           </p>
+//           <p className="user-selected-hotel-detail">
+//             🏠 <strong>Address:</strong> {hotelData.hoteladdress}
+//           </p>
+//         </div>
+
+//         <h2 className="user-section-title">Available Rooms</h2>
+
+//         {/* Rooms Cards Grid */}
+//         {loading ? (
+//           <p>Loading available rooms...</p>
+//         ) : rooms.length === 0 ? (
+//           <div className="user-empty-message">
+//             <p className="user-empty-room-text">No active rooms available for this hotel right now.</p>
+//           </div>
+//         ) : (
+//           <div className="user-room-grid" ref={roomsRef}>
+//             {rooms.map((room) => (
+//               <div
+//                 key={room._id}
+//                 className="user-room-card"
+//               >
+//                 {/* Room Image */}
+//                 <div className="user-room-image">
+//                   {room.images && room.images.length > 0 ? (
+//                     <img src={room.images[0]} alt="Room Preview" className="user-card-image" />
+//                   ) : (
+//                     <div className="user-image-placeholder">
+//                       🛏️ Photo Unavailable
+//                     </div>
+//                   )}
+//                 </div>
+
+//                 {/* Card Details */}
+//                 <div className="user-room-card-body">
+//                   <div className="user-room-card-heading">
+//                     <h3 className="user-room-name">Room #{room.roomNumber}</h3>
+//                     <span className="user-room-type">
+//                       {room.roomType}
+//                     </span>
+//                   </div>
+
+//                   <p className="user-room-detail">
+//                     <strong>Floor:</strong> {room.floor}
+//                   </p>
+//                   <p className="user-room-detail">
+//                     <strong>Capacity:</strong> {room.capacity} Guest(s)
+//                   </p>
+//                   <p className="user-room-price">
+//                     ₹{room.pricePerNight} / night
+//                   </p>
+
+//                   {/* Facilities Badges */}
+//                   <div className="user-room-facilities">
+//                     {room.ac && <span className="user-facility-badge">❄️ AC</span>}
+//                     {room.wifi && <span className="user-facility-badge">📶 WiFi</span>}
+//                     {room.tv && <span className="user-facility-badge">📺 TV</span>}
+//                     {room.geyser && <span className="user-facility-badge">🚿 Geyser</span>}
+//                   </div>
+
+//                   <button
+//                     onClick={() => handleBookRoom(room)}
+//                     className="user-book-room-btn"
+//                   >
+//                     Book Now
+//                   </button>
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default HotelRoom;

@@ -121,7 +121,7 @@ function AdminHotelManagement() {
   });
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif", maxWidth: "1000px", margin: "0 auto" }}>
+    <div className="app-page app-page--management" style={{ padding: "20px", fontFamily: "Arial, sans-serif", maxWidth: "1000px", margin: "0 auto" }}>
       {/* Header with Add Hotel Button */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
         <h2>Hotel Configuration Management</h2>

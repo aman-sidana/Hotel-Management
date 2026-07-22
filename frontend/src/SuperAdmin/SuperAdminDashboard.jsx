@@ -7,20 +7,22 @@ import HotelManagement from "./HotelManagement";
 import AdminManagement from "./AdminManagement";
 import AdminForm from "../Admin/AdminForm";
 
+
 function SuperAdminDashboard() {
   const [activetab, setActivetab] = useState("state");
 
   return (
-    <div className="main-container">
+    <div className="superadmin-wrapper">
       <Sidebar activetab={activetab} SetActivetab={setActivetab} />
-      <div className="content">
+
+      <main className="superadmin-content">
         {activetab === "adminform" && <AdminForm />}
         {activetab === "state" && <StateManagement />}
         {activetab === "district" && <DistrictManagement />}
         {activetab === "city" && <CityManagement />}
         {activetab === "admin" && <AdminManagement />}
         {activetab === "hotel" && <HotelManagement />}
-      </div>
+      </main>
     </div>
   );
 }

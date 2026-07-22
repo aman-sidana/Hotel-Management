@@ -1,51 +1,31 @@
 import React from "react";
 
 function Sidebar({ activetab, SetActivetab }) {
+  const menuItems = [
+    { id: "state", label: "Manage State" },
+    { id: "district", label: "Manage District" },
+    { id: "city", label: "Manage City" },
+    { id: "admin", label: "Admin's" },
+    { id: "hotel", label: "Hotel's" },
+  ];
+
   return (
-    <div className="sidebar">
-      <button
-        className={activetab === "state" ? "active" : ""}
-        onClick={() => SetActivetab("state")}
-      >
-        Manage State
-      </button>
-
-      <button
-        className={activetab === "district" ? "active" : ""}
-        onClick={() => SetActivetab("district")}
-      >
-        Manage District
-      </button>
-
-      <button
-        className={activetab === "city" ? "active" : ""}
-        onClick={() => SetActivetab("city")}
-      >
-        Manage City
-      </button>
-
-      {/* <button
-        className={activetab === "coupon" ? "active" : ""}
-        onClick={() => SetActivetab("coupon")}
-      >
-        Manage Coupon
-      </button> */}
-
-      <button
-        className={activetab === "admin" ? "active" : ""}
-        onClick={() => SetActivetab("admin")}
-      >
-        Admin's
-      </button>
-
-      <button
-        className={activetab === "hotel" ? "active" : ""}
-        onClick={() => SetActivetab("hotel")}
-      >
-        Hotel's
-      </button>
-
-    </div>
+    <aside className="sidebar-container">
+      <div className="sidebar-header">
+        <span className="sidebar-title">Menu</span>
+      </div>
+      <nav className="sidebar-nav">
+        {menuItems.map((item) => (
+          <button
+            key={item.id}
+            className={`sidebar-btn ${activetab === item.id ? "active" : ""}`}
+            onClick={() => SetActivetab(item.id)}
+          >
+            {item.label}
+          </button>
+        ))}
+      </nav>
+    </aside>
   );
 }
 

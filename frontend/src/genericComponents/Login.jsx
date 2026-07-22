@@ -1,11 +1,28 @@
-import React, { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import axios from 'axios'
+import { gsap } from 'gsap'
 import { useNavigate } from 'react-router-dom'
+// import './Login.css' // Import your CSS file here
 
 function Login() {
     const navigate = useNavigate();
     const [form, setForm] = useState({ email: "", password: "" })
     const [error, setError] = useState("")
+    const [loading, setLoading] = useState(false)
+    const formRef = useRef(null)
+
+    useEffect(() => {
+        const context = gsap.context(() => {
+            gsap.from(formRef.current, { 
+                autoAlpha: 0, 
+                duration: 0.85, 
+                scale: 0.9, 
+                y: 30, 
+                ease: 'back.out(1.7)' 
+            })
+        })
+        return () => context.revert()
+    }, [])
 
     function handleChange(e) {
         const { name, value } = e.target
@@ -19,57 +36,113 @@ function Login() {
             setError("Email and Password are required")
             return;
         }
+
+        setLoading(true)
         try {
             const result = await axios.post('http://localhost:1100/user/login', form)
-            console.log(`>>>>login`, result.data)
             const token = result?.data?.token
             const currentuser = result?.data?.user
-            console.log(currentuser)
+            
             localStorage.setItem('currentuser', JSON.stringify(currentuser))
+            
             if (token) {
                 localStorage.setItem('token', token)
                 navigate('/home')
                 setForm({ email: "", password: "" })
             } else {
-                setError("password is incorrect")
+                setError("Password is incorrect")
             }
-        } catch (error) {
-            console.log("Backend Error:", error.response?.data);
-            if (error.response) {
-                setError(error.response.data.message);
+        } catch (err) {
+            if (err.response?.data?.message) {
+                setError(err.response.data.message);
             } else {
-                setError("Something went wrong");
+                setError("Something went wrong. Please try again.");
             }
+        } finally {
+            setLoading(false)
         }
     }
 
     return (
-        <div className="auth-container">
-            <h2 className="auth-title">Login</h2>
-            <form onSubmit={handleSubmit} className="auth-form">
-                <input
-                    type="email"
-                    placeholder="Enter Email"
-                    name="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    className="auth-input"
-                />
-                <input
-                    type="password"
-                    placeholder="Enter Password"
-                    name="password"
-                    value={form.password}
-                    onChange={handleChange}
-                    className="auth-input"
-                />
-                <p>Don't have a account? <strong onClick={() => navigate("/signup")}>signup</strong></p>
-                <button type="submit" className="auth-btn">Login</button>
-                <p onClick={() => navigate('/forget')} className="auth-link-text">Forget Password ?</p>
-                {error && <p className="auth-error-msg">{error}</p>}
+        <div className="auth-page-wrapper">
+            {/* Ambient Background Gradient Orbs */}
+            <div className="gradient-orb orb-1"></div>
+            <div className="gradient-orb orb-2"></div>
+            <div className="gradient-orb orb-3"></div>
 
-                <button className='auth-btn' onClick={() => navigate('/adminform')}>Admin Request</button>
-            </form>
+            {/* Login Glass Card */}
+            <div ref={formRef} className="auth-card">
+                <div className="auth-header">
+                    <h2 className="auth-title">Welcome Back</h2>
+                    <p className="auth-subtitle">Please sign in to continue to your account</p>
+                </div>
+
+                <form onSubmit={handleSubmit} className="auth-form">
+                    <div className="input-group">
+                        <label className="input-label">Email Address</label>
+                        <input
+                            type="email"
+                            placeholder="name@company.com"
+                            name="email"
+                            value={form.email}
+                            onChange={handleChange}
+                            className="auth-input"
+                        />
+                    </div>
+
+                    <div className="input-group">
+                        <div className="label-row">
+                            <label className="input-label">Password</label>
+                            <span 
+                                onClick={() => navigate('/forget')} 
+                                className="forgot-link"
+                            >
+                                Forgot?
+                            </span>
+                        </div>
+                        <input
+                            type="password"
+                            placeholder="••••••••"
+                            name="password"
+                            value={form.password}
+                            onChange={handleChange}
+                            className="auth-input"
+                        />
+                    </div>
+
+                    {error && <div className="error-banner">{error}</div>}
+
+                    <button 
+                        type="submit" 
+                        disabled={loading}
+                        className="btn-primary"
+                    >
+                        {loading ? "Signing in..." : "Login"}
+                    </button>
+
+                    <p className="signup-prompt">
+                        Don't have an account?{" "}
+                        <strong 
+                            onClick={() => navigate("/signup")}
+                            className="signup-link"
+                        >
+                            Sign up
+                        </strong>
+                    </p>
+
+                    <div className="divider">
+                        <span>OR</span>
+                    </div>
+
+                    <button 
+                        type="button"
+                        onClick={() => navigate('/adminform')}
+                        className="btn-secondary"
+                    >
+                        Admin Request
+                    </button>
+                </form>
+            </div>
         </div>
     )
 }

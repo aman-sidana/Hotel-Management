@@ -27,6 +27,10 @@ import AdminForm from "./Admin/AdminForm";
 import CheckAdminRequest from "./Admin/CheckAdminRequest";
 import RoomForm from "./Room/RoomForm";
 import HotelRoomManagement from "./Hotel/HotelRoomManagement";
+// import HotelView from "./User/HotelView";
+import HotelRoom from "./User/HotelRoom";
+import UserBooking from "./User/UserBooking";
+
 import "./App.css"
 
 function App() {
@@ -38,13 +42,20 @@ function App() {
         {/* <Header /> */}
 
         <Routes>
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<UserDashBoard />} />
+
+          <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forget" element={<ForgetPassword />} />
           <Route path="/resetpassword" element={<ResetPassword />} />
           <Route path="/adminform" element={<AdminForm />} />
           <Route path="/checkrequest" element={<CheckRequest />} />
           <Route path="/checkaddminrequest" element={<CheckAdminRequest />} />
+          
+
+
+
+
 
 
 
@@ -92,11 +103,7 @@ function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/userdashboard" element={
-            <ProtectedRoute>
-              <UserDashBoard />
-            </ProtectedRoute>
-          } />
+
           <Route path="/admindashboard" element={
             <ProtectedRoute>
               <AdminDashBoard />
@@ -107,19 +114,30 @@ function App() {
               <HotelForm />
             </ProtectedRoute>
           } />
-          
+
           <Route path="/roomform" element={
             <ProtectedRoute>
               <RoomForm />
             </ProtectedRoute>
           } />
-          
+
           <Route path="/hotelroommanage" element={
             <ProtectedRoute>
-              < HotelRoomManagement/>
+              < HotelRoomManagement />
             </ProtectedRoute>
           } />
-          
+          <Route path="/hotelrooms" element={
+            <ProtectedRoute>
+              <HotelRoom />
+            </ProtectedRoute>
+          } />
+          <Route path="/userbookings" element={
+            <ProtectedRoute>
+              <UserBooking />
+            </ProtectedRoute>
+          } />
+
+
 
         </Routes>
       </BrowserRouter>

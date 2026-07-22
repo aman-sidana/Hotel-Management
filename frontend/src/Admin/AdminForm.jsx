@@ -188,7 +188,7 @@ function AdminForm() {
 
 
   return (
-    <div className="hotel-form-container">
+    <div className="hotel-form-container app-page app-page--form">
       <h2>{isEditMode ? "Update Admin Registration" : "Admin Registration"}</h2>
 
       <div>

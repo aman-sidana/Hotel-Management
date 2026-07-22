@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import UseTheme from "./custom hooks/Usetheme";
 
@@ -20,7 +19,7 @@ function Home() {
   }
 
   const renderDashboardByRole = () => {
-    switch (loggedInUser?.role) {
+    switch (loggedInUser?.role?.toLowerCase()) {
       case "superadmin":
         return <SuperAdminDashboard />;
       case "admin":
@@ -36,28 +35,31 @@ function Home() {
 
   return (
     <div className="dashboard">
-      <header className="header">
-        <div>
-          <h2>Welcome {loggedInUser?.name || "Guest"}</h2>
-          <p>{loggedInUser?.role}</p>
-        </div>
-        <div>
-          <button className="btn btn-danger" onClick={logoutuser}>
-            Logout
-          </button>
-          <button onClick={changeTheme} className="theme-toggle-btn">
-            {theme === "light" ? "🌙 Dark" : "☀️ Light"}
-          </button>
+      {/* Hide header if loggedInUser role is 'user' */}
+      {loggedInUser?.role?.toLowerCase() !== "user" && (
+        <header className="header">
+          <div>
+            <h2>Welcome {loggedInUser?.name || "Guest"}</h2>
+            <p>{loggedInUser?.role}</p>
+          </div>
+          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+            <button onClick={changeTheme} className="theme-toggle-btn">
+              {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+            </button>
 
-          <button
-            className="btn btn-warning"
-            style={{ marginLeft: "10px" }}
-            onClick={() => navigate("/resetpassword")}
-          >
-            Reset Password
-          </button>
-        </div>
-      </header>
+            <button className="btn btn-danger" onClick={logoutuser}>
+              Logout
+            </button>
+
+            <button
+              className="btn btn-warning header-reset-btn"
+              onClick={() => navigate("/resetpassword")}
+            >
+              Reset Password
+            </button>
+          </div>
+        </header>
+      )}
 
       {renderDashboardByRole()}
     </div>

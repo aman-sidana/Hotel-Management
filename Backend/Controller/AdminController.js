@@ -579,37 +579,43 @@ exports.AdminRequest = async (req, res) => {
 };
 
 exports.checkRequestId = async (req, res) => {
-    try {
-        console.log(req.body);
-        const { AdminRequestId } = req.body;
-        console.log(AdminRequestId)
+  try {
 
-        if (!AdminRequestId) {
-            return res.status(400).json({
-                message: "Admin Request ID is required"
-            });
-        }
+    const { AdminRequestId } = req.body;
 
-        const existsRequest = await AdminModel.findOne({ AdminRequestId });
-
-        console.log(existsRequest)
-        if (!existsRequest) {
-            return res.status(404).json({
-                message: "No Request Found"
-            });
-        }
-
-        return res.status(200).json({
-            message: "Request Found",
-            data: existsRequest
-        });
-
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            message: "Internal Server Error"
-        });
+    if (!AdminRequestId) {
+      return res.status(400).json({
+        success: false,
+        message: "Admin Request ID is required",
+      });
     }
+
+    const admin = await AdminModel.findOne({
+      AdminRequestId: AdminRequestId.trim(),
+    });
+
+    if (!admin) {
+      return res.status(404).json({
+        success: false,
+        message: "No Request Found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Request Found",
+      data: admin,
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
 };
 
 exports.updateRequest = async (req, res) => {

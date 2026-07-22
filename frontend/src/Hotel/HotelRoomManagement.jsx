@@ -6,6 +6,10 @@ import { useNavigate } from "react-router-dom";
 function HotelRoomManagement() {
   const navigate = useNavigate();
 
+  // Logged-in hotel account (a UserModel doc with role "hotel").
+  // Its HotelDetails record is linked only by matching email, not by _id.
+  const currentUser = JSON.parse(localStorage.getItem("currentuser") || "null");
+
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -27,8 +31,31 @@ function HotelRoomManagement() {
   const fetchRooms = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:1100/room/getallrooms");
-      setRooms(res.data || []);
+
+      const [roomsRes, hotelsRes] = await Promise.all([
+        axios.get("http://localhost:1100/room/getallrooms"),
+        axios.get("http://localhost:1100/hotel/allhotels"),
+      ]);
+
+      const allRooms = roomsRes.data || [];
+      const allHotels = hotelsRes.data || [];
+
+      // Find the HotelDetails doc matching this logged-in account's email
+      const myHotel = currentUser?.email
+        ? allHotels.find(
+            (h) => h.hotelemail?.toLowerCase() === currentUser.email.toLowerCase()
+          )
+        : null;
+
+      // Only keep rooms that belong to that hotel
+      const ownRooms = myHotel
+        ? allRooms.filter(
+            (room) =>
+              room.hotelId === myHotel._id || room.hotelId?._id === myHotel._id
+          )
+        : [];
+
+      setRooms(ownRooms);
     } catch (error) {
       console.log("Error fetching rooms:", error);
       setRooms([]);
@@ -104,12 +131,12 @@ function HotelRoomManagement() {
   });
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "#f8fafc" }}>
-  
+    <div className="app-page app-page--split" style={{ display: "flex", minHeight: "100vh", backgroundColor: "#f8fafc" }}>
+
 
       {/* Main Content Area */}
       <div style={{ flex: 1, padding: "25px", fontFamily: "Arial, sans-serif" }}>
-        
+
         {/* Top Header Section */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
           <div>

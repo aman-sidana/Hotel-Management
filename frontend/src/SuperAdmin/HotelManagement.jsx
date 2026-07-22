@@ -151,7 +151,7 @@ function HotelManagement() {
   });
 
   return (
-    <div className="hotel-management-container">
+    <div className="hotel-management-container app-page app-page--management">
       <h2>Hotel Management</h2>
 
       <div className="tabs-container">

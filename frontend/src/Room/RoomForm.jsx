@@ -10,7 +10,9 @@ function RoomForm() {
   const isEditMode = !!existingRoom;
 
   const currentUser = JSON.parse(localStorage.getItem("currentuser")) || {};
-  const isAdmin = currentUser?.role?.toLowerCase() === "admin" || currentUser?.role?.toLowerCase() === "superadmin";
+  const isAdmin =
+    currentUser?.role?.toLowerCase() === "admin" ||
+    currentUser?.role?.toLowerCase() === "superadmin";
 
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -66,7 +68,6 @@ function RoomForm() {
     }
   };
 
-  // Handles text and select input changes
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -74,7 +75,6 @@ function RoomForm() {
     });
   };
 
-  // Handles boolean checkbox toggles
   const handleCheckboxChange = (e) => {
     setForm({
       ...form,
@@ -113,7 +113,6 @@ function RoomForm() {
         );
         alert("Room Details Updated Successfully!");
       } else {
-        // Direct admin route or standard creation
         const endpoint = isAdmin
           ? "http://localhost:1100/room/admin-add-room"
           : "http://localhost:1100/room/addroom";
@@ -133,45 +132,112 @@ function RoomForm() {
     }
   };
 
+  // Reusable Shared Styles
+  const labelStyle = {
+    display: "block",
+    marginBottom: "8px",
+    fontWeight: "600",
+    color: "#f1f5f9",
+    fontSize: "14px",
+  };
+
+  const sectionHeadingStyle = {
+    display: "block",
+    marginBottom: "10px",
+    fontWeight: "600",
+    color: "#38bdf8",
+    fontSize: "15px",
+  };
+
+  const inputStyle = {
+    width: "100%",
+    padding: "10px 12px",
+    borderRadius: "6px",
+    border: "1px solid #334155",
+    backgroundColor: "#0f172a",
+    color: "#f8fafc",
+    fontSize: "14px",
+    boxSizing: "border-box",
+    outline: "none",
+  };
+
+  const boxContainerStyle = {
+    display: "grid",
+    gap: "12px",
+    backgroundColor: "#0f172a",
+    border: "1px solid #334155",
+    padding: "16px",
+    borderRadius: "8px",
+  };
+
+  const checkboxLabelStyle = {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    fontSize: "14px",
+    color: "#cbd5e1",
+    cursor: "pointer",
+  };
+
   return (
     <div
       style={{
         maxWidth: "800px",
         margin: "30px auto",
-        padding: "25px",
-        background: "#ffffff",
-        borderRadius: "8px",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-        fontFamily: "Arial, sans-serif",
+        padding: "28px",
+        background: "#1e293b",
+        borderRadius: "12px",
+        boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
+        fontFamily: "'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+        color: "#f8fafc",
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-        <h2 style={{ margin: 0, color: "#1e293b" }}>
-          {isEditMode ? "Edit Room Details" : "Add New Room Configuration"}
-        </h2>
+      {/* Header */}
+      <div
+        style={{
+          display: "flex",
+          justify: "space-between",
+          alignItems: "center",
+          marginBottom: "24px",
+          borderBottom: "1px solid #334155",
+          paddingBottom: "16px",
+        }}
+      >
         <button
           type="button"
           onClick={() => navigate(-1)}
-          style={{ padding: "8px 14px", background: "#64748b", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer" }}
+          style={{
+            padding: "8px 16px",
+            background: "#475569",
+            color: "#ffffff",
+            border: "none",
+            borderRadius: "6px",
+            fontWeight: "500",
+            cursor: "pointer",
+          }}
         >
           ← Back
         </button>
+        <h2 style={{ margin: 0, color: "#f8fafc", fontSize: "22px" }}>
+          {isEditMode ? "Edit Room Details" : "Add New Room Configuration"}
+        </h2>
+
       </div>
 
       <form onSubmit={handleSubmit}>
         {/* Hotel Dropdown */}
-        <div style={{ marginBottom: "15px" }}>
-          <label style={{ display: "block", marginBottom: "6px", fontWeight: "bold", color: "#334155" }}>
-            Select Hotel *
-          </label>
+        <div style={{ marginBottom: "20px" }}>
+          <label style={labelStyle}>Select Hotel *</label>
           <select
             name="hotelId"
             required
             value={form.hotelId}
             onChange={handleChange}
-            style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #cbd5e1" }}
+            style={inputStyle}
           >
-            <option value="">-- Choose Hotel --</option>
+            <option value="" disabled style={{ color: "#94a3b8" }}>
+              -- Choose Hotel --
+            </option>
             {hotels.map((hotel) => (
               <option key={hotel._id} value={hotel._id}>
                 {hotel.hotelname} ({hotel.hotelemail || hotel.hotelphone})
@@ -180,12 +246,17 @@ function RoomForm() {
           </select>
         </div>
 
-        {/* Basic Room Config */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "15px", marginBottom: "15px" }}>
+        {/* Basic Room Config Grid */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gap: "16px",
+            marginBottom: "20px",
+          }}
+        >
           <div>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: "bold", color: "#334155" }}>
-              Room Number *
-            </label>
+            <label style={labelStyle}>Room Number *</label>
             <input
               type="number"
               name="roomNumber"
@@ -193,33 +264,29 @@ function RoomForm() {
               placeholder="e.g. 101"
               value={form.roomNumber}
               onChange={handleChange}
-              style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #cbd5e1", boxSizing: "border-box" }}
+              style={inputStyle}
             />
           </div>
 
           <div>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: "bold", color: "#334155" }}>
-              Floor Number
-            </label>
+            <label style={labelStyle}>Floor Number</label>
             <input
               type="number"
               name="floor"
               placeholder="e.g. 1"
               value={form.floor}
               onChange={handleChange}
-              style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #cbd5e1", boxSizing: "border-box" }}
+              style={inputStyle}
             />
           </div>
 
           <div>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: "bold", color: "#334155" }}>
-              Room Type
-            </label>
+            <label style={labelStyle}>Room Type</label>
             <select
               name="roomType"
               value={form.roomType}
               onChange={handleChange}
-              style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #cbd5e1" }}
+              style={inputStyle}
             >
               <option value="Single">Single</option>
               <option value="Double">Double</option>
@@ -231,11 +298,16 @@ function RoomForm() {
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: "20px" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "16px",
+            marginBottom: "24px",
+          }}
+        >
           <div>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: "bold", color: "#334155" }}>
-              Price Per Night (₹) *
-            </label>
+            <label style={labelStyle}>Price Per Night (₹) *</label>
             <input
               type="number"
               name="pricePerNight"
@@ -243,44 +315,45 @@ function RoomForm() {
               placeholder="e.g. 2500"
               value={form.pricePerNight}
               onChange={handleChange}
-              style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #cbd5e1", boxSizing: "border-box" }}
+              style={inputStyle}
             />
           </div>
 
           <div>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: "bold", color: "#334155" }}>
-              Guest Capacity
-            </label>
+            <label style={labelStyle}>Guest Capacity</label>
             <input
               type="number"
               name="capacity"
               placeholder="e.g. 2"
               value={form.capacity}
               onChange={handleChange}
-              style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #cbd5e1", boxSizing: "border-box" }}
+              style={inputStyle}
             />
           </div>
         </div>
 
         {/* Bed Types */}
-        <div style={{ marginBottom: "20px" }}>
-          <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#0d6efd" }}>
-            Bed Configuration:
-          </label>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px", background: "#f8fafc", padding: "12px", borderRadius: "6px" }}>
+        <div style={{ marginBottom: "24px" }}>
+          <label style={sectionHeadingStyle}>Bed Configuration:</label>
+          <div
+            style={{
+              ...boxContainerStyle,
+              gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+            }}
+          >
             {[
               { name: "kingSizeBed", label: "King Size Bed" },
               { name: "queenSizeBed", label: "Queen Size Bed" },
               { name: "singleBed", label: "Single Bed" },
               { name: "doubleBed", label: "Double Bed" },
             ].map((bed) => (
-              <label key={bed.name} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "14px", cursor: "pointer" }}>
+              <label key={bed.name} style={checkboxLabelStyle}>
                 <input
                   type="checkbox"
                   name={bed.name}
                   checked={form[bed.name]}
                   onChange={handleCheckboxChange}
-                  style={{ width: "16px", height: "16px" }}
+                  style={{ accentColor: "#10b981", width: "16px", height: "16px" }}
                 />
                 {bed.label}
               </label>
@@ -289,11 +362,14 @@ function RoomForm() {
         </div>
 
         {/* Room Facilities Checkboxes */}
-        <div style={{ marginBottom: "20px" }}>
-          <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#0d6efd" }}>
-            Facilities & Amenities:
-          </label>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "10px", background: "#f8fafc", padding: "12px", borderRadius: "6px" }}>
+        <div style={{ marginBottom: "24px" }}>
+          <label style={sectionHeadingStyle}>Facilities & Amenities:</label>
+          <div
+            style={{
+              ...boxContainerStyle,
+              gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+            }}
+          >
             {[
               { name: "ac", label: "Air Conditioner (AC)" },
               { name: "cooler", label: "Cooler" },
@@ -314,13 +390,13 @@ function RoomForm() {
               { name: "smokeDetector", label: "Smoke Detector" },
               { name: "fireExtinguisher", label: "Fire Extinguisher" },
             ].map((item) => (
-              <label key={item.name} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", cursor: "pointer" }}>
+              <label key={item.name} style={checkboxLabelStyle}>
                 <input
                   type="checkbox"
                   name={item.name}
                   checked={form[item.name]}
                   onChange={handleCheckboxChange}
-                  style={{ width: "16px", height: "16px" }}
+                  style={{ accentColor: "#10b981", width: "16px", height: "16px" }}
                 />
                 {item.label}
               </label>
@@ -329,23 +405,26 @@ function RoomForm() {
         </div>
 
         {/* Services Checkboxes */}
-        <div style={{ marginBottom: "20px" }}>
-          <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#0d6efd" }}>
-            Services Offered:
-          </label>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", background: "#f8fafc", padding: "12px", borderRadius: "6px" }}>
+        <div style={{ marginBottom: "24px" }}>
+          <label style={sectionHeadingStyle}>Services Offered:</label>
+          <div
+            style={{
+              ...boxContainerStyle,
+              gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+            }}
+          >
             {[
               { name: "roomService", label: "24/7 Room Service" },
               { name: "laundryService", label: "Laundry Service" },
               { name: "housekeeping", label: "Daily Housekeeping" },
             ].map((srv) => (
-              <label key={srv.name} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "14px", cursor: "pointer" }}>
+              <label key={srv.name} style={checkboxLabelStyle}>
                 <input
                   type="checkbox"
                   name={srv.name}
                   checked={form[srv.name]}
                   onChange={handleCheckboxChange}
-                  style={{ width: "16px", height: "16px" }}
+                  style={{ accentColor: "#10b981", width: "16px", height: "16px" }}
                 />
                 {srv.label}
               </label>
@@ -354,35 +433,44 @@ function RoomForm() {
         </div>
 
         {/* File Upload Section */}
-        <div style={{ marginBottom: "25px" }}>
-          <label style={{ display: "block", marginBottom: "6px", fontWeight: "bold", color: "#334155" }}>
-            Upload Room Photos
-          </label>
+        <div style={{ marginBottom: "28px" }}>
+          <label style={labelStyle}>Upload Room Photos</label>
           <input
             type="file"
             multiple
             accept="image/*"
             onChange={handleFileChange}
-            style={{ width: "100%", padding: "8px", border: "1px dashed #cbd5e1", borderRadius: "4px" }}
+            style={{
+              ...inputStyle,
+              padding: "10px",
+              border: "1px dashed #475569",
+              cursor: "pointer",
+            }}
           />
         </div>
 
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={loading}
           style={{
             width: "100%",
-            padding: "12px",
-            background: loading ? "#94a3b8" : "#10b981",
+            padding: "14px",
+            background: loading ? "#64748b" : "#10b981",
             color: "#ffffff",
             border: "none",
-            borderRadius: "6px",
-            fontWeight: "bold",
+            borderRadius: "8px",
+            fontWeight: "600",
             fontSize: "16px",
             cursor: loading ? "not-allowed" : "pointer",
+            transition: "background-color 0.2s ease",
           }}
         >
-          {loading ? "Processing..." : isEditMode ? "Update Room Profile" : "Register Room"}
+          {loading
+            ? "Processing..."
+            : isEditMode
+              ? "Update Room Profile"
+              : "Register Room"}
         </button>
       </form>
     </div>
