@@ -73,11 +73,16 @@ function Login() {
             {/* Login Glass Card */}
             <div ref={formRef} className="auth-card">
                 <div className="auth-header">
+                    <div className="flex justify-center mb-4">
+                        <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center text-2xl shadow-lg shadow-blue-600/40">
+                            🏨
+                        </div>
+                    </div>
                     <h2 className="auth-title">Welcome Back</h2>
                     <p className="auth-subtitle">Please sign in to continue to your account</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="auth-form">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div className="input-group">
                         <label className="input-label">Email Address</label>
                         <input
@@ -115,16 +120,24 @@ function Login() {
                     <button 
                         type="submit" 
                         disabled={loading}
-                        className="btn-primary"
+                        className="btn-primary mt-1"
                     >
-                        {loading ? "Signing in..." : "Login"}
+                        {loading ? (
+                            <span className="flex items-center justify-center gap-2">
+                                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                                </svg>
+                                Signing in...
+                            </span>
+                        ) : "Sign In"}
                     </button>
 
                     <p className="signup-prompt">
                         Don't have an account?{" "}
                         <strong 
                             onClick={() => navigate("/signup")}
-                            className="signup-link"
+                            className="signup-link font-semibold"
                         >
                             Sign up
                         </strong>
@@ -139,7 +152,7 @@ function Login() {
                         onClick={() => navigate('/adminform')}
                         className="btn-secondary"
                     >
-                        Admin Request
+                        Admin / Hotel Request
                     </button>
                 </form>
             </div>

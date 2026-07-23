@@ -1,3 +1,321 @@
-:root{
-  width: 100%;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  html {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900 min-h-screen;
+  }
+
+  /* Dark mode body */
+  html.dark body {
+    @apply bg-slate-900 text-slate-50;
+  }
+
+  input, select, textarea {
+    @apply outline-none;
+  }
+
+  button {
+    @apply cursor-pointer;
+  }
+}
+
+@layer components {
+  /* ─── Auth Pages ─── */
+  .auth-page-wrapper {
+    @apply min-h-screen flex items-center justify-center p-4 relative overflow-hidden;
+    @apply bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900;
+  }
+
+  .gradient-orb {
+    @apply absolute rounded-full opacity-20 blur-3xl pointer-events-none;
+  }
+
+  .orb-1 {
+    @apply w-96 h-96 bg-blue-500 -top-32 -left-32;
+  }
+
+  .orb-2 {
+    @apply w-80 h-80 bg-sky-400 top-1/2 -right-20;
+  }
+
+  .orb-3 {
+    @apply w-72 h-72 bg-indigo-500 bottom-10 left-1/4;
+  }
+
+  .auth-card {
+    @apply relative z-10 w-full max-w-md rounded-2xl p-8;
+    @apply bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl;
+    @apply dark:bg-slate-800/60 dark:border-slate-700;
+  }
+
+  .auth-header {
+    @apply text-center mb-7;
+  }
+
+  .auth-title {
+    @apply text-3xl font-bold text-white mb-2;
+  }
+
+  .auth-subtitle {
+    @apply text-slate-300 text-sm;
+    @apply dark:text-slate-400;
+  }
+
+  .input-label {
+    @apply block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5;
+    @apply dark:text-slate-400;
+  }
+
+  .input-group {
+    @apply flex flex-col gap-1.5;
+  }
+
+  .label-row {
+    @apply flex justify-between items-center;
+  }
+
+  .forgot-link {
+    @apply text-xs text-sky-400 hover:text-sky-300 cursor-pointer transition-colors font-medium;
+  }
+
+  .auth-input {
+    @apply w-full px-4 py-3 rounded-xl text-sm text-white;
+    @apply bg-white/10 border border-white/20 placeholder-slate-400;
+    @apply focus:border-blue-400 focus:bg-white/15 focus:ring-2 focus:ring-blue-500/30;
+    @apply transition-all duration-200;
+    @apply dark:bg-slate-700/50 dark:border-slate-600 dark:text-white;
+  }
+
+  .error-banner {
+    @apply px-4 py-3 rounded-xl bg-red-500/20 border border-red-500/40 text-red-300 text-sm text-center;
+  }
+
+  .divider {
+    @apply flex items-center gap-3 text-slate-400 text-xs font-semibold my-1;
+  }
+
+  .divider::before, .divider::after {
+    content: '';
+    @apply flex-1 h-px bg-white/20;
+  }
+
+  .signup-prompt {
+    @apply text-center text-slate-300 text-sm;
+  }
+
+  .signup-link {
+    @apply text-sky-400 cursor-pointer hover:text-sky-300 font-semibold transition-colors;
+  }
+
+  /* ─── Buttons ─── */
+  .btn-primary {
+    @apply w-full py-3 px-5 rounded-xl font-semibold text-sm text-white;
+    @apply bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/30;
+    @apply transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0;
+  }
+
+  .btn-secondary {
+    @apply w-full py-3 px-5 rounded-xl font-semibold text-sm;
+    @apply bg-white/10 text-slate-200 border border-white/20;
+    @apply hover:bg-white/20 transition-all duration-200 hover:-translate-y-0.5;
+    @apply dark:bg-slate-700/50 dark:text-slate-200 dark:border-slate-600;
+  }
+
+  /* ─── Sidebar shared ─── */
+  .sidebar-container {
+    @apply w-64 min-w-[250px] h-screen sticky top-0 flex flex-col justify-between flex-shrink-0;
+    @apply bg-slate-900 border-r border-slate-800 text-slate-100 shadow-xl z-30;
+    @apply dark:bg-slate-950 dark:border-slate-800/80;
+  }
+
+  .sidebar-header {
+    @apply px-5 py-5 border-b border-slate-800;
+  }
+
+  .sidebar-title {
+    @apply text-sky-400 font-bold text-base tracking-wide;
+  }
+
+  .sidebar-nav {
+    @apply flex flex-col gap-1.5 p-3 flex-1 overflow-y-auto;
+  }
+
+  .sidebar-btn {
+    @apply w-full text-left px-4 py-3 rounded-xl text-sm font-semibold;
+    @apply text-slate-400 bg-transparent border border-transparent;
+    @apply hover:bg-slate-800/80 hover:text-white transition-all duration-200 active:scale-95;
+    @apply dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-slate-100;
+  }
+
+  .sidebar-btn.active {
+    @apply bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-600/30 font-bold;
+  }
+
+  /* ─── Dashboard Full-Screen Layout ─── */
+  .dashboard-layout {
+    @apply flex min-h-screen w-full bg-slate-50 dark:bg-slate-900;
+  }
+
+  .dashboard-main {
+    @apply flex-1 min-h-screen p-6 lg:p-8 overflow-y-auto w-full max-w-full;
+  }
+
+  /* ─── Management Module / Card container ─── */
+  .management-module {
+    @apply w-full rounded-2xl border p-7 shadow-xl transition-all duration-200;
+    @apply bg-white border-slate-200/80;
+    @apply dark:bg-slate-800/90 dark:border-slate-700/80;
+  }
+
+  .management-module h2 {
+    @apply text-2xl font-black mb-6 tracking-tight;
+    @apply bg-gradient-to-r from-slate-900 via-blue-800 to-indigo-600 bg-clip-text text-transparent;
+    @apply dark:from-white dark:via-sky-200 dark:to-blue-400;
+  }
+
+  /* ─── Table ─── */
+  .table-container {
+    @apply overflow-x-auto rounded-2xl border shadow-sm;
+    @apply border-slate-200 dark:border-slate-700/80;
+  }
+
+  .data-table, .hotel-table {
+    @apply w-full text-left border-collapse text-sm;
+  }
+
+  .data-table th, .hotel-table th {
+    @apply px-4 py-3.5 font-bold text-xs uppercase tracking-wider;
+    @apply bg-slate-100/80 text-slate-600 border-b border-slate-200;
+    @apply dark:bg-slate-700/60 dark:text-slate-300 dark:border-slate-700;
+  }
+
+  .data-table td, .hotel-table td {
+    @apply px-4 py-3.5 border-b;
+    @apply text-slate-700 border-slate-100;
+    @apply dark:text-slate-300 dark:border-slate-700/60;
+  }
+
+  .data-table tr:last-child td, .hotel-table tr:last-child td {
+    @apply border-0;
+  }
+
+  .data-table tbody tr:hover, .hotel-table tbody tr:hover {
+    @apply bg-slate-50/80 dark:bg-slate-700/40 transition-colors;
+  }
+
+  /* ─── Form Controls ─── */
+  .form-input, .form-select, .form-textarea {
+    @apply px-4 py-2.5 rounded-xl text-sm border font-medium;
+    @apply bg-white text-slate-800 border-slate-200/90 shadow-sm;
+    @apply focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20;
+    @apply transition-all duration-200;
+    @apply dark:bg-slate-700/80 dark:text-slate-100 dark:border-slate-600;
+    @apply dark:focus:border-blue-400 dark:focus:ring-blue-400/20;
+    @apply dark:placeholder-slate-400 placeholder-slate-400;
+  }
+
+  .form-select option {
+    @apply bg-white text-slate-800 dark:bg-slate-700 dark:text-slate-100;
+  }
+
+  /* ─── Action Button variants ─── */
+  .btn-action-primary {
+    @apply px-3.5 py-2 rounded-lg text-xs font-semibold;
+    @apply bg-blue-600 text-white hover:bg-blue-500 transition-colors;
+  }
+
+  .btn-action-secondary {
+    @apply px-3.5 py-2 rounded-lg text-xs font-semibold;
+    @apply bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors;
+    @apply dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600;
+  }
+
+  .btn-action-danger {
+    @apply px-3.5 py-2 rounded-lg text-xs font-semibold;
+    @apply bg-red-500 text-white hover:bg-red-600 transition-colors;
+  }
+
+  .btn-action-warning {
+    @apply px-3.5 py-2 rounded-lg text-xs font-semibold;
+    @apply bg-amber-500 text-white hover:bg-amber-600 transition-colors;
+  }
+
+  .btn-action-success {
+    @apply px-3.5 py-2 rounded-lg text-xs font-semibold;
+    @apply bg-emerald-500 text-white hover:bg-emerald-600 transition-colors;
+  }
+
+  /* ─── Status Badges ─── */
+  .status-badge {
+    @apply inline-block px-2.5 py-1 rounded-full text-xs font-bold capitalize whitespace-nowrap;
+  }
+
+  .status-badge.pending { @apply bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400; }
+  .status-badge.approved { @apply bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400; }
+  .status-badge.checkin { @apply bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400; }
+  .status-badge.checkout { @apply bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400; }
+  .status-badge.rejected, .status-badge.cancelled { @apply bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400; }
+
+  /* ─── Admin Cards ─── */
+  .admin-card {
+    @apply rounded-xl border overflow-hidden transition-all duration-200;
+    @apply bg-white border-slate-200 shadow-sm;
+    @apply hover:border-blue-400 hover:-translate-y-1 hover:shadow-md;
+    @apply dark:bg-slate-800 dark:border-slate-700 dark:hover:border-blue-500;
+  }
+
+  .admin-card.inactive {
+    @apply opacity-60;
+  }
+
+  /* ─── Modal ─── */
+  .modal-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center;
+    @apply bg-black/60 backdrop-blur-sm;
+  }
+
+  .modal-box {
+    @apply relative rounded-2xl w-full max-w-lg mx-4 p-7 shadow-2xl;
+    @apply bg-white border border-slate-200;
+    @apply dark:bg-slate-800 dark:border-slate-700;
+  }
+
+  /* ─── User Dashboard Navbar ─── */
+  .user-navbar {
+    @apply flex items-center justify-between px-[5%] py-5;
+    @apply sticky top-0 z-50;
+    @apply bg-white/80 backdrop-blur-xl border-b border-slate-200;
+    @apply dark:bg-slate-900/80 dark:border-slate-700;
+  }
+
+  /* ─── Hotel/Room Cards ─── */
+  .user-hotel-card, .user-room-card {
+    @apply rounded-xl border overflow-hidden flex flex-col cursor-pointer;
+    @apply bg-white border-slate-200 shadow-sm;
+    @apply hover:-translate-y-1.5 hover:border-blue-400 hover:shadow-lg;
+    @apply transition-all duration-200;
+    @apply dark:bg-slate-800 dark:border-slate-700 dark:hover:border-blue-500;
+  }
+
+  /* ─── Inline Admin Form ─── */
+  .admin-inline-form {
+    @apply rounded-xl border p-5 mb-7;
+    @apply bg-slate-50 border-slate-200;
+    @apply dark:bg-slate-700/30 dark:border-slate-600;
+  }
 }

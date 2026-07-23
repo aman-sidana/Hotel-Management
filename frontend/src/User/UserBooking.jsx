@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { gsap } from "gsap";
 import { useNavigate } from "react-router-dom";
-import "./userbookings.css";
+
+import Navbar from "../genericComponents/Navbar";
 
 function UserBooking() {
   const navigate = useNavigate();
@@ -13,7 +14,6 @@ function UserBooking() {
 
   const currentUser = JSON.parse(localStorage.getItem("currentuser") || "null");
 
-  // ================== FETCH USER BOOKINGS ==================
 
   useEffect(() => {
     if (!currentUser?._id) {
@@ -65,31 +65,23 @@ function UserBooking() {
 
   // ================== STATUS BADGE STYLE ==================
 
-  const statusClass = (status) => {
+  const statusBadgeClass = (status) => {
+    const base = "inline-block px-2.5 py-1 rounded-full text-xs font-bold capitalize whitespace-nowrap";
     switch (status) {
-      case "pending":
-        return "status-pending";
-      case "approved":
-        return "status-approved";
-      case "checkIn":
-        return "status-checkin";
-      case "checkOut":
-        return "status-checkout";
+      case "pending": return `${base} bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400`;
+      case "approved": return `${base} bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400`;
+      case "checkIn": return `${base} bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400`;
+      case "checkOut": return `${base} bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400`;
       case "rejected":
-        return "status-rejected";
-      case "cancelled":
-        return "status-cancelled";
-      default:
-        return "";
+      case "cancelled": return `${base} bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400`;
+      default: return `${base} bg-slate-100 text-slate-500`;
     }
   };
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "-";
     return new Date(dateStr).toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
+      day: "2-digit", month: "short", year: "numeric",
     });
   };
 
@@ -97,13 +89,16 @@ function UserBooking() {
 
   if (!currentUser) {
     return (
-      <div className="user-bookings-page">
-        <div className="user-no-hotel">
-          <h2>Please Login</h2>
-          <p>You need to be logged in to view your bookings dashboard.</p>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="text-5xl mb-4">🔒</div>
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Please Login</h2>
+          <p className="text-slate-500 dark:text-slate-400 mb-6">You need to be logged in to view your bookings.</p>
           <button
             onClick={() => navigate("/login")}
-            className="user-back-hotels-btn"
+            className="px-6 py-3 rounded-xl font-semibold text-sm text-white
+              bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/30
+              transition-all duration-200"
           >
             Go to Login
           </button>
@@ -113,94 +108,92 @@ function UserBooking() {
   }
 
   return (
-    <div className="user-bookings-page">
-      {/* Top Header Bar */}
-      <div className="bookings-header-bar">
-        <button
-          onClick={() => navigate("/")}
-          className="user-back-hotels-btn user-back-button"
-        >
-          ← Back to Dashboard
-        </button>
-        <h1 className="bookings-page-title">My Bookings</h1>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-16">
+      {/* Industry Standard Navbar */}
+      <Navbar />
+
+      <div className="px-5 py-8 max-w-7xl mx-auto">
+        {loading ? (
+          <div className="text-center py-20">
+            <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p className="text-slate-400 dark:text-slate-500">Loading your booking history...</p>
+          </div>
+        ) : bookings.length === 0 ? (
+          <div className="text-center py-20">
+            <div className="text-5xl mb-4">🧳</div>
+            <h3 className="text-xl font-bold text-slate-700 dark:text-slate-300 mb-2">No Bookings Found</h3>
+            <p className="text-slate-400 dark:text-slate-500 mb-6">You haven't reserved any hotel rooms yet.</p>
+            <button
+              onClick={() => navigate("/")}
+              className="px-6 py-3 rounded-xl font-semibold text-sm text-white
+                bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/30
+                transition-all duration-200"
+            >
+              Browse Available Hotels
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-5" ref={listRef}>
+            {bookings.map((booking) => (
+              <div
+                key={booking._id}
+                className="flex flex-col sm:flex-row rounded-2xl overflow-hidden border shadow-sm
+                  bg-white dark:bg-slate-800
+                  border-slate-200 dark:border-slate-700
+                  hover:border-blue-400 dark:hover:border-blue-500
+                  hover:shadow-md transition-all duration-200"
+              >
+                {/* Room Image */}
+                <div className="w-full sm:w-48 h-40 sm:h-auto bg-slate-100 dark:bg-slate-700 flex-shrink-0 overflow-hidden">
+                  {booking.roomId?.images?.length > 0 ? (
+                    <img src={booking.roomId.images[0]} alt="Room Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-slate-400 dark:text-slate-500 text-sm">🛏️ No Photo</div>
+                  )}
+                </div>
+
+                {/* Booking Details */}
+                <div className="flex-1 p-5">
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div>
+                      <h3 className="font-bold text-lg text-slate-800 dark:text-white">
+                        {booking.hotelId?.hotelname || "Hotel Reservation"}
+                      </h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        Room #{booking.roomId?.roomNumber || "N/A"} · {booking.roomId?.roomType || "Standard"}
+                      </p>
+                    </div>
+                    <span className={statusBadgeClass(booking.status)}>
+                      {booking.status || "Pending"}
+                    </span>
+                  </div>
+
+                  <div className="flex gap-6 mb-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Check In</p>
+                      <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{formatDate(booking.startDate)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Check Out</p>
+                      <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{formatDate(booking.endDate)}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Total Amount</p>
+                      <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">₹{booking.price}</p>
+                    </div>
+                    <span className="text-xs text-slate-400 dark:text-slate-500">
+                      ID: #{booking._id?.slice(-6)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-
-      {loading ? (
-        <div className="bookings-loading-state">
-          <div className="loading-spinner"></div>
-          <p>Loading your booking history...</p>
-        </div>
-      ) : bookings.length === 0 ? (
-        <div className="user-empty-message">
-          <div className="empty-icon">🧳</div>
-          <h3>No Bookings Found</h3>
-          <p className="user-empty-room-text">
-            You haven't reserved any hotel rooms yet.
-          </p>
-          <button
-            onClick={() => navigate("/userdashboard")}
-            className="user-back-hotels-btn"
-          >
-            Browse Available Hotels
-          </button>
-        </div>
-      ) : (
-        <div className="user-bookings-list" ref={listRef}>
-          {bookings.map((booking) => (
-            <div className="user-booking-card" key={booking._id}>
-              <div className="user-booking-image">
-                {booking.roomId?.images?.length > 0 ? (
-                  <img
-                    src={booking.roomId.images[0]}
-                    alt="Room Preview"
-                    className="user-card-image"
-                  />
-                ) : (
-                  <div className="user-image-placeholder">🛏️ Photo Unavailable</div>
-                )}
-              </div>
-
-              <div className="user-booking-details">
-                <div className="user-booking-header">
-                  <h3>{booking.hotelId?.hotelname || "Hotel Reservation"}</h3>
-                  <span className={`user-status-badge ${statusClass(booking.status)}`}>
-                    {booking.status || "Pending"}
-                  </span>
-                </div>
-
-                <p className="user-booking-room">
-                  Room #{booking.roomId?.roomNumber || "N/A"} · {booking.roomId?.roomType || "Standard"}
-                </p>
-
-                <div className="user-booking-dates">
-                  <div className="date-box">
-                    <span className="user-booking-label">Check In</span>
-                    <span className="user-booking-value">
-                      {formatDate(booking.startDate)}
-                    </span>
-                  </div>
-                  <div className="date-box">
-                    <span className="user-booking-label">Check Out</span>
-                    <span className="user-booking-value">
-                      {formatDate(booking.endDate)}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="user-booking-footer">
-                  <div className="price-container">
-                    <span className="price-label">Total Amount</span>
-                    <span className="user-booking-price">₹{booking.price}</span>
-                  </div>
-                  <span className="user-booking-id" title={booking._id}>
-                    ID: #{booking._id?.slice(-6)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

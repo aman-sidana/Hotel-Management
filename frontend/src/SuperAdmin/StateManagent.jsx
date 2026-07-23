@@ -10,9 +10,8 @@ function StateManagement() {
 
   const [activeTab, setActiveTab] = useState("active");
 
-  // New state variables for search and dropdown sort
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("stateAsc"); // Options: stateAsc, stateDesc, countryAsc, countryDesc
+  const [sortBy, setSortBy] = useState("stateAsc");
 
   useEffect(() => {
     getStates();
@@ -78,7 +77,6 @@ function StateManagement() {
     }
   };
 
-  // ORIGINAL TAB FILTER LOGIC (Kept exactly as provided)
   const filteredStates = states.filter((state) => {
     if (activeTab === "active") {
       return state.status === true;
@@ -88,7 +86,6 @@ function StateManagement() {
     return true;
   });
 
-  // Search filtering logic
   const searchedStates = filteredStates.filter((item) => {
     const q = searchQuery.toLowerCase();
     const nameMatch = item.stateName ? item.stateName.toLowerCase().includes(q) : false;
@@ -96,7 +93,6 @@ function StateManagement() {
     return nameMatch || countryMatch;
   });
 
-  // Sorting logic based on dropdown selection
   const displayedStates = [...searchedStates].sort((a, b) => {
     if (sortBy === "stateAsc") {
       return (a.stateName || "").localeCompare(b.stateName || "");
@@ -114,37 +110,37 @@ function StateManagement() {
     <div className="management-module">
       <h2>State Management</h2>
 
-      <div className="form-controls">
+      {/* Add Form */}
+      <div className="flex gap-3 mb-5 flex-wrap">
         <input
           type="text"
-          className="form-input"
-          placeholder="Enter State"
+          className="form-input flex-1 min-w-[200px]"
+          placeholder="Enter State Name"
           value={stateName}
           onChange={(e) => setStateName(e.target.value)}
         />
-        <button className="btn btn-primary" onClick={addState}>Add State</button>
+        <button className="btn-action-primary" onClick={addState}>+ Add State</button>
       </div>
 
-      <div className="filter-buttons" style={{ margin: "20px 0", display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+      {/* Filters */}
+      <div className="flex gap-3 items-center flex-wrap mb-5">
         <button
-          className={`btn ${activeTab === "active" ? "btn-primary" : "btn-secondary"}`}
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${activeTab === "active" ? "bg-blue-600 text-white" : "btn-action-secondary"}`}
           onClick={() => setActiveTab("active")}
         >
           Active States
         </button>
         <button
-          className={`btn ${activeTab === "inactive" ? "btn-primary" : "btn-secondary"}`}
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${activeTab === "inactive" ? "bg-blue-600 text-white" : "btn-action-secondary"}`}
           onClick={() => setActiveTab("inactive")}
         >
           Inactive States
         </button>
 
-        {/* Sort Dropdown */}
         <select
-          className="form-input"
+          className="form-select ml-auto"
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          style={{ marginLeft: "auto", width: "180px", cursor: "pointer" }}
         >
           <option value="stateAsc">State (A - Z)</option>
           <option value="stateDesc">State (Z - A)</option>
@@ -152,17 +148,16 @@ function StateManagement() {
           <option value="countryDesc">Country (Z - A)</option>
         </select>
 
-        {/* Search Input */}
         <input
           type="text"
-          className="form-input"
+          className="form-input w-44"
           placeholder="Search..."
-          style={{ width: "180px" }}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
 
+      {/* Table */}
       <div className="table-container">
         <table className="data-table">
           <thead>
@@ -176,11 +171,11 @@ function StateManagement() {
           <tbody>
             {displayedStates.map((item) => (
               <tr key={item._id}>
-                <td>{item.countryName}</td>
+                <td>{item.countryName || "India"}</td>
                 <td>
                   {editId === item._id ? (
                     <input
-                      className="form-input"
+                      className="form-input w-36"
                       value={editState}
                       onChange={(e) => setEditState(e.target.value)}
                     />
@@ -188,39 +183,33 @@ function StateManagement() {
                     item.stateName
                   )}
                 </td>
-                <td>{item.status ? "Active" : "Inactive"}</td>
                 <td>
-                  <div className="action-buttons">
+                  <span className={`status-badge ${item.status ? "approved" : "rejected"}`}>
+                    {item.status ? "Active" : "Inactive"}
+                  </span>
+                </td>
+                <td>
+                  <div className="flex gap-2 flex-wrap">
                     {editId === item._id ? (
                       <>
-                        <button className="btn btn-primary" onClick={updateState}>Save</button>
-                        
-                        <button className="btn btn-secondary" style={{ marginLeft: "5px" }} onClick={() => setEditId("")}>Cancel</button>
+                        <button className="btn-action-primary" onClick={updateState}>Save</button>
+                        <button className="btn-action-secondary" onClick={() => setEditId("")}>Cancel</button>
                       </>
                     ) : (
                       <button
-                        className="btn btn-secondary"
-                        onClick={() => {
-                          setEditId(item._id);
-                          setEditState(item.stateName);
-                        }}
+                        className="btn-action-secondary"
+                        onClick={() => { setEditId(item._id); setEditState(item.stateName); }}
                       >
                         Edit
                       </button>
                     )}
 
-                    <button className="btn btn-danger" style={{ marginLeft: "5px" }} onClick={() => deleteState(item._id)}>
-                      Delete
-                    </button>
+                    <button className="btn-action-danger" onClick={() => deleteState(item._id)}>Delete</button>
 
                     {item.status ? (
-                      <button className="btn btn-warning" style={{ marginLeft: "5px" }} onClick={() => softDelete(item._id)}>
-                        Soft Delete
-                      </button>
+                      <button className="btn-action-warning" onClick={() => softDelete(item._id)}>Deactivate</button>
                     ) : (
-                      <button className="btn btn-secondary" style={{ marginLeft: "5px" }} onClick={() => restoreState(item._id)}>
-                        Restore
-                      </button>
+                      <button className="btn-action-success" onClick={() => restoreState(item._id)}>Restore</button>
                     )}
                   </div>
                 </td>
@@ -229,7 +218,7 @@ function StateManagement() {
 
             {displayedStates.length === 0 && (
               <tr>
-                <td colSpan="4" align="center" style={{ padding: "20px", color: "#666" }}>
+                <td colSpan="4" className="text-center py-8 text-slate-400 dark:text-slate-500">
                   No {activeTab === "active" ? "Active" : "Inactive"} States Found
                 </td>
               </tr>

@@ -1,7 +1,6 @@
 const CityModel = require("../Model/CityModel");
 const DistrictModel = require("../Model/DistrictModel");
 
-// Add City
 exports.addCity = async (req, res) => {
     try {
 
@@ -13,7 +12,6 @@ exports.addCity = async (req, res) => {
             });
         }
 
-        // Check District
         const district = await DistrictModel.findById(districtId);
 
         if (!district) {
@@ -21,8 +19,6 @@ exports.addCity = async (req, res) => {
                 message: "District not found",
             });
         }
-
-        // Duplicate Check
         const existCity = await CityModel.findOne({
             cityName,
             districtId,
@@ -52,7 +48,6 @@ exports.addCity = async (req, res) => {
     }
 };
 
-// Get All Cities
 exports.getAllCity = async (req, res) => {
     try {
 
@@ -72,7 +67,6 @@ exports.getAllCity = async (req, res) => {
     }
 };
 
-// Update City
 exports.updateCity = async (req, res) => {
     try {
 
@@ -107,7 +101,6 @@ exports.updateCity = async (req, res) => {
     }
 };
 
-// Delete City
 exports.deleteCity = async (req, res) => {
     try {
 
@@ -133,7 +126,6 @@ exports.deleteCity = async (req, res) => {
     }
 };
 
-// Soft Delete
 exports.softDeleteCity = async (req, res) => {
     try {
 
@@ -164,7 +156,6 @@ exports.softDeleteCity = async (req, res) => {
     }
 };
 
-// Restore City
 exports.restoreCity = async (req, res) => {
     try {
 

@@ -31,13 +31,11 @@ import HotelRoomManagement from "./Hotel/HotelRoomManagement";
 import HotelRoom from "./User/HotelRoom";
 import UserBooking from "./User/UserBooking";
 
-import "./App.css"
-
 function App() {
-  const { theme } = UseTheme();
+  // UseTheme applies dark/light class to <html> element automatically
+  UseTheme();
   return (
-
-    <div className={theme}>
+    <div>
       <BrowserRouter>
         {/* <Header /> */}
 

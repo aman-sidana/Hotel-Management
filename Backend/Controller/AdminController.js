@@ -25,7 +25,6 @@ exports.superAdminAdd = async (req, res) => {
             !currentaddress
         ) {
             return res.status(400).json({
-                success: false,
                 message: "All fields are required",
             });
         }
@@ -34,7 +33,6 @@ exports.superAdminAdd = async (req, res) => {
 
         if (adminExists) {
             return res.status(400).json({
-                success: false,
                 message: "Admin already exists",
             });
         }
@@ -43,7 +41,6 @@ exports.superAdminAdd = async (req, res) => {
 
         if (userExists) {
             return res.status(400).json({
-                success: false,
                 message: "User already exists",
             });
         }
@@ -115,7 +112,6 @@ exports.superAdminAdd = async (req, res) => {
         );
 
         return res.status(201).json({
-            success: true,
             message: "Admin created successfully.",
             admin,
         });
@@ -124,7 +120,6 @@ exports.superAdminAdd = async (req, res) => {
         console.log(error);
 
         return res.status(500).json({
-            success: false,
             message: "Internal Server Error",
         });
     }
@@ -449,7 +444,7 @@ exports.sendAdminOTP = async (req, res) => {
             message: err.message
         });
     }
-}; 
+};
 
 exports.verifyOTP = async (req, res) => {
     try {
@@ -579,65 +574,87 @@ exports.AdminRequest = async (req, res) => {
 };
 
 exports.checkRequestId = async (req, res) => {
-  try {
+    try {
 
-    const { AdminRequestId } = req.body;
+        const { AdminRequestId } = req.body;
 
-    if (!AdminRequestId) {
-      return res.status(400).json({
-        success: false,
-        message: "Admin Request ID is required",
-      });
+        if (!AdminRequestId) {
+            return res.status(400).json({
+                message: "Admin Request ID is required",
+            });
+        }
+
+        const admin = await AdminModel.findOne({
+            AdminRequestId: AdminRequestId.trim(),
+        });
+
+        if (!admin) {
+            return res.status(404).json({
+                message: "No Request Found",
+            });
+        }
+
+        return res.status(200).json({
+            message: "Request Found",
+            data: admin,
+        });
+
+    } catch (error) {
+
+        console.log(error);
+
+        return res.status(500).json({
+            message: "Internal Server Error",
+        });
     }
-
-    const admin = await AdminModel.findOne({
-      AdminRequestId: AdminRequestId.trim(),
-    });
-
-    if (!admin) {
-      return res.status(404).json({
-        success: false,
-        message: "No Request Found",
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "Request Found",
-      data: admin,
-    });
-
-  } catch (error) {
-
-    console.log(error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-    });
-  }
 };
 
 exports.updateRequest = async (req, res) => {
     try {
         const { id } = req.query;
+        console.log(id)
         if (!id) {
-            return res.status(400).json({ message: "Admin ID is required" });
+            return res.status(400).json({
+                message: "Admin ID is required"
+            });
+        }
+
+        const updateData = { ...req.body };
+
+        if (req.files && req.files.images) {
+            const filesToUpload = Array.isArray(req.files.images)
+                ? req.files.images
+                : [req.files.images];
+
+            const uploadResults = await uploadImage(filesToUpload);
+
+            updateData.images = uploadResults.map(file => file.secure_url);
         }
 
         const updatedAdmin = await AdminModel.findByIdAndUpdate(
             id,
-            req.body,
-            { new: true }
+            updateData,
+            {
+                new: true,
+                runValidators: true
+            }
         );
 
         if (!updatedAdmin) {
-            return res.status(404).json({ message: "Admin not found" });
+            return res.status(404).json({
+                message: "Admin not found"
+            });
         }
 
-        return res.status(200).json(updatedAdmin); // Fixed ReferenceError: updatedHotel -> updatedAdmin
+        return res.status(200).json({
+            message: "Admin updated successfully",
+            data: updatedAdmin
+        });
+
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
     }
 };

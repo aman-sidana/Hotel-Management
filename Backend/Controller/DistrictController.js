@@ -13,7 +13,6 @@ exports.addDistrict = async (req, res) => {
             });
         }
 
-        // Check State Exists
         const state = await StateModel.findById(stateId);
 
         if (!state) {
@@ -22,7 +21,6 @@ exports.addDistrict = async (req, res) => {
             });
         }
 
-        // Duplicate Check
         const existDistrict = await DistrictModel.findOne({
             districtName,
             stateId,
@@ -52,7 +50,6 @@ exports.addDistrict = async (req, res) => {
     }
 };
 
-// Get All Districts
 exports.getAllDistrict = async (req, res) => {
     try {
 
@@ -72,7 +69,6 @@ exports.getAllDistrict = async (req, res) => {
     }
 };
 
-// Update District
 exports.updateDistrict = async (req, res) => {
     try {
 
@@ -107,7 +103,6 @@ exports.updateDistrict = async (req, res) => {
     }
 };
 
-// Delete District
 exports.deleteDistrict = async (req, res) => {
     try {
 
@@ -164,7 +159,6 @@ exports.softDeleteDistrict = async (req, res) => {
     }
 };
 
-// Restore District
 exports.restoreDistrict = async (req, res) => {
     try {
 

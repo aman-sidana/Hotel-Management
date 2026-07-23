@@ -4,17 +4,15 @@ import HotelRoomManagement from "./HotelRoomManagement";
 import BookingManagement from "./BookingManagement";
 
 function HotelDashboard() {
-  // Active tab state: defaults to "room"
   const [activetab, SetActivetab] = useState("room");
 
   return (
-    <div className="main-container" style={{ display: "flex", minHeight: "100vh" }}>
+    <div className="dashboard-layout">
       <HotelSidebar activetab={activetab} SetActivetab={SetActivetab} />
-
-      <div style={{ flex: 1 }}>
+      <main className="dashboard-main">
         {activetab === "room" && <HotelRoomManagement />}
         {activetab === "booking" && <BookingManagement />}
-      </div>
+      </main>
     </div>
   );
 }

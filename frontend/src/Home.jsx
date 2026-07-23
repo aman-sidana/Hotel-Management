@@ -5,7 +5,6 @@ import SuperAdminDashboard from "./SuperAdmin/SuperAdminDashboard";
 import AdminDashBoard from "./Admin/AdminDashBoard";
 import UserDashBoard from "./User/UserDashBoard";
 import HotelDashboard from "./Hotel/HotelDashboard";
-import "./home.css"
 
 function Home() {
   const { theme, changeTheme } = UseTheme();
@@ -30,38 +29,16 @@ function Home() {
       case "user":
         return <UserDashBoard />;
       default:
-        return <div className="p-4">Unauthorized or unknown role.</div>;
+        return (
+          <div className="text-center py-16 text-slate-500 dark:text-slate-400">
+            Unauthorized or unknown role.
+          </div>
+        );
     }
   };
 
   return (
-    <div className="dashboard">
-
-      {loggedInUser?.role?.toLowerCase() !== "user" && (
-        <header className="header">
-          <div>
-            <h2>Welcome {loggedInUser?.name || "Guest"}</h2>
-            <p>{loggedInUser?.role}</p>
-          </div>
-          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-            <button onClick={changeTheme} className="theme-toggle-btn">
-              {theme === "light" ? "🌙 Dark" : "☀️ Light"}
-            </button>
-
-            <button className="btn btn-danger" onClick={logoutuser}>
-              Logout
-            </button>
-
-            <button
-              className="btn btn-warning header-reset-btn"
-              onClick={() => navigate("/resetpassword")}
-            >
-              Reset Password
-            </button>
-          </div>
-        </header>
-      )}
-
+    <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-50">
       {renderDashboardByRole()}
     </div>
   );

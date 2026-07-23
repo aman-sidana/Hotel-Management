@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
-import "./roomform.css"
 
 function RoomForm() {
   const navigate = useNavigate();
@@ -26,12 +25,10 @@ function RoomForm() {
     roomType: existingRoom?.roomType || "Single",
     pricePerNight: existingRoom?.pricePerNight || "",
     capacity: existingRoom?.capacity || 2,
-
     kingSizeBed: existingRoom?.kingSizeBed || false,
     queenSizeBed: existingRoom?.queenSizeBed || false,
     singleBed: existingRoom?.singleBed || false,
     doubleBed: existingRoom?.doubleBed || false,
-
     ac: existingRoom?.ac || false,
     cooler: existingRoom?.cooler || false,
     attachedBathroom: existingRoom?.attachedBathroom || false,
@@ -50,430 +47,217 @@ function RoomForm() {
     locker: existingRoom?.locker || false,
     smokeDetector: existingRoom?.smokeDetector || false,
     fireExtinguisher: existingRoom?.fireExtinguisher || false,
-
     roomService: existingRoom?.roomService || false,
     laundryService: existingRoom?.laundryService || false,
     housekeeping: existingRoom?.housekeeping || false,
   });
 
-  useEffect(() => {
-    fetchHotels();
-  }, []);
+  useEffect(() => { fetchHotels(); }, []);
 
   const fetchHotels = async () => {
     try {
       const res = await axios.get("http://localhost:1100/hotel/allhotels");
       setHotels(Array.isArray(res.data) ? res.data : res.data.result || []);
-    } catch (error) {
-      console.log("Error fetching hotels:", error);
-    }
+    } catch (error) { console.log("Error fetching hotels:", error); }
   };
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const handleChange = (e) => { setForm({ ...form, [e.target.name]: e.target.value }); };
 
-  const handleCheckboxChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.checked,
-    });
-  };
+  const handleCheckboxChange = (e) => { setForm({ ...form, [e.target.name]: e.target.checked }); };
 
-  const handleFileChange = (e) => {
-    setSelectedFiles([...e.target.files]);
-  };
+  const handleFileChange = (e) => { setSelectedFiles([...e.target.files]); };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!form.hotelId || !form.roomNumber || !form.pricePerNight) {
       return alert("Please fill in all mandatory fields (*)");
     }
 
     const formData = new FormData();
-    Object.keys(form).forEach((key) => {
-      formData.append(key, form[key]);
-    });
-
-    selectedFiles.forEach((file) => {
-      formData.append("images", file);
-    });
+    Object.keys(form).forEach((key) => { formData.append(key, form[key]); });
+    selectedFiles.forEach((file) => { formData.append("images", file); });
 
     try {
       setLoading(true);
-
       if (isEditMode) {
-        await axios.patch(
-          `http://localhost:1100/room/updateroom?id=${existingRoom._id}`,
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
-        );
+        await axios.patch(`http://localhost:1100/room/updateroom?id=${existingRoom._id}`, formData, { headers: { "Content-Type": "multipart/form-data" } });
         alert("Room Details Updated Successfully!");
       } else {
-        const endpoint = isAdmin
-          ? "http://localhost:1100/room/admin-add-room"
-          : "http://localhost:1100/room/addroom";
-
-        await axios.post(endpoint, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        const endpoint = isAdmin ? "http://localhost:1100/room/admin-add-room" : "http://localhost:1100/room/addroom";
+        await axios.post(endpoint, formData, { headers: { "Content-Type": "multipart/form-data" } });
         alert("Room Entry Created Successfully!");
       }
-
       navigate(-1);
     } catch (error) {
       console.log(error);
       alert(error.response?.data?.message || "Failed to process room details.");
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
-  // Reusable Shared Styles
-  const labelStyle = {
-    display: "block",
-    marginBottom: "8px",
-    fontWeight: "600",
-    color: "#f1f5f9",
-    fontSize: "14px",
-  };
+  const labelClass = "block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5";
+  const sectionLabel = "block text-sm font-bold text-sky-600 dark:text-sky-400 mb-3";
+  const checkboxLabel = "flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 cursor-pointer";
+  const checkboxGrid = "grid grid-cols-2 sm:grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 p-4 rounded-xl";
 
-  const sectionHeadingStyle = {
-    display: "block",
-    marginBottom: "10px",
-    fontWeight: "600",
-    color: "#38bdf8",
-    fontSize: "15px",
-  };
+  const beds = [
+    { name: "kingSizeBed", label: "King Size Bed" },
+    { name: "queenSizeBed", label: "Queen Size Bed" },
+    { name: "singleBed", label: "Single Bed" },
+    { name: "doubleBed", label: "Double Bed" },
+  ];
 
-  const inputStyle = {
-    width: "100%",
-    padding: "10px 12px",
-    borderRadius: "6px",
-    border: "1px solid #334155",
-    backgroundColor: "#0f172a",
-    color: "#f8fafc",
-    fontSize: "14px",
-    boxSizing: "border-box",
-    outline: "none",
-  };
+  const facilities = [
+    { name: "ac", label: "Air Conditioner" },
+    { name: "cooler", label: "Cooler" },
+    { name: "attachedBathroom", label: "Attached Bathroom" },
+    { name: "bathtub", label: "Bathtub" },
+    { name: "geyser", label: "Geyser" },
+    { name: "tv", label: "Television" },
+    { name: "wifi", label: "Free WiFi" },
+    { name: "telephone", label: "Telephone" },
+    { name: "miniFridge", label: "Mini Fridge" },
+    { name: "microwave", label: "Microwave" },
+    { name: "electricKettle", label: "Electric Kettle" },
+    { name: "sofa", label: "Sofa Set" },
+    { name: "diningTable", label: "Dining Table" },
+    { name: "wardrobe", label: "Wardrobe" },
+    { name: "balcony", label: "Balcony" },
+    { name: "locker", label: "Locker / Safe" },
+    { name: "smokeDetector", label: "Smoke Detector" },
+    { name: "fireExtinguisher", label: "Fire Extinguisher" },
+  ];
 
-  const boxContainerStyle = {
-    display: "grid",
-    gap: "12px",
-    backgroundColor: "#0f172a",
-    border: "1px solid #334155",
-    padding: "16px",
-    borderRadius: "8px",
-  };
-
-  const checkboxLabelStyle = {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    fontSize: "14px",
-    color: "#cbd5e1",
-    cursor: "pointer",
-  };
+  const services = [
+    { name: "roomService", label: "24/7 Room Service" },
+    { name: "laundryService", label: "Laundry Service" },
+    { name: "housekeeping", label: "Daily Housekeeping" },
+  ];
 
   return (
-    <div
-      style={{
-        maxWidth: "800px",
-        margin: "30px auto",
-        padding: "28px",
-        background: "#1e293b",
-        borderRadius: "12px",
-        boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
-        fontFamily: "'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-        color: "#f8fafc",
-      }}
-    >
-      {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          justify: "space-between",
-          alignItems: "center",
-          marginBottom: "24px",
-          borderBottom: "1px solid #334155",
-          paddingBottom: "16px",
-        }}
-      >
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          style={{
-            padding: "8px 16px",
-            background: "#475569",
-            color: "#ffffff",
-            border: "none",
-            borderRadius: "6px",
-            fontWeight: "500",
-            cursor: "pointer",
-          }}
-        >
-          ← Back
-        </button>
-        <h2 style={{ margin: 0, color: "#f8fafc", fontSize: "22px" }}>
-          {isEditMode ? "Edit Room Details" : "Add New Room Configuration"}
-        </h2>
-
-      </div>
-
-      <form onSubmit={handleSubmit}>
-        {/* Hotel Dropdown */}
-        <div style={{ marginBottom: "20px" }}>
-          <label style={labelStyle}>Select Hotel *</label>
-          <select
-            name="hotelId"
-            required
-            value={form.hotelId}
-            onChange={handleChange}
-            style={inputStyle}
+    <div className="max-w-4xl mx-auto my-6 px-4">
+      <div className="rounded-2xl p-8 shadow-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-6 pb-4 border-b border-slate-200 dark:border-slate-700">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="px-4 py-2 rounded-xl text-sm font-semibold btn-action-secondary"
           >
-            <option value="" disabled style={{ color: "#94a3b8" }}>
-              -- Choose Hotel --
-            </option>
-            {hotels.map((hotel) => (
-              <option key={hotel._id} value={hotel._id}>
-                {hotel.hotelname} ({hotel.hotelemail || hotel.hotelphone})
-              </option>
-            ))}
-          </select>
+            ← Back
+          </button>
+          <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent dark:from-white dark:to-sky-400">
+            {isEditMode ? "Edit Room Details" : "Add New Room Configuration"}
+          </h2>
         </div>
 
-        {/* Basic Room Config Grid */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: "16px",
-            marginBottom: "20px",
-          }}
-        >
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          {/* Hotel */}
           <div>
-            <label style={labelStyle}>Room Number *</label>
-            <input
-              type="number"
-              name="roomNumber"
-              required
-              placeholder="e.g. 101"
-              value={form.roomNumber}
-              onChange={handleChange}
-              style={inputStyle}
-            />
-          </div>
-
-          <div>
-            <label style={labelStyle}>Floor Number</label>
-            <input
-              type="number"
-              name="floor"
-              placeholder="e.g. 1"
-              value={form.floor}
-              onChange={handleChange}
-              style={inputStyle}
-            />
-          </div>
-
-          <div>
-            <label style={labelStyle}>Room Type</label>
-            <select
-              name="roomType"
-              value={form.roomType}
-              onChange={handleChange}
-              style={inputStyle}
-            >
-              <option value="Single">Single</option>
-              <option value="Double">Double</option>
-              <option value="Twin">Twin</option>
-              <option value="Deluxe">Deluxe</option>
-              <option value="Suite">Suite</option>
-              <option value="Family">Family</option>
+            <label className={labelClass}>Select Hotel *</label>
+            <select name="hotelId" required value={form.hotelId} onChange={handleChange} className="form-select w-full">
+              <option value="" disabled>-- Choose Hotel --</option>
+              {hotels.map((hotel) => (
+                <option key={hotel._id} value={hotel._id}>
+                  {hotel.hotelname} ({hotel.hotelemail || hotel.hotelphone})
+                </option>
+              ))}
             </select>
           </div>
-        </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "16px",
-            marginBottom: "24px",
-          }}
-        >
+          {/* Basic Config Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className={labelClass}>Room Number *</label>
+              <input type="number" name="roomNumber" required placeholder="e.g. 101" value={form.roomNumber} onChange={handleChange} className="form-input w-full" />
+            </div>
+            <div>
+              <label className={labelClass}>Floor Number</label>
+              <input type="number" name="floor" placeholder="e.g. 1" value={form.floor} onChange={handleChange} className="form-input w-full" />
+            </div>
+            <div>
+              <label className={labelClass}>Room Type</label>
+              <select name="roomType" value={form.roomType} onChange={handleChange} className="form-select w-full">
+                {["Single", "Double", "Twin", "Deluxe", "Suite", "Family"].map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>Price Per Night (₹) *</label>
+              <input type="number" name="pricePerNight" required placeholder="e.g. 2500" value={form.pricePerNight} onChange={handleChange} className="form-input w-full" />
+            </div>
+            <div>
+              <label className={labelClass}>Guest Capacity</label>
+              <input type="number" name="capacity" placeholder="e.g. 2" value={form.capacity} onChange={handleChange} className="form-input w-full" />
+            </div>
+          </div>
+
+          {/* Bed Types */}
           <div>
-            <label style={labelStyle}>Price Per Night (₹) *</label>
-            <input
-              type="number"
-              name="pricePerNight"
-              required
-              placeholder="e.g. 2500"
-              value={form.pricePerNight}
-              onChange={handleChange}
-              style={inputStyle}
-            />
+            <label className={sectionLabel}>🛏️ Bed Configuration</label>
+            <div className={checkboxGrid}>
+              {beds.map((bed) => (
+                <label key={bed.name} className={checkboxLabel}>
+                  <input type="checkbox" name={bed.name} checked={form[bed.name]} onChange={handleCheckboxChange} className="accent-emerald-500 w-4 h-4" />
+                  {bed.label}
+                </label>
+              ))}
+            </div>
           </div>
 
+          {/* Facilities */}
           <div>
-            <label style={labelStyle}>Guest Capacity</label>
+            <label className={sectionLabel}>🏨 Facilities & Amenities</label>
+            <div className={checkboxGrid}>
+              {facilities.map((item) => (
+                <label key={item.name} className={checkboxLabel}>
+                  <input type="checkbox" name={item.name} checked={form[item.name]} onChange={handleCheckboxChange} className="accent-emerald-500 w-4 h-4" />
+                  {item.label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Services */}
+          <div>
+            <label className={sectionLabel}>🛎️ Services Offered</label>
+            <div className={checkboxGrid}>
+              {services.map((srv) => (
+                <label key={srv.name} className={checkboxLabel}>
+                  <input type="checkbox" name={srv.name} checked={form[srv.name]} onChange={handleCheckboxChange} className="accent-emerald-500 w-4 h-4" />
+                  {srv.label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* File Upload */}
+          <div>
+            <label className={labelClass}>Upload Room Photos</label>
             <input
-              type="number"
-              name="capacity"
-              placeholder="e.g. 2"
-              value={form.capacity}
-              onChange={handleChange}
-              style={inputStyle}
+              type="file" multiple accept="image/*"
+              onChange={handleFileChange}
+              className="form-input w-full border-dashed"
             />
+            {selectedFiles.length > 0 && (
+              <p className="text-xs text-slate-400 mt-1">{selectedFiles.length} file(s) selected</p>
+            )}
           </div>
-        </div>
 
-        {/* Bed Types */}
-        <div style={{ marginBottom: "24px" }}>
-          <label style={sectionHeadingStyle}>Bed Configuration:</label>
-          <div
-            style={{
-              ...boxContainerStyle,
-              gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-            }}
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full py-3.5 rounded-xl font-bold text-sm text-white transition-all duration-200
+              ${loading ? "bg-slate-400 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-600/30 hover:-translate-y-0.5"}`}
           >
-            {[
-              { name: "kingSizeBed", label: "King Size Bed" },
-              { name: "queenSizeBed", label: "Queen Size Bed" },
-              { name: "singleBed", label: "Single Bed" },
-              { name: "doubleBed", label: "Double Bed" },
-            ].map((bed) => (
-              <label key={bed.name} style={checkboxLabelStyle}>
-                <input
-                  type="checkbox"
-                  name={bed.name}
-                  checked={form[bed.name]}
-                  onChange={handleCheckboxChange}
-                  style={{ accentColor: "#10b981", width: "16px", height: "16px" }}
-                />
-                {bed.label}
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* Room Facilities Checkboxes */}
-        <div style={{ marginBottom: "24px" }}>
-          <label style={sectionHeadingStyle}>Facilities & Amenities:</label>
-          <div
-            style={{
-              ...boxContainerStyle,
-              gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-            }}
-          >
-            {[
-              { name: "ac", label: "Air Conditioner (AC)" },
-              { name: "cooler", label: "Cooler" },
-              { name: "attachedBathroom", label: "Attached Bathroom" },
-              { name: "bathtub", label: "Bathtub" },
-              { name: "geyser", label: "Geyser / Water Heater" },
-              { name: "tv", label: "Television (TV)" },
-              { name: "wifi", label: "Free WiFi" },
-              { name: "telephone", label: "Telephone" },
-              { name: "miniFridge", label: "Mini Fridge" },
-              { name: "microwave", label: "Microwave" },
-              { name: "electricKettle", label: "Electric Kettle" },
-              { name: "sofa", label: "Sofa Set" },
-              { name: "diningTable", label: "Dining Table" },
-              { name: "wardrobe", label: "Wardrobe / Closet" },
-              { name: "balcony", label: "Balcony / Terrace" },
-              { name: "locker", label: "Locker / Safety Box" },
-              { name: "smokeDetector", label: "Smoke Detector" },
-              { name: "fireExtinguisher", label: "Fire Extinguisher" },
-            ].map((item) => (
-              <label key={item.name} style={checkboxLabelStyle}>
-                <input
-                  type="checkbox"
-                  name={item.name}
-                  checked={form[item.name]}
-                  onChange={handleCheckboxChange}
-                  style={{ accentColor: "#10b981", width: "16px", height: "16px" }}
-                />
-                {item.label}
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* Services Checkboxes */}
-        <div style={{ marginBottom: "24px" }}>
-          <label style={sectionHeadingStyle}>Services Offered:</label>
-          <div
-            style={{
-              ...boxContainerStyle,
-              gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-            }}
-          >
-            {[
-              { name: "roomService", label: "24/7 Room Service" },
-              { name: "laundryService", label: "Laundry Service" },
-              { name: "housekeeping", label: "Daily Housekeeping" },
-            ].map((srv) => (
-              <label key={srv.name} style={checkboxLabelStyle}>
-                <input
-                  type="checkbox"
-                  name={srv.name}
-                  checked={form[srv.name]}
-                  onChange={handleCheckboxChange}
-                  style={{ accentColor: "#10b981", width: "16px", height: "16px" }}
-                />
-                {srv.label}
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* File Upload Section */}
-        <div style={{ marginBottom: "28px" }}>
-          <label style={labelStyle}>Upload Room Photos</label>
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleFileChange}
-            style={{
-              ...inputStyle,
-              padding: "10px",
-              border: "1px dashed #475569",
-              cursor: "pointer",
-            }}
-          />
-        </div>
-
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            width: "100%",
-            padding: "14px",
-            background: loading ? "#64748b" : "#10b981",
-            color: "#ffffff",
-            border: "none",
-            borderRadius: "8px",
-            fontWeight: "600",
-            fontSize: "16px",
-            cursor: loading ? "not-allowed" : "pointer",
-            transition: "background-color 0.2s ease",
-          }}
-        >
-          {loading
-            ? "Processing..."
-            : isEditMode
-              ? "Update Room Profile"
-              : "Register Room"}
-        </button>
-      </form>
+            {loading ? "Processing..." : isEditMode ? "Update Room Profile" : "Register Room"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

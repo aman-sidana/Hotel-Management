@@ -8,13 +8,13 @@ function AdminDashBoard() {
   const [activetab, SetActivetab] = useState("hotel");
 
   return (
-    <div className="main-container">
+    <div className="dashboard-layout">
       <AdminSidebar activetab={activetab} SetActivetab={SetActivetab} />
-      <div className="content">
+      <main className="dashboard-main">
         {activetab === "coupon" && <CouponManagement />}
         {activetab === "hotel" && <AdminHotelManagement />}
         {activetab === "bookings" && <AdminBookings />}
-      </div>
+      </main>
     </div>
   );
 }

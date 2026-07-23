@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import axios from "axios";
 import { gsap } from "gsap";
 import { useLocation, useNavigate } from "react-router-dom";
-import "./modal.css";
+import Navbar from "../genericComponents/Navbar";
 
 function HotelRoom() {
   const location = useLocation();
@@ -32,22 +32,10 @@ function HotelRoom() {
   const [sortBy, setSortBy] = useState("default");
 
   const [filters, setFilters] = useState({
-    kingSizeBed: false,
-    queenSizeBed: false,
-    singleBed: false,
-    doubleBed: false,
-    ac: false,
-    wifi: false,
-    tv: false,
-    geyser: false,
-    miniFridge: false,
-    bathtub: false,
-    balcony: false,
-    sofa: false,
-    locker: false,
-    roomService: false,
-    laundryService: false,
-    housekeeping: false,
+    kingSizeBed: false, queenSizeBed: false, singleBed: false, doubleBed: false,
+    ac: false, wifi: false, tv: false, geyser: false, miniFridge: false,
+    bathtub: false, balcony: false, sofa: false, locker: false,
+    roomService: false, laundryService: false, housekeeping: false,
   });
 
   const handleFilterChange = (e) => {
@@ -56,70 +44,45 @@ function HotelRoom() {
   };
 
   const resetFilters = () => {
-    setSearchQuery("");
-    setSortBy("default");
+    setSearchQuery(""); setSortBy("default");
     setFilters({
-      kingSizeBed: false,
-      queenSizeBed: false,
-      singleBed: false,
-      doubleBed: false,
-      ac: false,
-      wifi: false,
-      tv: false,
-      geyser: false,
-      miniFridge: false,
-      bathtub: false,
-      balcony: false,
-      sofa: false,
-      locker: false,
-      roomService: false,
-      laundryService: false,
-      housekeeping: false,
+      kingSizeBed: false, queenSizeBed: false, singleBed: false, doubleBed: false,
+      ac: false, wifi: false, tv: false, geyser: false, miniFridge: false,
+      bathtub: false, balcony: false, sofa: false, locker: false,
+      roomService: false, laundryService: false, housekeeping: false,
     });
   };
 
   useEffect(() => {
     if (!hotelData?._id) return;
-
     async function loadHotelRooms() {
       try {
         setLoading(true);
         const res = await axios.get("http://localhost:1100/room/getallrooms");
         const activeHotelRooms = (res.data || []).filter(
-          (room) =>
-            room.isActive === true &&
+          (room) => room.isActive === true &&
             (room.hotelId === hotelData._id || room.hotelId?._id === hotelData._id)
         );
         setRooms(activeHotelRooms);
       } catch (error) {
-        console.log("Error loading rooms:", error);
-        setRooms([]);
-      } finally {
-        setLoading(false);
-      }
+        console.log("Error loading rooms:", error); setRooms([]);
+      } finally { setLoading(false); }
     }
-
     loadHotelRooms();
   }, [hotelData]);
 
   const filteredRooms = useMemo(() => {
     return rooms
       .filter((room) => {
-        // Search bar (Room Number or Type)
         const query = searchQuery.toLowerCase().trim();
         const matchesQuery =
           !query ||
           room.roomNumber?.toString().includes(query) ||
           room.roomType?.toLowerCase().includes(query);
-
         if (!matchesQuery) return false;
-
         for (const [key, value] of Object.entries(filters)) {
-          if (value && !room[key]) {
-            return false;
-          }
+          if (value && !room[key]) return false;
         }
-
         return true;
       })
       .sort((a, b) => {
@@ -132,192 +95,146 @@ function HotelRoom() {
 
   useEffect(() => {
     if (!hotelData) return undefined;
-
     const context = gsap.context(() => {
-      gsap.from(".user-back-button, .user-selected-hotel, .user-section-title", {
-        autoAlpha: 0,
-        duration: 0.75,
-        y: 24,
-        stagger: 0.1,
-        ease: "back.out(1.7)",
+      gsap.from(".user-selected-hotel, .user-section-title", {
+        autoAlpha: 0, duration: 0.6, y: 15, stagger: 0.1, ease: "power2.out",
       });
     }, contentRef);
-
     return () => context.revert();
   }, [hotelData]);
 
   useEffect(() => {
     if (loading || !roomsRef.current?.children.length) return;
-
     const context = gsap.context(() => {
       gsap.from(roomsRef.current.children, {
-        autoAlpha: 0,
-        duration: 0.5,
-        y: 20,
-        stagger: 0.05,
-        ease: "power3.out",
+        autoAlpha: 0, duration: 0.5, y: 18, stagger: 0.05, ease: "power3.out",
         clearProps: "transform,opacity,visibility",
       });
     }, roomsRef);
-
     return () => context.revert();
   }, [loading, filteredRooms.length]);
 
   useEffect(() => {
     if (!selectedRoom || !startDate || !endDate) return;
-
     const start = new Date(startDate);
     const end = new Date(endDate);
-
-    const difference =
-      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
-
+    const difference = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
     if (difference <= 0) {
-      setTotalNights(1);
-      setTotalPrice(selectedRoom.pricePerNight);
+      setTotalNights(1); setTotalPrice(selectedRoom.pricePerNight);
     } else {
-      setTotalNights(difference);
-      setTotalPrice(difference * selectedRoom.pricePerNight);
+      setTotalNights(difference); setTotalPrice(difference * selectedRoom.pricePerNight);
     }
   }, [startDate, endDate, selectedRoom]);
 
   const handleBookRoom = (room) => {
     setSelectedRoom(room);
-
     const today = new Date();
     const tomorrow = new Date();
     tomorrow.setDate(today.getDate() + 1);
-
-    const checkIn = today.toISOString().split("T")[0];
-    const checkOut = tomorrow.toISOString().split("T")[0];
-
-    setStartDate(checkIn);
-    setEndDate(checkOut);
-
-    setTotalNights(1);
-    setTotalPrice(room.pricePerNight);
-
-    setBookingSuccess(false);
-    setCreatedBooking(null);
-
+    setStartDate(today.toISOString().split("T")[0]);
+    setEndDate(tomorrow.toISOString().split("T")[0]);
+    setTotalNights(1); setTotalPrice(room.pricePerNight);
+    setBookingSuccess(false); setCreatedBooking(null);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedRoom(null);
-    setStartDate("");
-    setEndDate("");
-    setBookingSuccess(false);
+    setIsModalOpen(false); setSelectedRoom(null);
+    setStartDate(""); setEndDate(""); setBookingSuccess(false);
   };
 
   const handleConfirmBooking = async (e) => {
     e.preventDefault();
-
-    const currentUser = JSON.parse(
-      localStorage.getItem("currentuser")
-    );
-
-    if (!currentUser) {
-      alert("Please login first.");
-      return;
-    }
-
+    const currentUser = JSON.parse(localStorage.getItem("currentuser"));
+    if (!currentUser) { alert("Please login first."); return; }
     try {
       setSubmitting(true);
-
-      const response = await axios.post(
-        "http://localhost:1100/booking/create",
-        {
-          userId: currentUser._id,
-          hotelId: hotelData._id,
-          roomId: selectedRoom._id,
-          price: totalPrice,
-          startDate,
-          endDate,
-        }
-      );
-
+      const response = await axios.post("http://localhost:1100/booking/create", {
+        userId: currentUser._id, hotelId: hotelData._id,
+        roomId: selectedRoom._id, price: totalPrice, startDate, endDate,
+      });
       if (response.data.success) {
-        setCreatedBooking(response.data.booking);
-        setBookingSuccess(true);
-
-        setRooms((prevRooms) =>
-          prevRooms.filter((room) => room._id !== selectedRoom._id)
-        );
+        setCreatedBooking(response.data.booking); setBookingSuccess(true);
+        setRooms((prevRooms) => prevRooms.filter((room) => room._id !== selectedRoom._id));
       }
     } catch (error) {
-      console.log(error);
-      alert(error.response?.data?.message || "Booking Failed");
-    } finally {
-      setSubmitting(false);
-    }
+      console.log(error); alert(error.response?.data?.message || "Booking Failed");
+    } finally { setSubmitting(false); }
   };
 
   if (!hotelData) {
     return (
-      <div className="user-no-hotel">
-        <h2>No Hotel Selected</h2>
-        <button
-          onClick={() => navigate("/userdashboard")}
-          className="user-back-hotels-btn"
-        >
-          Back to Hotels
-        </button>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+        <div className="text-center">
+          <div className="text-5xl mb-4">🏨</div>
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-4">No Hotel Selected</h2>
+          <button
+            onClick={() => navigate("/userdashboard")}
+            className="px-6 py-3 rounded-xl font-semibold text-sm text-white bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/30 transition-all duration-200"
+          >
+            Back to Hotels
+          </button>
+        </div>
       </div>
     );
   }
 
+  const filterCheckboxClass = "flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 cursor-pointer";
+
   return (
-    <div className="user-hotel-room-page">
-      <div className="user-room-content" ref={contentRef}>
-        <button
-          onClick={() => navigate(-1)}
-          className="user-back-hotels-btn user-back-button"
-        >
-          ← Back to Hotels
-        </button>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 w-full" ref={contentRef}>
+      <Navbar />
 
-        <div className="user-selected-hotel">
-          <h1 className="user-selected-hotel-name">{hotelData.hotelname}</h1>
-          <p className="user-selected-hotel-detail">
-            📍 <strong>Location:</strong> {hotelData.cityId?.cityName || "City"},{" "}
-            {hotelData.stateId?.stateName || "State"}
-          </p>
-          <p className="user-selected-hotel-detail">
-            🏠 <strong>Address:</strong> {hotelData.hoteladdress}
-          </p>
+      {/* Compact Hotel Header Banner */}
+      <div className="w-full px-6 lg:px-8 py-4 bg-white/60 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 backdrop-blur-md">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate(-1)}
+              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold btn-action-secondary flex items-center gap-1.5"
+            >
+              ← Back to Hotels
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">
+                {hotelData.hotelname}
+              </h1>
+              <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2 mt-0.5">
+                <span>📍 {hotelData.cityId?.cityName || "City"}, {hotelData.stateId?.stateName || "State"}</span>
+                <span>•</span>
+                <span>🏠 {hotelData.hoteladdress}</span>
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+              🛏️ {filteredRooms.length} Available {filteredRooms.length === 1 ? "Room" : "Rooms"}
+            </span>
+          </div>
         </div>
+      </div>
 
-        <h2 className="user-section-title">Available Rooms</h2>
-
-        <div className="room-layout-container">
-          <aside className="room-sidebar-filter">
-            <div className="sidebar-header">
-              <h3>🔍 Filter Rooms</h3>
-              <button onClick={resetFilters} className="reset-filter-btn">
-                Reset
-              </button>
+      {/* Main Two-Column Layout */}
+      <div className="flex gap-6 w-full px-6 lg:px-8 py-6">
+        {/* Filter Sidebar */}
+        <aside className="w-64 flex-shrink-0 hidden lg:block">
+          <div className="sticky top-20 rounded-2xl p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-slate-800 dark:text-white text-sm">🔍 Filter Rooms</h3>
+              <button onClick={resetFilters} className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold">Reset</button>
             </div>
 
-            <div className="sidebar-group">
-              <label>Search Room</label>
-              <input
-                type="text"
-                placeholder="Room # or type (e.g. Deluxe)"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="sidebar-input"
-              />
+            {/* Search */}
+            <div className="mb-4">
+              <label className="text-[11px] font-bold uppercase text-slate-400 dark:text-slate-500 block mb-1">Search Room</label>
+              <input type="text" placeholder="Room # or type..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="form-input w-full text-xs" />
             </div>
 
-            <div className="sidebar-group">
-              <label>Sort By</label>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="sidebar-input"
-              >
+            {/* Sort */}
+            <div className="mb-4">
+              <label className="text-[11px] font-bold uppercase text-slate-400 dark:text-slate-500 block mb-1">Sort By</label>
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="form-select w-full text-xs">
                 <option value="default">Default</option>
                 <option value="priceLowHigh">Price: Low to High</option>
                 <option value="priceHighLow">Price: High to Low</option>
@@ -325,351 +242,199 @@ function HotelRoom() {
               </select>
             </div>
 
-            <div className="sidebar-group">
-              <label className="sidebar-subheading">Bed Type</label>
-              <div className="checkbox-list">
-                <label className="sidebar-checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="kingSizeBed"
-                    checked={filters.kingSizeBed}
-                    onChange={handleFilterChange}
-                  />
-                  🛏️ King Size Bed
-                </label>
-                <label className="sidebar-checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="queenSizeBed"
-                    checked={filters.queenSizeBed}
-                    onChange={handleFilterChange}
-                  />
-                  🛏️ Queen Size Bed
-                </label>
-                <label className="sidebar-checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="singleBed"
-                    checked={filters.singleBed}
-                    onChange={handleFilterChange}
-                  />
-                  🛌 Single Bed
-                </label>
-                <label className="sidebar-checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="doubleBed"
-                    checked={filters.doubleBed}
-                    onChange={handleFilterChange}
-                  />
-                  🛏️ Double Bed
-                </label>
-              </div>
-            </div>
-
-            <div className="sidebar-group">
-              <label className="sidebar-subheading">Amenities</label>
-              <div className="checkbox-list">
-                <label className="sidebar-checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="ac"
-                    checked={filters.ac}
-                    onChange={handleFilterChange}
-                  />
-                  ❄️ AC
-                </label>
-                <label className="sidebar-checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="wifi"
-                    checked={filters.wifi}
-                    onChange={handleFilterChange}
-                  />
-                  📶 Free WiFi
-                </label>
-                <label className="sidebar-checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="tv"
-                    checked={filters.tv}
-                    onChange={handleFilterChange}
-                  />
-                  📺 TV
-                </label>
-                <label className="sidebar-checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="geyser"
-                    checked={filters.geyser}
-                    onChange={handleFilterChange}
-                  />
-                  🚿 Geyser
-                </label>
-                <label className="sidebar-checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="miniFridge"
-                    checked={filters.miniFridge}
-                    onChange={handleFilterChange}
-                  />
-                  🧊 Mini Fridge
-                </label>
-                <label className="sidebar-checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="bathtub"
-                    checked={filters.bathtub}
-                    onChange={handleFilterChange}
-                  />
-                  🛁 Bathtub
-                </label>
-                <label className="sidebar-checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="balcony"
-                    checked={filters.balcony}
-                    onChange={handleFilterChange}
-                  />
-                  🌅 Balcony
-                </label>
-                <label className="sidebar-checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="sofa"
-                    checked={filters.sofa}
-                    onChange={handleFilterChange}
-                  />
-                  🛋️ Sofa Set
-                </label>
-                <label className="sidebar-checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="locker"
-                    checked={filters.locker}
-                    onChange={handleFilterChange}
-                  />
-                  🔐 Locker
-                </label>
-              </div>
-            </div>
-
-            <div className="sidebar-group">
-              <label className="sidebar-subheading">Services Offered</label>
-              <div className="checkbox-list">
-                <label className="sidebar-checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="roomService"
-                    checked={filters.roomService}
-                    onChange={handleFilterChange}
-                  />
-                  🍽️ 24/7 Room Service
-                </label>
-                <label className="sidebar-checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="laundryService"
-                    checked={filters.laundryService}
-                    onChange={handleFilterChange}
-                  />
-                  🧺 Laundry Service
-                </label>
-                <label className="sidebar-checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="housekeeping"
-                    checked={filters.housekeeping}
-                    onChange={handleFilterChange}
-                  />
-                  🧹 Housekeeping
-                </label>
-              </div>
-            </div>
-          </aside>
-
-          <main className="room-main-area">
-            {loading ? (
-              <p className="loading-text">Loading available rooms...</p>
-            ) : filteredRooms.length === 0 ? (
-              <div className="user-empty-message">
-                <p className="user-empty-room-text">
-                  No active rooms match your selected filter criteria.
-                </p>
-                <button onClick={resetFilters} className="user-back-hotels-btn">
-                  Clear Filters
-                </button>
-              </div>
-            ) : (
-              <div className="user-room-grid" ref={roomsRef}>
-                {filteredRooms.map((room) => (
-                  <div key={room._id} className="user-room-card">
-                    <div className="user-room-image">
-                      {room.images && room.images.length > 0 ? (
-                        <img
-                          src={room.images[0]}
-                          alt="Room Preview"
-                          className="user-card-image"
-                        />
-                      ) : (
-                        <div className="user-image-placeholder">
-                          🛏️ Photo Unavailable
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="user-room-card-body">
-                      <div className="user-room-card-heading">
-                        <h3 className="user-room-name">Room #{room.roomNumber}</h3>
-                        <span className="user-room-type">{room.roomType}</span>
-                      </div>
-
-                      <p className="user-room-detail">
-                        <strong>Floor:</strong> {room.floor}
-                      </p>
-                      <p className="user-room-detail">
-                        <strong>Capacity:</strong> {room.capacity} Guest(s)
-                      </p>
-
-                      <p className="user-room-detail">
-                        <strong>Bed:</strong>{" "}
-                        {room.kingSizeBed
-                          ? "King Size"
-                          : room.queenSizeBed
-                            ? "Queen Size"
-                            : room.doubleBed
-                              ? "Double Bed"
-                              : room.singleBed
-                                ? "Single Bed"
-                                : "Standard"}
-                      </p>
-
-                      <p className="user-room-price">
-                        ₹{room.pricePerNight} / night
-                      </p>
-
-                      <div className="user-room-facilities">
-                        {room.ac && <span className="user-facility-badge">❄️ AC</span>}
-                        {room.wifi && <span className="user-facility-badge">📶 WiFi</span>}
-                        {room.tv && <span className="user-facility-badge">📺 TV</span>}
-                        {room.geyser && <span className="user-facility-badge">🚿 Geyser</span>}
-                        {room.miniFridge && <span className="user-facility-badge">🧊 Fridge</span>}
-                        {room.bathtub && <span className="user-facility-badge">🛁 Bathtub</span>}
-                        {room.balcony && <span className="user-facility-badge">🌅 Balcony</span>}
-                      </div>
-
-                      <button
-                        onClick={() => handleBookRoom(room)}
-                        className="user-book-room-btn"
-                      >
-                        Book Now
-                      </button>
-                    </div>
-                  </div>
+            {/* Bed Types */}
+            <div className="mb-4">
+              <p className="text-[11px] font-bold text-sky-600 dark:text-sky-400 uppercase mb-2">Bed Type</p>
+              <div className="flex flex-col gap-2">
+                {[
+                  { name: "kingSizeBed", label: "🛏️ King Size" },
+                  { name: "queenSizeBed", label: "🛏️ Queen Size" },
+                  { name: "singleBed", label: "🛌 Single Bed" },
+                  { name: "doubleBed", label: "🛏️ Double Bed" },
+                ].map((f) => (
+                  <label key={f.name} className={filterCheckboxClass}>
+                    <input type="checkbox" name={f.name} checked={filters[f.name]} onChange={handleFilterChange} className="accent-blue-600" />
+                    {f.label}
+                  </label>
                 ))}
               </div>
-            )}
-          </main>
-        </div>
+            </div>
+
+            {/* Amenities */}
+            <div className="mb-4">
+              <p className="text-[11px] font-bold text-sky-600 dark:text-sky-400 uppercase mb-2">Amenities</p>
+              <div className="flex flex-col gap-2">
+                {[
+                  { name: "ac", label: "❄️ AC" },
+                  { name: "wifi", label: "📶 Free WiFi" },
+                  { name: "tv", label: "📺 TV" },
+                  { name: "geyser", label: "🚿 Geyser" },
+                  { name: "miniFridge", label: "🧊 Mini Fridge" },
+                  { name: "bathtub", label: "🛁 Bathtub" },
+                  { name: "balcony", label: "🌅 Balcony" },
+                  { name: "sofa", label: "🛋️ Sofa Set" },
+                  { name: "locker", label: "🔐 Locker" },
+                ].map((f) => (
+                  <label key={f.name} className={filterCheckboxClass}>
+                    <input type="checkbox" name={f.name} checked={filters[f.name]} onChange={handleFilterChange} className="accent-blue-600" />
+                    {f.label}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Services */}
+            <div>
+              <p className="text-[11px] font-bold text-sky-600 dark:text-sky-400 uppercase mb-2">Services</p>
+              <div className="flex flex-col gap-2">
+                {[
+                  { name: "roomService", label: "🍽️ Room Service" },
+                  { name: "laundryService", label: "🧺 Laundry" },
+                  { name: "housekeeping", label: "🧹 Housekeeping" },
+                ].map((f) => (
+                  <label key={f.name} className={filterCheckboxClass}>
+                    <input type="checkbox" name={f.name} checked={filters[f.name]} onChange={handleFilterChange} className="accent-blue-600" />
+                    {f.label}
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        {/* Rooms Grid - Auto-fill / 4-column responsive grid stretching 100% of available space */}
+        <main className="flex-1 w-full">
+          {loading ? (
+            <div className="text-center py-20 text-slate-400 dark:text-slate-500">Loading available rooms...</div>
+          ) : filteredRooms.length === 0 ? (
+            <div className="text-center py-20 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+              <div className="text-5xl mb-4">🛏️</div>
+              <p className="text-slate-500 dark:text-slate-400 mb-5">No active rooms match your selected filter criteria.</p>
+              <button onClick={resetFilters} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 transition-all duration-200">
+                Clear Filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-6 w-full" ref={roomsRef}>
+              {filteredRooms.map((room) => (
+                <div key={room._id} className="user-hotel-card w-full">
+                  <div className="h-48 bg-slate-100 dark:bg-slate-700 overflow-hidden relative">
+                    {room.images && room.images.length > 0 ? (
+                      <img src={room.images[0]} alt="Room Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-slate-400 dark:text-slate-500 text-sm">🛏️ Photo Unavailable</div>
+                    )}
+                  </div>
+
+                  <div className="p-4 flex flex-col gap-2 flex-1">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-bold text-base text-slate-800 dark:text-white">Room #{room.roomNumber}</h3>
+                      <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                        {room.roomType}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Floor {room.floor} · {room.capacity} Guest(s)</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Bed: {room.kingSizeBed ? "King Size" : room.queenSizeBed ? "Queen Size" : room.doubleBed ? "Double" : room.singleBed ? "Single" : "Standard"}
+                    </p>
+
+                    <p className="text-lg font-bold text-blue-600 dark:text-blue-400 mt-1">₹{room.pricePerNight} <span className="text-xs font-normal text-slate-400">/ night</span></p>
+
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {room.ac && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400">❄️ AC</span>}
+                      {room.wifi && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400">📶 WiFi</span>}
+                      {room.tv && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400">📺 TV</span>}
+                      {room.geyser && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400">🚿 Geyser</span>}
+                      {room.balcony && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400">🌅 Balcony</span>}
+                    </div>
+
+                    <button
+                      onClick={() => handleBookRoom(room)}
+                      className="mt-3 w-full py-2.5 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-500 shadow-sm shadow-blue-600/20 transition-all duration-200"
+                    >
+                      Book Now
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </main>
       </div>
 
-\      {isModalOpen && selectedRoom && (
-        <div className="modal-overlay">
-          <div className="booking-modal">
-            <button className="modal-close-btn" onClick={closeModal}>
-              ✕
-            </button>
+      {/* Booking Modal */}
+      {isModalOpen && selectedRoom && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-box max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <button className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-xl font-bold" onClick={closeModal}>✕</button>
 
             {!bookingSuccess ? (
-              <form onSubmit={handleConfirmBooking} className="modal-form">
-                <h2>Confirm Booking</h2>
+              <form onSubmit={handleConfirmBooking} className="flex flex-col gap-4">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Confirm Booking</h2>
+                <p className="text-base font-semibold text-blue-600 dark:text-blue-400">
+                  Room #{selectedRoom.roomNumber} · {selectedRoom.roomType}
+                </p>
 
-                <h3>Room #{selectedRoom.roomNumber}</h3>
-                <p>{selectedRoom.roomType}</p>
-
-                <div className="modal-form-group">
-                  <label>Check In</label>
-                  <input
-                    type="date"
-                    value={startDate}
-                    min={new Date().toISOString().split("T")[0]}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    required
-                  />
+                <div>
+                  <label className="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1.5">Check In</label>
+                  <input type="date" value={startDate} min={new Date().toISOString().split("T")[0]} onChange={(e) => setStartDate(e.target.value)} required className="form-input w-full" />
                 </div>
 
-                <div className="modal-form-group">
-                  <label>Check Out</label>
-                  <input
-                    type="date"
-                    value={endDate}
-                    min={startDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    required
-                  />
+                <div>
+                  <label className="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1.5">Check Out</label>
+                  <input type="date" value={endDate} min={startDate} onChange={(e) => setEndDate(e.target.value)} required className="form-input w-full" />
                 </div>
 
-                <div className="price-breakdown">
-                  <div className="price-row">
+                <div className="rounded-xl border border-slate-200 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-700/30 flex flex-col gap-2">
+                  <div className="flex justify-between text-sm text-slate-600 dark:text-slate-400">
                     <span>Price / Night</span>
                     <span>₹{selectedRoom.pricePerNight}</span>
                   </div>
-
-                  <div className="price-row">
+                  <div className="flex justify-between text-sm text-slate-600 dark:text-slate-400">
                     <span>Total Nights</span>
                     <span>{totalNights}</span>
                   </div>
-
-                  <hr />
-
-                  <div className="price-row total">
-                    <strong>Total Price</strong>
-                    <strong>₹{totalPrice}</strong>
+                  <hr className="border-slate-200 dark:border-slate-600" />
+                  <div className="flex justify-between font-bold text-base text-slate-900 dark:text-white">
+                    <span>Total Price</span>
+                    <span>₹{totalPrice}</span>
                   </div>
                 </div>
 
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="user-book-room-btn"
+                  className="w-full py-3 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/30 transition-all duration-200 disabled:opacity-50"
                 >
                   {submitting ? "Booking..." : `Confirm Booking ₹${totalPrice}`}
                 </button>
               </form>
             ) : (
-              <div className="booking-success">
-                <h2>🎉 Booking Successful</h2>
-
-                <p>
-                  Booking ID : <strong>{createdBooking?._id}</strong>
-                </p>
-                <p>
-                  Hotel : <strong>{hotelData.hotelname}</strong>
-                </p>
-                <p>
-                  Room : <strong>#{selectedRoom.roomNumber}</strong>
-                </p>
-                <p>
-                  Check In : <strong>{startDate}</strong>
-                </p>
-                <p>
-                  Check Out : <strong>{endDate}</strong>
-                </p>
-                <p>
-                  Total : <strong>₹{totalPrice}</strong>
-                </p>
-                <p>
-                  Status : <strong>{createdBooking?.status}</strong>
-                </p>
-
-                <div className="modal-actions">
-                  <button
-                    className="user-book-room-btn"
-                    onClick={() => navigate("/userbookings")}
-                  >
+              <div className="flex flex-col items-center text-center gap-3">
+                <div className="text-4xl mb-2">🎉</div>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Booking Successful!</h2>
+                <div className="w-full text-left flex flex-col gap-2 mt-2">
+                  {[
+                    ["Booking ID", createdBooking?._id],
+                    ["Hotel", hotelData.hotelname],
+                    ["Room", `#${selectedRoom.roomNumber}`],
+                    ["Check In", startDate],
+                    ["Check Out", endDate],
+                    ["Total", `₹${totalPrice}`],
+                    ["Status", createdBooking?.status],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex gap-2 text-sm">
+                      <span className="font-semibold text-slate-700 dark:text-slate-300 min-w-[80px]">{label}:</span>
+                      <span className="text-slate-600 dark:text-slate-400">{value}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-3 w-full mt-3">
+                  <button className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 transition-all duration-200" onClick={() => navigate("/userbookings")}>
                     View My Bookings
                   </button>
-                  <button className="user-back-hotels-btn" onClick={closeModal}>
+                  <button className="flex-1 py-2.5 rounded-xl text-sm font-semibold btn-action-secondary" onClick={closeModal}>
                     Close
                   </button>
                 </div>
