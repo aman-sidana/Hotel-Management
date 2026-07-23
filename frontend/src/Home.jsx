@@ -5,6 +5,7 @@ import SuperAdminDashboard from "./SuperAdmin/SuperAdminDashboard";
 import AdminDashBoard from "./Admin/AdminDashBoard";
 import UserDashBoard from "./User/UserDashBoard";
 import HotelDashboard from "./Hotel/HotelDashboard";
+import "./home.css"
 
 function Home() {
   const { theme, changeTheme } = UseTheme();
@@ -35,7 +36,7 @@ function Home() {
 
   return (
     <div className="dashboard">
-      {/* Hide header if loggedInUser role is 'user' */}
+
       {loggedInUser?.role?.toLowerCase() !== "user" && (
         <header className="header">
           <div>

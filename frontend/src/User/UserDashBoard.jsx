@@ -3,6 +3,8 @@ import axios from "axios";
 import { gsap } from "gsap";
 import { useNavigate } from "react-router-dom";
 
+
+
 function UserDashBoard() {
   const navigate = useNavigate();
 
@@ -63,7 +65,7 @@ function UserDashBoard() {
   const handleHotelClick = (hotel) => {
     if (!currentUser) {
       alert("Please login first to explore hotel details and book rooms!");
-      navigate("/"); 
+      navigate("/");
     } else {
       navigate("/hotelrooms", { state: { hotelData: hotel } });
     }
@@ -89,6 +91,15 @@ function UserDashBoard() {
           {currentUser ? (
             <div className="user-nav-actions">
               <span>Welcome, <strong>{currentUser.name || currentUser.username || "User"}</strong></span>
+
+              <button
+                onClick={() => navigate("/userbookings")}
+                className="user-nav-bookings-btn"
+              >
+                <span className="btn-icon">🧳</span>
+                <span>My Bookings</span>
+              </button>
+
               <button
                 onClick={() => {
                   localStorage.removeItem("currentuser");
@@ -107,7 +118,7 @@ function UserDashBoard() {
               >
                 Login
               </button>
-              
+
             </div>
           )}
         </div>
@@ -160,6 +171,7 @@ function UserDashBoard() {
                   )}
                 </div>
 
+                {/* Hotel Card Info */}
                 <div className="user-hotel-card-body">
                   <h3 className="user-hotel-name">
                     {hotel.hotelname}

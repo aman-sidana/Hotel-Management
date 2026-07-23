@@ -27,7 +27,7 @@ function AdminBookings() {
                     },
                 }
             );
-
+ 
             setBookings(res.data.bookings);
 
         } catch (error) {
@@ -42,99 +42,122 @@ function AdminBookings() {
 
     };
 
+    const statusClass = (status) => {
+        switch (status) {
+            case "pending":
+                return "status-badge pending";
+            case "approved":
+                return "status-badge approved";
+            case "checkIn":
+                return "status-badge checkin";
+            case "checkOut":
+                return "status-badge checkout";
+            case "rejected":
+                return "status-badge rejected";
+            case "cancelled":
+                return "status-badge cancelled";
+            default:
+                return "status-badge";
+        }
+    };
+
     if (loading) {
         return <h2>Loading...</h2>;
     }
 
     return (
 
-        <div>
+        <div className="app-page app-page--management">
 
-            <h1>All Hotel Bookings</h1>
+            <h1 style={{ marginBottom: "20px" }}>All Hotel Bookings</h1>
 
             {bookings.length === 0 ? (
 
-                <h3>No Bookings Found</h3>
+                <h3 style={{ color: "var(--text-muted)" }}>No Bookings Found</h3>
 
             ) : (
 
-                <table border="1" cellPadding="10">
+                <div className="table-container">
+                    <table className="hotel-table">
 
-                    <thead>
+                        <thead>
 
-                        <tr>
+                            <tr>
 
-                            <th>User</th>
+                                <th>User</th>
 
-                            <th>Hotel</th>
+                                <th>Hotel</th>
 
-                            <th>Room</th>
+                                <th>Room</th>
 
-                            <th>Check In</th>
+                                <th>Check In</th>
 
-                            <th>Check Out</th>
+                                <th>Check Out</th>
 
-                            <th>Price</th>
+                                <th>Price</th>
 
-                            <th>Status</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                        {bookings.map((booking) => (
-
-                            <tr key={booking._id}>
-
-                                <td>{booking.userId?.name}</td>
-
-                                <td>{booking.hotelId?.hotelname}</td>
-
-                                <td>
-
-                                    #{booking.roomId?.roomNumber}
-                                    <br />
-                                    {booking.roomId?.roomType}
-
-                                </td>
-
-                                <td>
-
-                                    {new Date(
-                                        booking.startDate
-                                    ).toLocaleDateString()}
-
-                                </td>
-
-                                <td>
-
-                                    {new Date(
-                                        booking.endDate
-                                    ).toLocaleDateString()}
-
-                                </td>
-
-                                <td>
-
-                                    ₹{booking.price}
-
-                                </td>
-
-                                <td>
-
-                                    {booking.status}
-
-                                </td>
+                                <th>Status</th>
 
                             </tr>
 
-                        ))}
+                        </thead>
 
-                    </tbody>
+                        <tbody>
 
-                </table>
+                            {bookings.map((booking) => (
+
+                                <tr key={booking._id}>
+
+                                    <td>{booking.userId?.name}</td>
+
+                                    <td>{booking.hotelId?.hotelname}</td>
+
+                                    <td>
+
+                                        #{booking.roomId?.roomNumber}
+                                        <br />
+                                        {booking.roomId?.roomType}
+
+                                    </td>
+
+                                    <td>
+
+                                        {new Date(
+                                            booking.startDate
+                                        ).toLocaleDateString()}
+
+                                    </td>
+
+                                    <td>
+
+                                        {new Date(
+                                            booking.endDate
+                                        ).toLocaleDateString()}
+
+                                    </td>
+
+                                    <td>
+
+                                        ₹{booking.price}
+
+                                    </td>
+
+                                    <td>
+
+                                        <span className={statusClass(booking.status)}>
+                                            {booking.status}
+                                        </span>
+
+                                    </td>
+
+                                </tr>
+
+                            ))}
+
+                        </tbody>
+
+                    </table>
+                </div>
 
             )}
 

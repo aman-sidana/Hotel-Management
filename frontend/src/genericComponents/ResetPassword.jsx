@@ -15,13 +15,12 @@ function ResetPassword() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         let obj = {};
-        
+
         if (!form.email) obj.email = "Email is required";
         if (!form.password) obj.password = "Password is required";
         if (!form.newpassword) obj.newpassword = "New Password is required";
         if (!form.confirmpassword) obj.confirmpassword = "Confirm Password is required";
 
-        // ✅ CHANGE: Added validation to check if the new passwords actually match
         if (form.newpassword && form.confirmpassword && form.newpassword !== form.confirmpassword) {
             obj.confirmpassword = "Passwords do not match";
         }
@@ -30,14 +29,21 @@ function ResetPassword() {
 
         if (Object.keys(obj).length === 0) {
             try {
-                const result = await axios.post("http://localhost:1100/user/reset", form);
+                const token = localStorage.getItem("token");
+
+                const result = await axios.post(
+                    "http://localhost:1100/user/resetpassword",
+                    form,
+                    {
+                        headers: token ? { Authorization: `Bearer ${token}` } : {},
+                    }
+                );
                 console.log(result.data);
                 alert("Password changed successfully, please login again.");
-                
+
                 localStorage.removeItem("token");
-                // ✅ CHANGE: Also remove currentuser to completely clear the session
-                localStorage.removeItem("currentuser"); 
-                
+                localStorage.removeItem("currentuser");
+
                 navigate("/login");
             } catch (error) {
                 console.error(error.response?.data.message);
@@ -46,7 +52,6 @@ function ResetPassword() {
         }
     };
 
-    // ✅ CHANGE: Fixed spelling from hanldeChange to handleChange
     function handleChange(e) {
         const { name, value } = e.target;
         setForm({ ...form, [name]: value });

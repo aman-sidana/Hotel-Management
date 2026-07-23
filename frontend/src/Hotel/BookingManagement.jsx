@@ -19,7 +19,6 @@ function BookingManagement() {
       setLoading(false);
       return;
     }
-
     try {
       setLoading(true);
       const hotelsRes = await axios.get("http://localhost:1100/hotel/allhotels");
@@ -278,7 +277,7 @@ function BookingManagement() {
                   <h3 style={{ margin: "0 0 6px 0", fontSize: "18px", color: "#f8fafc" }}>
                     {booking.userId?.name || "Guest"}
                   </h3>
-            
+
                 </div>
                 <span style={getStatusBadgeStyle(booking.status)}>
                   {booking.status === "checkIn" ? "Checked In" : booking.status === "checkOut" ? "Checked Out" : booking.status}

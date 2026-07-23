@@ -16,11 +16,12 @@ function AdminSidebar({ activetab, SetActivetab }) {
             >
                 Manage Coupon
             </button>
+
             <button
                 className={activetab === "bookings" ? "active" : ""}
                 onClick={() => SetActivetab("bookings")}
             >
-                see bookings
+                See Bookings
             </button>
         </div>
     );

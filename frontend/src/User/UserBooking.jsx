@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { gsap } from "gsap";
 import { useNavigate } from "react-router-dom";
-import "./userbooking.css";
+import "./userbookings.css";
 
 function UserBooking() {
   const navigate = useNavigate();
@@ -31,10 +31,10 @@ function UserBooking() {
         );
 
         if (response.data.success) {
-          setBookings(response.data.bookings);
+          setBookings(response.data.bookings || []);
         }
       } catch (error) {
-        console.log(error);
+        console.error("Error fetching bookings:", error);
         setBookings([]);
       } finally {
         setLoading(false);
@@ -52,10 +52,11 @@ function UserBooking() {
     const ctx = gsap.context(() => {
       gsap.from(listRef.current.children, {
         opacity: 0,
-        y: 30,
+        y: 25,
         duration: 0.5,
         stagger: 0.08,
         ease: "power3.out",
+        clearProps: "transform,opacity",
       });
     }, listRef);
 
@@ -96,35 +97,51 @@ function UserBooking() {
 
   if (!currentUser) {
     return (
-      <div className="user-no-hotel">
-        <h2>Please Login</h2>
-        <p>You need to be logged in to view your bookings.</p>
-        <button
-          onClick={() => navigate("/login")}
-          className="user-back-hotels-btn"
-        >
-          Go to Login
-        </button>
+      <div className="user-bookings-page">
+        <div className="user-no-hotel">
+          <h2>Please Login</h2>
+          <p>You need to be logged in to view your bookings dashboard.</p>
+          <button
+            onClick={() => navigate("/login")}
+            className="user-back-hotels-btn"
+          >
+            Go to Login
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="user-bookings-page">
-      <h2 className="user-section-title">My Bookings</h2>
+      {/* Top Header Bar */}
+      <div className="bookings-header-bar">
+        <button
+          onClick={() => navigate("/")}
+          className="user-back-hotels-btn user-back-button"
+        >
+          ← Back to Dashboard
+        </button>
+        <h1 className="bookings-page-title">My Bookings</h1>
+      </div>
 
       {loading ? (
-        <p>Loading your bookings...</p>
+        <div className="bookings-loading-state">
+          <div className="loading-spinner"></div>
+          <p>Loading your booking history...</p>
+        </div>
       ) : bookings.length === 0 ? (
         <div className="user-empty-message">
+          <div className="empty-icon">🧳</div>
+          <h3>No Bookings Found</h3>
           <p className="user-empty-room-text">
-            You haven't made any bookings yet.
+            You haven't reserved any hotel rooms yet.
           </p>
           <button
             onClick={() => navigate("/userdashboard")}
             className="user-back-hotels-btn"
           >
-            Browse Hotels
+            Browse Available Hotels
           </button>
         </div>
       ) : (
@@ -135,34 +152,34 @@ function UserBooking() {
                 {booking.roomId?.images?.length > 0 ? (
                   <img
                     src={booking.roomId.images[0]}
-                    alt="Room"
+                    alt="Room Preview"
                     className="user-card-image"
                   />
                 ) : (
-                  <div className="user-image-placeholder">🛏️ No Photo</div>
+                  <div className="user-image-placeholder">🛏️ Photo Unavailable</div>
                 )}
               </div>
 
               <div className="user-booking-details">
                 <div className="user-booking-header">
-                  <h3>{booking.hotelId?.hotelname || "Hotel"}</h3>
+                  <h3>{booking.hotelId?.hotelname || "Hotel Reservation"}</h3>
                   <span className={`user-status-badge ${statusClass(booking.status)}`}>
-                    {booking.status}
+                    {booking.status || "Pending"}
                   </span>
                 </div>
 
                 <p className="user-booking-room">
-                  Room #{booking.roomId?.roomNumber} · {booking.roomId?.roomType}
+                  Room #{booking.roomId?.roomNumber || "N/A"} · {booking.roomId?.roomType || "Standard"}
                 </p>
 
                 <div className="user-booking-dates">
-                  <div>
+                  <div className="date-box">
                     <span className="user-booking-label">Check In</span>
                     <span className="user-booking-value">
                       {formatDate(booking.startDate)}
                     </span>
                   </div>
-                  <div>
+                  <div className="date-box">
                     <span className="user-booking-label">Check Out</span>
                     <span className="user-booking-value">
                       {formatDate(booking.endDate)}
@@ -171,9 +188,12 @@ function UserBooking() {
                 </div>
 
                 <div className="user-booking-footer">
-                  <span className="user-booking-price">₹{booking.price}</span>
-                  <span className="user-booking-id">
-                    Booking ID: {booking._id}
+                  <div className="price-container">
+                    <span className="price-label">Total Amount</span>
+                    <span className="user-booking-price">₹{booking.price}</span>
+                  </div>
+                  <span className="user-booking-id" title={booking._id}>
+                    ID: #{booking._id?.slice(-6)}
                   </span>
                 </div>
               </div>

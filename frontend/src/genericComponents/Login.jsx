@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import axios from 'axios'
 import { gsap } from 'gsap'
 import { useNavigate } from 'react-router-dom'
-// import './Login.css' // Import your CSS file here
+
 
 function Login() {
     const navigate = useNavigate();
