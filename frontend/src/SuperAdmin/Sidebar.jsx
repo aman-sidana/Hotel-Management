@@ -51,7 +51,6 @@ function Sidebar({ activetab, SetActivetab }) {
           )}
         </div>
 
-        {/* Navigation Menu */}
         <nav className="sidebar-nav p-3 flex flex-col gap-1.5">
           {menuItems.map((item) => (
             <button
@@ -64,8 +63,6 @@ function Sidebar({ activetab, SetActivetab }) {
           ))}
         </nav>
       </div>
-
-      {/* Sidebar Footer Actions */}
       <div className="p-3.5 border-t border-slate-700/70 flex flex-col gap-2.5 bg-slate-900/40">
         <button
           onClick={() => navigate("/resetpassword")}

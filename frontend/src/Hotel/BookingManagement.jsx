@@ -13,7 +13,6 @@ function BookingManagement() {
 
   const currentUser = JSON.parse(localStorage.getItem("currentuser") || "null");
 
-  // ================== FETCH ALL BOOKINGS ==================
   const fetchBookings = async () => {
     if (!currentUser?.email) { setLoading(false); return; }
     try {
@@ -42,7 +41,6 @@ function BookingManagement() {
 
   useEffect(() => { fetchBookings(); }, [currentUser?.email]);
 
-  // ================== CARD ANIMATION ==================
   useEffect(() => {
     if (loading || !listRef.current?.children.length) return;
     const ctx = gsap.context(() => {
@@ -50,8 +48,7 @@ function BookingManagement() {
     }, listRef);
     return () => ctx.revert();
   }, [loading, bookings.length, activeTab]);
-
-  // ================== ACTIONS ==================
+  
   const updateLocalStatus = (id, newStatus) => {
     setBookings((prev) => prev.map((b) => (b._id === id ? { ...b, status: newStatus } : b)));
   };
@@ -136,7 +133,6 @@ function BookingManagement() {
 
   return (
     <div className="management-module">
-      {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent dark:from-white dark:to-sky-400">
@@ -151,7 +147,6 @@ function BookingManagement() {
         </span>
       </div>
 
-      {/* Tabs */}
       <div className="flex gap-2 flex-wrap mb-5 border-b border-slate-200 dark:border-slate-700 pb-3">
         {tabs.map((tab) => (
           <button
@@ -166,7 +161,6 @@ function BookingManagement() {
         ))}
       </div>
 
-      {/* Bookings */}
       {loading ? (
         <div className="text-center py-16 text-slate-400 dark:text-slate-500">Loading bookings...</div>
       ) : filteredBookings.length === 0 ? (

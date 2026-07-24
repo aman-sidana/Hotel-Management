@@ -214,7 +214,6 @@ function HotelForm() {
             <input type="number" name="hotelphone" placeholder="Hotel Phone Number" value={form.hotelphone} onChange={handleChange} className={inputClass} />
           </div>
 
-          {/* Email + OTP */}
           <div>
             <label className={labelClass}>Hotel Email</label>
             <div className="flex gap-3">
@@ -253,7 +252,6 @@ function HotelForm() {
             </div>
           )}
 
-          {/* Location */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className={labelClass}>State</label>

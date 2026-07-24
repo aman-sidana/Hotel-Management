@@ -102,10 +102,9 @@ function UserDashBoard() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-16" ref={pageRef}>
-      {/* Industry Standard Navbar */}
+
       <Navbar />
 
-      {/* Hero */}
       <div className="user-hero text-center py-16 px-5 max-w-4xl mx-auto">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-4
           bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400">
@@ -118,7 +117,6 @@ function UserDashBoard() {
           Discover top-rated luxury hotels, suites, and comfortable rooms at unbeatable prices.
         </p>
 
-        {/* Search & Sort Container */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-2xl mx-auto">
           <div className="relative w-full flex-1">
             <input
@@ -156,7 +154,6 @@ function UserDashBoard() {
         </div>
       </div>
 
-      {/* Hotels Grid - Full Screen Layout */}
       <div className="w-full px-6 lg:px-10">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
@@ -189,7 +186,6 @@ function UserDashBoard() {
             </button>
           </div>
         ) : (
-          /* 4 Hotels per row grid on lg & xl screen sizes */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6" ref={cardsRef}>
             {filteredAndSortedHotels.map((hotel) => (
               <div
@@ -197,7 +193,6 @@ function UserDashBoard() {
                 onClick={() => handleHotelClick(hotel)}
                 className="user-hotel-card group rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-md hover:shadow-xl hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-300 flex flex-col cursor-pointer"
               >
-                {/* Increased Hotel Card Image Height */}
                 <div className="h-56 bg-slate-100 dark:bg-slate-700 relative overflow-hidden">
                   {hotel.images && hotel.images.length > 0 ? (
                     <img
@@ -219,7 +214,6 @@ function UserDashBoard() {
                   )}
                 </div>
 
-                {/* Hotel Card Info with increased padding and text size */}
                 <div className="p-5 flex flex-col gap-2.5 flex-1">
                   <h3 className="font-bold text-lg text-slate-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-sky-400 transition-colors">
                     {hotel.hotelname}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { gsap } from "gsap";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -9,11 +9,12 @@ function HotelRoom() {
   const navigate = useNavigate();
 
   const hotelData = location.state?.hotelData || null;
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [viewedRoom, setViewedRoom] = useState(null);
+  const [viewLoading, setViewLoading] = useState(false);
 
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(false);
-  const contentRef = useRef(null);
-  const roomsRef = useRef(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -71,46 +72,48 @@ function HotelRoom() {
     loadHotelRooms();
   }, [hotelData]);
 
-  const filteredRooms = useMemo(() => {
-    return rooms
-      .filter((room) => {
-        const query = searchQuery.toLowerCase().trim();
-        const matchesQuery =
-          !query ||
-          room.roomNumber?.toString().includes(query) ||
-          room.roomType?.toLowerCase().includes(query);
-        if (!matchesQuery) return false;
-        for (const [key, value] of Object.entries(filters)) {
-          if (value && !room[key]) return false;
-        }
-        return true;
-      })
-      .sort((a, b) => {
-        if (sortBy === "priceLowHigh") return a.pricePerNight - b.pricePerNight;
-        if (sortBy === "priceHighLow") return b.pricePerNight - a.pricePerNight;
-        if (sortBy === "roomAsc") return a.roomNumber - b.roomNumber;
-        return 0;
-      });
-  }, [rooms, searchQuery, filters, sortBy]);
+  const filteredRooms = rooms
+    .filter((room) => {
+      const query = searchQuery.toLowerCase().trim();
+      const matchesQuery =
+        !query ||
+        room.roomNumber?.toString().includes(query) ||
+        room.roomType?.toLowerCase().includes(query);
+      if (!matchesQuery) return false;
+      for (const [key, value] of Object.entries(filters)) {
+        if (value && !room[key]) return false;
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === "priceLowHigh") return a.pricePerNight - b.pricePerNight;
+      if (sortBy === "priceHighLow") return b.pricePerNight - a.pricePerNight;
+      if (sortBy === "roomAsc") return a.roomNumber - b.roomNumber;
+      return 0;
+    });
 
   useEffect(() => {
     if (!hotelData) return undefined;
+    const contentEl = document.getElementById("hotel-room-content");
+    if (!contentEl) return undefined;
     const context = gsap.context(() => {
       gsap.from(".user-selected-hotel, .user-section-title", {
         autoAlpha: 0, duration: 0.6, y: 15, stagger: 0.1, ease: "power2.out",
       });
-    }, contentRef);
+    }, contentEl);
     return () => context.revert();
   }, [hotelData]);
 
   useEffect(() => {
-    if (loading || !roomsRef.current?.children.length) return;
+    if (loading) return undefined;
+    const roomsEl = document.getElementById("rooms-grid");
+    if (!roomsEl || !roomsEl.children.length) return undefined;
     const context = gsap.context(() => {
-      gsap.from(roomsRef.current.children, {
+      gsap.from(roomsEl.children, {
         autoAlpha: 0, duration: 0.5, y: 18, stagger: 0.05, ease: "power3.out",
         clearProps: "transform,opacity,visibility",
       });
-    }, roomsRef);
+    }, roomsEl);
     return () => context.revert();
   }, [loading, filteredRooms.length]);
 
@@ -136,6 +139,41 @@ function HotelRoom() {
     setTotalNights(1); setTotalPrice(room.pricePerNight);
     setBookingSuccess(false); setCreatedBooking(null);
     setIsModalOpen(true);
+  };
+  const handleViewDetails = async (roomId) => {
+    try {
+      setViewLoading(true);
+      setIsViewModalOpen(true);
+      const res = await axios.get(`http://localhost:1100/room/viewbyone?id=${roomId}`);
+      setViewedRoom(res.data);
+    } catch (error) {
+      console.log("Error fetching room details:", error);
+      alert("Failed to load room details.");
+      setIsViewModalOpen(false);
+    } finally {
+      setViewLoading(false);
+    }
+  };
+
+  const closeViewModal = () => {
+    setIsViewModalOpen(false);
+    setViewedRoom(null);
+  };
+
+  const amenityLabels = {
+    ac: "❄️ AC", cooler: "🌀 Cooler", attachedBathroom: "🚻 Attached Bathroom",
+    bathtub: "🛁 Bathtub", geyser: "🚿 Geyser", tv: "📺 TV", wifi: "📶 WiFi",
+    telephone: "☎️ Telephone", miniFridge: "🧊 Mini Fridge", microwave: "📡 Microwave",
+    electricKettle: "☕ Electric Kettle", sofa: "🛋️ Sofa", diningTable: "🍽️ Dining Table",
+    wardrobe: "🚪 Wardrobe", balcony: "🌅 Balcony", locker: "🔐 Locker",
+    smokeDetector: "🚨 Smoke Detector", fireExtinguisher: "🧯 Fire Extinguisher",
+    roomService: "🍽️ Room Service", laundryService: "🧺 Laundry Service",
+    housekeeping: "🧹 Housekeeping",
+  };
+
+  const bedLabels = {
+    kingSizeBed: "King Size", queenSizeBed: "Queen Size",
+    singleBed: "Single", doubleBed: "Double",
   };
 
   const closeModal = () => {
@@ -169,7 +207,7 @@ function HotelRoom() {
           <div className="text-5xl mb-4">🏨</div>
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-4">No Hotel Selected</h2>
           <button
-            onClick={() => navigate("/userdashboard")}
+            onClick={() => navigate("/")}
             className="px-6 py-3 rounded-xl font-semibold text-sm text-white bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/30 transition-all duration-200"
           >
             Back to Hotels
@@ -182,10 +220,9 @@ function HotelRoom() {
   const filterCheckboxClass = "flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 cursor-pointer";
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 w-full" ref={contentRef}>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 w-full" id="hotel-room-content">
       <Navbar />
 
-      {/* Compact Hotel Header Banner */}
       <div className="w-full px-6 lg:px-8 py-4 bg-white/60 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 backdrop-blur-md">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex items-center gap-4">
@@ -215,9 +252,7 @@ function HotelRoom() {
         </div>
       </div>
 
-      {/* Main Two-Column Layout */}
       <div className="flex gap-6 w-full px-6 lg:px-8 py-6">
-        {/* Filter Sidebar */}
         <aside className="w-64 flex-shrink-0 hidden lg:block">
           <div className="sticky top-20 rounded-2xl p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
             <div className="flex items-center justify-between mb-4">
@@ -225,13 +260,11 @@ function HotelRoom() {
               <button onClick={resetFilters} className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold">Reset</button>
             </div>
 
-            {/* Search */}
             <div className="mb-4">
               <label className="text-[11px] font-bold uppercase text-slate-400 dark:text-slate-500 block mb-1">Search Room</label>
               <input type="text" placeholder="Room # or type..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="form-input w-full text-xs" />
             </div>
 
-            {/* Sort */}
             <div className="mb-4">
               <label className="text-[11px] font-bold uppercase text-slate-400 dark:text-slate-500 block mb-1">Sort By</label>
               <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="form-select w-full text-xs">
@@ -242,7 +275,6 @@ function HotelRoom() {
               </select>
             </div>
 
-            {/* Bed Types */}
             <div className="mb-4">
               <p className="text-[11px] font-bold text-sky-600 dark:text-sky-400 uppercase mb-2">Bed Type</p>
               <div className="flex flex-col gap-2">
@@ -260,7 +292,6 @@ function HotelRoom() {
               </div>
             </div>
 
-            {/* Amenities */}
             <div className="mb-4">
               <p className="text-[11px] font-bold text-sky-600 dark:text-sky-400 uppercase mb-2">Amenities</p>
               <div className="flex flex-col gap-2">
@@ -283,7 +314,6 @@ function HotelRoom() {
               </div>
             </div>
 
-            {/* Services */}
             <div>
               <p className="text-[11px] font-bold text-sky-600 dark:text-sky-400 uppercase mb-2">Services</p>
               <div className="flex flex-col gap-2">
@@ -302,7 +332,6 @@ function HotelRoom() {
           </div>
         </aside>
 
-        {/* Rooms Grid - Auto-fill / 4-column responsive grid stretching 100% of available space */}
         <main className="flex-1 w-full">
           {loading ? (
             <div className="text-center py-20 text-slate-400 dark:text-slate-500">Loading available rooms...</div>
@@ -315,7 +344,7 @@ function HotelRoom() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-6 w-full" ref={roomsRef}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-6 w-full" id="rooms-grid">
               {filteredRooms.map((room) => (
                 <div key={room._id} className="user-hotel-card w-full">
                   <div className="h-48 bg-slate-100 dark:bg-slate-700 overflow-hidden relative">
@@ -341,6 +370,7 @@ function HotelRoom() {
 
                     <p className="text-lg font-bold text-blue-600 dark:text-blue-400 mt-1">₹{room.pricePerNight} <span className="text-xs font-normal text-slate-400">/ night</span></p>
 
+
                     <div className="flex flex-wrap gap-1 mt-1">
                       {room.ac && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400">❄️ AC</span>}
                       {room.wifi && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400">📶 WiFi</span>}
@@ -349,12 +379,12 @@ function HotelRoom() {
                       {room.balcony && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400">🌅 Balcony</span>}
                     </div>
 
-                    <button
-                      onClick={() => handleBookRoom(room)}
-                      className="mt-3 w-full py-2.5 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-500 shadow-sm shadow-blue-600/20 transition-all duration-200"
+                    <h3
+                      onClick={() => handleViewDetails(room._id)}
+                      className="text-l font-semibold text-blue-600 dark:text-blue-400 underline cursor-pointer hover:text-blue-500 dark:hover:text-blue-300 w-fit"
                     >
-                      Book Now
-                    </button>
+                      <strong> View Details</strong>
+                    </h3>
                   </div>
                 </div>
               ))}
@@ -362,8 +392,6 @@ function HotelRoom() {
           )}
         </main>
       </div>
-
-      {/* Booking Modal */}
       {isModalOpen && selectedRoom && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-box max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
@@ -443,7 +471,161 @@ function HotelRoom() {
           </div>
         </div>
       )}
-    </div>
+
+
+      {isViewModalOpen && (
+        <div className="modal-overlay" onClick={closeViewModal}>
+          <div
+            className="modal-box max-h-[90vh] overflow-y-auto max-w-2xl w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-xl font-bold"
+              onClick={closeViewModal}
+            >
+              ✕
+            </button>
+
+            {viewLoading ? (
+              <div className="text-center py-16 text-slate-400 dark:text-slate-500">
+                Loading room details...
+              </div>
+            ) : !viewedRoom ? (
+              <div className="text-center py-16 text-slate-400 dark:text-slate-500">
+                No details found.
+              </div>
+            ) : (
+              <div className="flex flex-col gap-5">
+
+                {viewedRoom.images && viewedRoom.images.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {viewedRoom.images.map((img, idx) => (
+                      <div
+                        key={idx}
+                        className="h-32 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-700"
+                      >
+                        <img
+                          src={img}
+                          alt={`Room ${viewedRoom.roomNumber} - ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="h-40 rounded-xl flex items-center justify-center bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500 text-sm">
+                    🛏️ Photo Unavailable
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                      Room #{viewedRoom.roomNumber}
+                    </h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      {viewedRoom.hotelId?.hotelname}
+                    </p>
+                  </div>
+                  <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                    {viewedRoom.roomType}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 rounded-xl border border-slate-200 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-700/30">
+                  <div>
+                    <p className="text-[11px] font-bold uppercase text-slate-400 dark:text-slate-500">Floor</p>
+                    <p className="text-sm text-slate-700 dark:text-slate-200">{viewedRoom.floor}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-bold uppercase text-slate-400 dark:text-slate-500">Capacity</p>
+                    <p className="text-sm text-slate-700 dark:text-slate-200">{viewedRoom.capacity} Guest(s)</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-bold uppercase text-slate-400 dark:text-slate-500">Price / Night</p>
+                    <p className="text-sm font-bold text-blue-600 dark:text-blue-400">₹{viewedRoom.pricePerNight}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-bold uppercase text-slate-400 dark:text-slate-500">Available</p>
+                    <p className="text-sm text-slate-700 dark:text-slate-200">{viewedRoom.isAvailable ? "Yes" : "No"}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-bold uppercase text-slate-400 dark:text-slate-500">Status</p>
+                    <p className="text-sm text-slate-700 dark:text-slate-200">{viewedRoom.isActive ? "Active" : "Inactive"}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-[11px] font-bold text-sky-600 dark:text-sky-400 uppercase mb-2">Bed Type</p>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(bedLabels)
+                      .filter(([key]) => viewedRoom[key])
+                      .map(([key, label]) => (
+                        <span
+                          key={key}
+                          className="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400"
+                        >
+                          🛏️ {label}
+                        </span>
+                      ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-[11px] font-bold text-sky-600 dark:text-sky-400 uppercase mb-2">
+                    Amenities & Services
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(amenityLabels)
+                      .filter(([key]) => viewedRoom[key])
+                      .map(([key, label]) => (
+                        <span
+                          key={key}
+                          className="text-xs font-semibold px-2.5 py-1 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400"
+                        >
+                          {label}
+                        </span>
+                      ))}
+                  </div>
+                </div>
+
+                {viewedRoom.hotelId && (
+                  <div className="rounded-xl border border-slate-200 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-700/30">
+                    <p className="text-[11px] font-bold uppercase text-slate-400 dark:text-slate-500 mb-2">
+                      Hotel Contact
+                    </p>
+                    <div className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
+                      <span>🏨 {viewedRoom.hotelId.hotelname}</span>
+                      <span>👤 {viewedRoom.hotelId.ownername}</span>
+                      <span>📧 {viewedRoom.hotelId.hotelemail}</span>
+                      <span>📞 {viewedRoom.hotelId.hotelphone}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* <button
+                  onClick={closeViewModal}
+                  className="w-full py-2.5 rounded-xl text-sm font-semibold btn-action-secondary"
+                >
+                  Close
+                </button> */}
+                <button
+
+                  onClick={() => {
+                    closeViewModal();
+                    handleBookRoom(viewedRoom)
+                  }}
+                  className="mt-3 w-full py-2.5 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-500 shadow-sm shadow-blue-600/20 transition-all duration-200"
+                >
+                  Book Now
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )
+      }
+    </div >
   );
 }
 

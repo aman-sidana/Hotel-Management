@@ -149,7 +149,6 @@ function CouponManagement() {
         </button>
       </div>
 
-      {/* Form */}
       {showForm && (
         <form onSubmit={handleSubmit} className="admin-inline-form mb-6">
           <h3 className="text-base font-bold text-slate-800 dark:text-white mb-4">
@@ -182,10 +181,7 @@ function CouponManagement() {
               <label className={labelClass}>Min Price Threshold</label>
               <input type="number" name="minPriceAvail" value={form.minPriceAvail} onChange={handleChange} className="form-input w-full" placeholder="Minimum order amount" />
             </div>
-            <div>
-              <label className={labelClass}>Advertisement Image</label>
-              <input type="file" accept="image/*" onChange={handleFileChange} className="form-input w-full" />
-            </div>
+
             <div>
               <label className={labelClass}>Validity Starting Date</label>
               <input type="date" name="startingDate" required value={form.startingDate} onChange={handleChange} className="form-input w-full" />
@@ -202,7 +198,6 @@ function CouponManagement() {
         </form>
       )}
 
-      {/* Filters */}
       <div className="flex gap-3 items-center flex-wrap mb-5">
         <button className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${activeTab === "active" ? "bg-blue-600 text-white" : "btn-action-secondary"}`} onClick={() => setActiveTab("active")}>Active Coupons</button>
         <button className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${activeTab === "inactive" ? "bg-blue-600 text-white" : "btn-action-secondary"}`} onClick={() => setActiveTab("inactive")}>Inactive Coupons</button>
@@ -215,7 +210,6 @@ function CouponManagement() {
         <input type="text" className="form-input w-52" placeholder="Search Code or Hotel..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
       </div>
 
-      {/* Coupon Cards */}
       {loading ? (
         <div className="text-center py-12 text-slate-400 dark:text-slate-500">Loading coupons...</div>
       ) : displayedCoupons.length === 0 ? (
@@ -226,13 +220,7 @@ function CouponManagement() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {displayedCoupons.map((coupon) => (
             <div key={coupon._id} className={`admin-card ${!coupon.isActive ? "inactive" : ""}`}>
-              <div className="h-36 bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
-                {coupon.couponImages ? (
-                  <img src={coupon.couponImages} alt="Promo Banner" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-slate-400 dark:text-slate-500 text-sm">No Promo Image</span>
-                )}
-              </div>
+         
 
               <div className="p-4">
                 <div className="flex items-center justify-between gap-2 mb-3">

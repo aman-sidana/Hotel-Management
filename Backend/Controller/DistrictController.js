@@ -1,7 +1,6 @@
 const DistrictModel = require("../Model/DistrictModel");
 const StateModel = require("../Model/StateModel");
 
-// Add District
 exports.addDistrict = async (req, res) => {
     try {
 
@@ -128,7 +127,6 @@ exports.deleteDistrict = async (req, res) => {
     }
 };
 
-// Soft Delete
 exports.softDeleteDistrict = async (req, res) => {
     try {
 

@@ -13,8 +13,8 @@ router.patch("/softdelete", roomController.softDeleteRoom);
 router.patch("/restore", roomController.restoreRoom);
 
 router.delete("/delete", roomController.deleteRoom);
-// Direct Admin Add Room Route/
 
 router.post("/admin-add-room", roomController.adminAddRoom);
+router.get("/viewbyone",roomController.viewdetails)
 
 module.exports = router;

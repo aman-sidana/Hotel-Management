@@ -97,7 +97,6 @@ function HotelRoomManagement() {
 
   return (
     <div className="management-module">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent dark:from-white dark:to-sky-400">
@@ -113,7 +112,6 @@ function HotelRoomManagement() {
         </button>
       </div>
 
-      {/* Filters */}
       <div className="flex gap-3 items-center flex-wrap mb-6">
         <button className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${activeTab === "active" ? "bg-blue-600 text-white" : "btn-action-secondary"}`} onClick={() => setActiveTab("active")}>Active Rooms</button>
         <button className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${activeTab === "inactive" ? "bg-blue-600 text-white" : "btn-action-secondary"}`} onClick={() => setActiveTab("inactive")}>Inactive Rooms</button>
@@ -126,7 +124,6 @@ function HotelRoomManagement() {
         <input type="text" className="form-input w-52" placeholder="Search room number, type, hotel..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
       </div>
 
-      {/* Room Cards */}
       {loading ? (
         <div className="text-center py-16 text-slate-400 dark:text-slate-500">Loading rooms...</div>
       ) : displayedRooms.length === 0 ? (
@@ -140,7 +137,6 @@ function HotelRoomManagement() {
               key={room._id}
               className={`admin-card ${!room.isActive ? "inactive" : ""}`}
             >
-              {/* Room Image */}
               <div className="h-40 bg-slate-100 dark:bg-slate-700 overflow-hidden">
                 {room.images && room.images.length > 0 ? (
                   <img src={room.images[0]} alt="Room Preview" className="w-full h-full object-cover" />
@@ -149,7 +145,6 @@ function HotelRoomManagement() {
                 )}
               </div>
 
-              {/* Card Content */}
               <div className="p-4">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-bold text-base text-slate-800 dark:text-white">Room #{room.roomNumber}</h3>
@@ -190,7 +185,6 @@ function HotelRoomManagement() {
         </div>
       )}
 
-      {/* Room Details Modal */}
       {showModal && selectedRoom && (
         <div className="modal-overlay" onClick={() => { setShowModal(false); setSelectedRoom(null); }}>
           <div className="modal-box max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
@@ -233,4 +227,4 @@ function HotelRoomManagement() {
   );
 }
 
-export default HotelRoomManagement;
+export default HotelRoomManagement; 

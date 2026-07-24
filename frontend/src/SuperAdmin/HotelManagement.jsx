@@ -117,7 +117,6 @@ function HotelManagement() {
         </button>
       </div>
 
-      {/* Tabs */}
       <div className="flex gap-2 flex-wrap mb-4">
         {tabs.map((tab) => (
           <button
@@ -130,7 +129,6 @@ function HotelManagement() {
         ))}
       </div>
 
-      {/* Filters */}
       <div className="flex gap-3 items-center flex-wrap mb-5">
         <select className="form-select ml-auto" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
           <option value="hotelAsc">Hotel (A - Z)</option>
@@ -141,7 +139,6 @@ function HotelManagement() {
         <input type="text" className="form-input w-44" placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
       </div>
 
-      {/* Table */}
       <div className="table-container">
         <table className="hotel-table">
           <thead>
@@ -198,7 +195,6 @@ function HotelManagement() {
         </table>
       </div>
 
-      {/* Hotel Details Modal */}
       {showModal && selectedHotel && (
         <div className="modal-overlay" onClick={() => { setShowModal(false); setSelectedHotel(null); }}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
@@ -242,7 +238,6 @@ function HotelManagement() {
         </div>
       )}
 
-      {/* Rejection Reason Modal */}
       {showRejectModal && (
         <div className="modal-overlay" onClick={() => { setShowRejectModal(false); setRejectingId(null); setRejectReason(""); }}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>

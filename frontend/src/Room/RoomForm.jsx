@@ -136,7 +136,7 @@ function RoomForm() {
   return (
     <div className="max-w-4xl mx-auto my-6 px-4">
       <div className="rounded-2xl p-8 shadow-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-        {/* Header */}
+
         <div className="flex items-center gap-4 mb-6 pb-4 border-b border-slate-200 dark:border-slate-700">
           <button
             type="button"
@@ -164,7 +164,6 @@ function RoomForm() {
             </select>
           </div>
 
-          {/* Basic Config Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className={labelClass}>Room Number *</label>
@@ -195,7 +194,6 @@ function RoomForm() {
             </div>
           </div>
 
-          {/* Bed Types */}
           <div>
             <label className={sectionLabel}>🛏️ Bed Configuration</label>
             <div className={checkboxGrid}>
@@ -208,7 +206,6 @@ function RoomForm() {
             </div>
           </div>
 
-          {/* Facilities */}
           <div>
             <label className={sectionLabel}>🏨 Facilities & Amenities</label>
             <div className={checkboxGrid}>
@@ -221,7 +218,6 @@ function RoomForm() {
             </div>
           </div>
 
-          {/* Services */}
           <div>
             <label className={sectionLabel}>🛎️ Services Offered</label>
             <div className={checkboxGrid}>
@@ -234,7 +230,6 @@ function RoomForm() {
             </div>
           </div>
 
-          {/* File Upload */}
           <div>
             <label className={labelClass}>Upload Room Photos</label>
             <input
@@ -247,7 +242,6 @@ function RoomForm() {
             )}
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}

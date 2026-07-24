@@ -113,7 +113,6 @@ function AdminManagement() {
         </button>
       </div>
 
-      {/* Tabs */}
       <div className="flex gap-2 flex-wrap mb-4">
         {tabs.map((tab) => (
           <button
@@ -126,7 +125,6 @@ function AdminManagement() {
         ))}
       </div>
 
-      {/* Filters */}
       <div className="flex gap-3 items-center flex-wrap mb-5">
         <select className="form-select ml-auto" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
           <option value="nameAsc">Name (A - Z)</option>
@@ -137,7 +135,6 @@ function AdminManagement() {
         <input type="text" className="form-input w-44" placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
       </div>
 
-      {/* Table */}
       <div className="table-container">
         <table className="hotel-table">
           <thead>
@@ -194,7 +191,6 @@ function AdminManagement() {
         </table>
       </div>
 
-      {/* Admin Details Modal */}
       {showModal && selectedAdmin && (
         <div className="modal-overlay" onClick={() => { setShowModal(false); setSelectedAdmin(null); }}>
           <div className="modal-box max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
@@ -232,7 +228,6 @@ function AdminManagement() {
               )}
             </div>
 
-            {/* Images */}
             <div className="flex gap-4 flex-wrap mt-3">
               {selectedAdmin.profileimage && (
                 <div>
@@ -255,7 +250,6 @@ function AdminManagement() {
         </div>
       )}
 
-      {/* Rejection Reason Modal */}
       {showRejectModal && (
         <div className="modal-overlay" onClick={() => { setShowRejectModal(false); setRejectingId(null); setRejectReason(""); }}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>

@@ -113,7 +113,6 @@ function CityManagement() {
     <div className="management-module">
       <h2>City Management</h2>
 
-      {/* Add Form */}
       <div className="flex gap-3 mb-5 flex-wrap">
         <select className="form-select" value={stateId} onChange={(e) => { setStateId(e.target.value); setDistrictId(""); }}>
           <option value="">Select State</option>
@@ -129,7 +128,6 @@ function CityManagement() {
         <button className="btn-action-primary" onClick={addCity}>+ Add City</button>
       </div>
 
-      {/* Filters */}
       <div className="flex gap-3 items-center flex-wrap mb-5">
         <button className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${activeTab === "active" ? "bg-blue-600 text-white" : "btn-action-secondary"}`} onClick={() => setActiveTab("active")}>Active Cities</button>
         <button className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${activeTab === "inactive" ? "bg-blue-600 text-white" : "btn-action-secondary"}`} onClick={() => setActiveTab("inactive")}>Inactive Cities</button>
@@ -142,7 +140,6 @@ function CityManagement() {
         <input type="text" className="form-input w-44" placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
       </div>
 
-      {/* Table */}
       <div className="table-container">
         <table className="data-table">
           <thead>
